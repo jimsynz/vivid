@@ -4,9 +4,11 @@ defmodule Vivid.Mixfile do
   def project do
     [app: :vivid,
      version: "0.1.0",
+     description: description,
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     package: package,
      deps: deps()]
   end
 
@@ -15,6 +17,19 @@ defmodule Vivid.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [applications: [:logger]]
+  end
+
+  def description do
+    """
+    Simple 2D rendering graphics rendering library.
+    """
+  end
+
+  def package do
+    [
+      maintainers: [ "James Harton <james@messagerocket.co>" ],
+      licenses: [ "MIT" ]
+    ]
   end
 
   # Dependencies can be Hex packages:
