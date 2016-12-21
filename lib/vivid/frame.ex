@@ -69,6 +69,30 @@ defmodule Vivid.Frame do
       ".XXX.\n" <>
       ".....\n"
 
+      iex> circle = Vivid.Circle.init(Vivid.Point.init(5,5), 4)
+      ...> Vivid.Frame.init(11, 10)
+      ...> |> Vivid.Frame.push(circle, 1)
+      ...> |> Vivid.Frame.to_string
+      "...........\n" <>
+      ".....X.....\n" <>
+      "..X.....X..\n" <>
+      "..X.....X..\n" <>
+      ".X.......X.\n" <>
+      ".X.......X.\n" <>
+      ".X.......X.\n" <>
+      "..X.....X..\n" <>
+      "..X.....X..\n" <>
+      ".....X.....\n"
+
+      iex> line = Vivid.Line.init(Vivid.Point.init(0,0), Vivid.Point.init(50,50))
+      ...> Vivid.Frame.init(5,5)
+      ...> |> Vivid.Frame.push(line, 1)
+      ...> |> Vivid.Frame.to_string
+      "X....\n" <>
+      ".X...\n" <>
+      "..X..\n" <>
+      "...X.\n" <>
+      "....X\n"
   """
   def push(%Frame{buffer: buffer, colour_depth: c, width: w}=frame, shape, colour) when colour <= c do
     points = Vivid.Rasterize.rasterize(shape)
