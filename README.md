@@ -10,24 +10,3 @@ portions of [this tutorial](https://www.tutorialspoint.com/computer_graphics/ind
 and implementing them in Elixir as I go.
 
 Expect this library to take a while to stabilise.
-
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
-
-  1. Add `vivid` to your list of dependencies in `mix.exs`:
-
-    ```elixir
-    def deps do
-      [{:vivid, "~> 0.1.0"}]
-    end
-    ```
-
-  2. Ensure `vivid` is started before your application:
-
-    ```elixir
-    def application do
-      [applications: [:vivid]]
-    end
-    ```
-
