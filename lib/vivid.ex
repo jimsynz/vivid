@@ -1,0 +1,2 @@
+defmodule Vivid do
+end
