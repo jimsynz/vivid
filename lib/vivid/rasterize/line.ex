@@ -1,9 +1,9 @@
-defmodule Vivid.Generator.Line.DDA do
+defimpl Vivid.Rasterize, for: Vivid.Line do
   alias Vivid.{Point, Line}
 
   @moduledoc """
   Generates points between the origin and termination point of the line
-  for rendering using the Digital Didderential Analyzer (DDA) algorithm.
+  for rendering using the Digital Differential Analyzer (DDA) algorithm.
   """
 
   @doc ~S"""
@@ -11,23 +11,31 @@ defmodule Vivid.Generator.Line.DDA do
 
   ## Examples
 
-      iex> Vivid.Line.init(Vivid.Point.init(1,1), Vivid.Point.init(3,3)) |> Vivid.Generator.Line.DDA.generate |> Enum.to_list
-      [
+      iex> Vivid.Line.init(Vivid.Point.init(1,1), Vivid.Point.init(3,3)) |> Vivid.Rasterize.rasterize
+      MapSet.new([
         %Vivid.Point{x: 1, y: 1},
         %Vivid.Point{x: 2, y: 2},
         %Vivid.Point{x: 3, y: 3}
-      ]
+      ])
 
-      iex> Vivid.Line.init(Vivid.Point.init(1,1), Vivid.Point.init(4,2)) |> Vivid.Generator.Line.DDA.generate |> Enum.to_list
-      [
+      iex> Vivid.Line.init(Vivid.Point.init(1,1), Vivid.Point.init(4,2)) |> Vivid.Rasterize.rasterize
+      MapSet.new([
         %Vivid.Point{x: 1, y: 1},
         %Vivid.Point{x: 2, y: 1},
         %Vivid.Point{x: 3, y: 2},
         %Vivid.Point{x: 4, y: 2}
-      ]
+      ])
+
+      iex> Vivid.Line.init(Vivid.Point.init(4,4), Vivid.Point.init(4,1)) |> Vivid.Rasterize.rasterize
+      MapSet.new([
+        %Vivid.Point{x: 4, y: 4},
+        %Vivid.Point{x: 4, y: 3},
+        %Vivid.Point{x: 4, y: 2},
+        %Vivid.Point{x: 4, y: 1}
+      ])
 
   """
-  def generate(%Line{}=line) do
+  def rasterize(%Line{}=line) do
     dx = line |> Line.x_distance
     dy = line |> Line.y_distance
 
@@ -56,4 +64,5 @@ defmodule Vivid.Generator.Line.DDA do
 
   defp choose_largest_of(a, b) when a > b, do: a
   defp choose_largest_of(_, b), do: b
+
 end
