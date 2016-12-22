@@ -74,15 +74,15 @@ defmodule Vivid.Frame do
       ...> |> Vivid.Frame.push(circle, 1)
       ...> |> Vivid.Frame.to_string
       "...........\n" <>
-      ".....X.....\n" <>
-      "..X.....X..\n" <>
+      "....XXX....\n" <>
+      "..XX...XX..\n" <>
       "..X.....X..\n" <>
       ".X.......X.\n" <>
       ".X.......X.\n" <>
       ".X.......X.\n" <>
       "..X.....X..\n" <>
-      "..X.....X..\n" <>
-      ".....X.....\n"
+      "..XX...XX..\n" <>
+      "....XXX....\n"
 
       iex> line = Vivid.Line.init(Vivid.Point.init(0,0), Vivid.Point.init(50,50))
       ...> Vivid.Frame.init(5,5)
@@ -97,9 +97,13 @@ defmodule Vivid.Frame do
   def push(%Frame{buffer: buffer, colour_depth: c, width: w}=frame, shape, colour) when colour <= c do
     points = Vivid.Rasterize.rasterize(shape)
     buffer = Enum.reduce(points, buffer, fn(point, buffer) ->
-      x = point |> Point.x
-      y = point |> Point.y
-      List.replace_at(buffer, (x * w) + y, colour)
+      if point_inside_bounds?(point, frame) do
+        x = point |> Point.x
+        y = point |> Point.y
+        List.replace_at(buffer, (x * w) + y, colour)
+      else
+        buffer
+      end
     end)
     %{frame | buffer: buffer}
   end
@@ -143,4 +147,10 @@ defmodule Vivid.Frame do
   defp allocate_buffer(size) do
     Enum.map((1..size), fn(_) -> 0 end)
   end
+
+  defp point_inside_bounds?(%Point{x: x}, _frame) when x < 0, do: false
+  defp point_inside_bounds?(%Point{y: y}, _frame) when y < 0, do: false
+  defp point_inside_bounds?(%Point{x: x}, %Frame{width: w}) when x >= w, do: false
+  defp point_inside_bounds?(%Point{y: y}, %Frame{height: h}) when y >= h, do: false
+  defp point_inside_bounds?(_point, _frame), do: true
 end

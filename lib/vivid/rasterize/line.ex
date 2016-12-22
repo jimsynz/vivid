@@ -36,20 +36,25 @@ defimpl Vivid.Rasterize, for: Vivid.Line do
 
   """
   def rasterize(%Line{}=line) do
+    origin = line |> Line.origin
     dx = line |> Line.x_distance
     dy = line |> Line.y_distance
 
     steps = choose_largest_of(abs(dx), abs(dy))
-    x_increment = dx / steps
-    y_increment = dy / steps
 
-    origin = line |> Line.origin
+    if steps == 0 do
+      MapSet.new([origin])
+    else
+      x_increment = dx / steps
+      y_increment = dy / steps
 
-    points = MapSet.new([origin])
-    current_x = origin |> Point.x
-    current_y = origin |> Point.y
 
-    reduce_points(points, steps, current_x, current_y, x_increment, y_increment)
+      points = MapSet.new([origin])
+      current_x = origin |> Point.x
+      current_y = origin |> Point.y
+
+      reduce_points(points, steps, current_x, current_y, x_increment, y_increment)
+    end
   end
 
   defp reduce_points(points, 0, _, _, _, _), do: points
