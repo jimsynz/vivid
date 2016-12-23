@@ -32,9 +32,9 @@ defmodule Vivid.Frame do
       ...> |> Vivid.Frame.push(Vivid.Line.init(Vivid.Point.init(1,1), Vivid.Point.init(3,3)), 1)
       ...> |> Vivid.Frame.to_string
       ".....\n" <>
-      ".X...\n" <>
-      "..X..\n" <>
       "...X.\n" <>
+      "..X..\n" <>
+      ".X...\n" <>
       ".....\n"
 
       iex> Vivid.Frame.init(5,5,1)
@@ -73,7 +73,6 @@ defmodule Vivid.Frame do
       ...> Vivid.Frame.init(11, 10)
       ...> |> Vivid.Frame.push(circle, 1)
       ...> |> Vivid.Frame.to_string
-      "...........\n" <>
       "....XXX....\n" <>
       "..XX...XX..\n" <>
       "..X.....X..\n" <>
@@ -82,17 +81,18 @@ defmodule Vivid.Frame do
       ".X.......X.\n" <>
       "..X.....X..\n" <>
       "..XX...XX..\n" <>
-      "....XXX....\n"
+      "....XXX....\n" <>
+      "...........\n"
 
       iex> line = Vivid.Line.init(Vivid.Point.init(0,0), Vivid.Point.init(50,50))
       ...> Vivid.Frame.init(5,5)
       ...> |> Vivid.Frame.push(line, 1)
       ...> |> Vivid.Frame.to_string
-      "X....\n" <>
-      ".X...\n" <>
-      "..X..\n" <>
+      "....X\n" <>
       "...X.\n" <>
-      "....X\n"
+      "..X..\n" <>
+      ".X...\n" <>
+      "X....\n"
   """
   def push(%Frame{buffer: buffer, colour_depth: c, width: w}=frame, shape, colour) when colour <= c do
     points = Vivid.Rasterize.rasterize(shape)
@@ -121,9 +121,11 @@ defmodule Vivid.Frame do
   """
   def to_string(%Frame{colour_depth: 1, buffer: buffer, width: width}) do
     s = buffer
+    |> Enum.reverse
     |> Enum.chunk(width)
     |> Enum.map(fn (row) ->
       row
+      |> Enum.reverse
       |> Enum.map(fn
         0 -> "."
         1 -> "X"
