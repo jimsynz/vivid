@@ -9,6 +9,10 @@ defmodule Vivid.Frame do
   @doc """
   Initialize a frame buffer.
 
+  * `width` the width of the frame, in pixels.
+  * `height` the height of the frame, in pixels.
+  * `colour_depth` the colour depth of the frame, in bits.
+
   ## Example
 
       iex> Vivid.Frame.init(4, 4, 1)
@@ -107,6 +111,36 @@ defmodule Vivid.Frame do
     end)
     %{frame | buffer: buffer}
   end
+
+  @doc """
+  Return the width of the frame.
+
+  ## Example
+
+      iex> Vivid.Frame.init(80, 25, 4) |> Vivid.Frame.width
+      80
+  """
+  def width(%Frame{width: w}), do: w
+
+  @doc """
+  Return the height of the frame.
+
+  ## Example
+
+      iex> Vivid.Frame.init(80, 25, 4) |> Vivid.Frame.height
+      25
+  """
+  def height(%Frame{height: h}), do: h
+
+  @doc """
+  Return the colour depth of the frame.
+
+  ## Example
+
+      iex> Vivid.Frame.init(80, 25, 4) |> Vivid.Frame.colour_depth
+      4
+  """
+  def colour_depth(%Frame{colour_depth: d}), do: d
 
   @doc ~S"""
   Convert a frame buffer to a string for debugging.
