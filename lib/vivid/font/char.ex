@@ -8,7 +8,10 @@ defmodule Vivid.Font.Char do
   This is not the maximum width of the character, as some go beyond or don't reach their documented bounds.
   I assume this is for kerning. I may be wrong.
   """
-  def width(%Char{left_pos: l, right_pos: r}, scale \\ 1.0), do: (r - l) * scale |> round
+  def width(%Char{left_pos: l, right_pos: r}, scale \\ 1.0), do: (abs(l) + abs(r)) * scale |> round
+
+  def left_pad(%Char{left_pos: l}, scale \\ 1.0), do: abs(l) * scale |> round
+  def right_pad(%Char{right_pos: r}, scale \\ 1.0), do: abs(r) * scale |> round
 
   @doc """
   Rendered width of a character.

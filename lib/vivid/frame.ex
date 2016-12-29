@@ -129,7 +129,7 @@ defmodule Vivid.Frame do
 
   def buffer(%Frame{shapes: shapes, width: w, height: h, background_colour: bg}) do
     Enum.reduce(shapes, allocate_buffer(w * h, bg), fn({shape, colour}, buffer)->
-      points = Vivid.Rasterize.rasterize(shape, {0, 0, w-1, h-1})
+      points = Vivid.Rasterize.rasterize(shape, {0, 0, h-1, w-1})
       Enum.reduce(points, buffer, fn(point, buffer) ->
         x = point |> Point.x
         y = point |> Point.y

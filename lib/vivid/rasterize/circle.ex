@@ -1,6 +1,5 @@
 defimpl Vivid.Rasterize, for: Vivid.Circle do
-  alias Vivid.{Circle, Point, Polygon, Rasterize}
-  import :math, only: [pow: 2, sqrt: 1]
+  alias Vivid.{Circle, Rasterize}
 
   @moduledoc """
   Rasterizes a circle into points.
@@ -34,25 +33,9 @@ defimpl Vivid.Rasterize, for: Vivid.Circle do
       ])
   """
 
-  def rasterize(%Circle{center: point, radius: radius}, bounds) do
-    x_center  = point |> Point.x
-    y_center  = point |> Point.y
-    r_squared = pow(radius, 2)
-
-    {points0, points1} = Enum.reduce(0-radius..radius, {[], []}, fn (x, {points0, points1}) ->
-      y  = sqrt(r_squared - pow(x, 2)) |> round
-      x  = x_center + x
-      y0 = y_center - y
-      y1 = y_center + y
-      points0 = [ Point.init(x, y0) | points0 ]
-      points1 = [ Point.init(x, y1) | points1 ]
-      {points0, points1}
-    end)
-
-    points1 = points1 |> Enum.reverse
-
-    points0 ++ points1
-    |> Polygon.init
+  def rasterize(circle, bounds) do
+    circle
+    |> Circle.to_polygon
     |> Rasterize.rasterize(bounds)
   end
 end

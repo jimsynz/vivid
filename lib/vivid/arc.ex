@@ -1,5 +1,6 @@
 defmodule Vivid.Arc do
-  alias Vivid.{Arc, Point}
+  alias Vivid.{Arc, Point, Path}
+  import :math, only: [cos: 1, sin: 1, pi: 0]
   defstruct ~w(center radius start_angle range steps)a
 
   @moduledoc """
@@ -44,4 +45,25 @@ defmodule Vivid.Arc do
   def start_angle(%Arc{start_angle: a}), do: a
   def range(%Arc{range: r}), do: r
   def steps(%Arc{steps: s}), do: s
+
+  def to_path(%Arc{center: center, radius: radius, start_angle: start_angle, range: range, steps: steps}) do
+    h = center |> Point.x
+    k = center |> Point.y
+
+    step_degree = range / steps
+    start_angle = start_angle - 180
+
+    Enum.map(0..steps, fn(step) ->
+      theta = (step_degree * step) + start_angle
+      theta = degrees_to_radians(theta)
+
+      x = round(h + radius * cos(theta))
+      y = round(k - radius * sin(theta))
+
+      Point.init(x, y)
+    end)
+    |> Path.init
+  end
+
+  defp degrees_to_radians(degrees), do: degrees / 360.0 * 2.0 * pi
 end

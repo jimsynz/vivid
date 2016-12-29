@@ -1,6 +1,6 @@
 defmodule Vivid.Polygon do
   alias Vivid.{Polygon, Point, Line}
-  defstruct vertices: []
+  defstruct vertices: [], fill: false
 
   @moduledoc """
   Describes a Polygon as a series of vertices.
@@ -23,8 +23,9 @@ defmodule Vivid.Polygon do
       %Vivid.Polygon{vertices: []}
   """
 
-  def init(points) when is_list(points), do: %Polygon{vertices: points}
-  def init, do: %Polygon{vertices: []}
+  def init, do: %Polygon{vertices: [], fill: false}
+  def init(points) when is_list(points), do: %Polygon{vertices: points, fill: false}
+  def init(points, fill) when is_list(points) and is_boolean(fill), do: %Polygon{vertices: points, fill: fill}
 
   @doc """
   Convert a Polygon into a list of lines joined by the vertices.

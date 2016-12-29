@@ -44,30 +44,35 @@ defimpl Vivid.Rasterize, for: Vivid.Line do
       x_increment = dx / steps
       y_increment = dy / steps
 
-
       points = MapSet.new([origin])
       current_x = origin |> Point.x
       current_y = origin |> Point.y
 
-      reduce_points(points, steps, current_x, current_y, x_increment, y_increment, bounds)
+      reduce_points(points, steps, current_x, current_y, x_increment, y_increment)
     end
+    |> clip(bounds)
   end
 
-  defp reduce_points(points, 0, _, _, _, _, _), do: points
+  defp reduce_points(points, 0, _, _, _, _), do: points
 
-  defp reduce_points(points, steps, current_x, current_y, x_increment, y_increment, {x0, y0, x1, y1}=bounds) do
+  defp reduce_points(points, steps, current_x, current_y, x_increment, y_increment) do
     next_x = current_x + x_increment
     next_y = current_y + y_increment
     steps  = steps - 1
-    points = if (next_x >= x0) && (next_x <= x1) && (next_y >= y0) && (next_y <= y1) do
-      MapSet.put(points, Point.init(round(next_x), round(next_y)))
-    else
-      points
-    end
-    reduce_points(points, steps, next_x, next_y, x_increment, y_increment, bounds)
+    points = MapSet.put(points, Point.init(round(next_x), round(next_y)))
+    reduce_points(points, steps, next_x, next_y, x_increment, y_increment)
   end
 
   defp choose_largest_of(a, b) when a > b, do: a
   defp choose_largest_of(_, b), do: b
+
+  defp clip(points, {x0, y0, x1, y1}=bounds) do
+    points
+    |> Stream.filter(fn
+      %Point{x: x, y: y} when x >= x0 and x <= x1 and y >= y0 and y <= y1 -> true
+      _ -> false
+    end)
+    |> Enum.into(MapSet.new)
+  end
 
 end

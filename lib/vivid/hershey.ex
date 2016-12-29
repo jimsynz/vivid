@@ -40,8 +40,8 @@ defmodule Vivid.Hershey do
     %Char{
       character:   char,
       vertices:    vertices,
-      left_pos:    l_pos,
-      right_pos:   r_pos,
+      left_pos:    l_pos - @mid_point,
+      right_pos:   r_pos - @mid_point,
       coordinates: coords
     }
   end
