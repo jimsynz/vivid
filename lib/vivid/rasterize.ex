@@ -1,3 +1,3 @@
 defprotocol Vivid.Rasterize do
-  def rasterize(shape)
+  def rasterize(shape, bounds)
 end

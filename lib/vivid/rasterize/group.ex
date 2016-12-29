@@ -11,21 +11,12 @@ defimpl Vivid.Rasterize, for: Vivid.Group do
   ## Example
 
       iex> path = Vivid.Path.init([Vivid.Point.init(1,1), Vivid.Point.init(1,3), Vivid.Point.init(3,3), Vivid.Point.init(3,1)])
-      ...> Vivid.Group.init([path])
-      ...> |> Vivid.Rasterize.rasterize
-      MapSet.new([
-        %Vivid.Point{x: 1, y: 1},
-        %Vivid.Point{x: 1, y: 2},
-        %Vivid.Point{x: 1, y: 3},
-        %Vivid.Point{x: 2, y: 3},
-        %Vivid.Point{x: 3, y: 1},
-        %Vivid.Point{x: 3, y: 2},
-        %Vivid.Point{x: 3, y: 3}
-      ])
+      ...> Vivid.Group.init([path]) |> Vivid.Rasterize.rasterize({0, 0, 3, 3})
+      #MapSet<[#Vivid.Point<{1, 1}>, #Vivid.Point<{1, 2}>, #Vivid.Point<{1, 3}>, #Vivid.Point<{2, 3}>, #Vivid.Point<{3, 1}>, #Vivid.Point<{3, 2}>, #Vivid.Point<{3, 3}>]>
   """
-  def rasterize(%Group{shapes: shapes}) do
+  def rasterize(%Group{shapes: shapes}, bounds) do
     Enum.reduce(shapes, MapSet.new, fn(shape, acc) ->
-      MapSet.union(acc, Rasterize.rasterize(shape))
+      MapSet.union(acc, Rasterize.rasterize(shape, bounds))
     end)
   end
 end

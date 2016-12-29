@@ -12,15 +12,11 @@ defimpl Vivid.Rasterize, for: Vivid.Arc do
   ## Example
 
       iex> Vivid.Arc.init(Vivid.Point.init(5,5), 5, 270, 90, 3)
-      ...> |> Vivid.Rasterize.rasterize
-      MapSet.new([
-        %Vivid.Point{x: 0, y: 5}, %Vivid.Point{x: 1, y: 3},
-        %Vivid.Point{x: 1, y: 4}, %Vivid.Point{x: 2, y: 2},
-        %Vivid.Point{x: 3, y: 1}, %Vivid.Point{x: 4, y: 1},
-        %Vivid.Point{x: 5, y: 0}
-      ])
+      ...> |> Vivid.Rasterize.rasterize({0, 0, 5, 5})
+      #MapSet<[#Vivid.Point<{0, 5}>, #Vivid.Point<{1, 3}>, #Vivid.Point<{1, 4}>, #Vivid.Point<{2, 2}>, #Vivid.Point<{3, 1}>, #Vivid.Point<{4, 1}>, #Vivid.Point<{5, 0}>]>
+
   """
-  def rasterize(%Arc{center: center, radius: radius, start_angle: start_angle, range: range, steps: steps}) do
+  def rasterize(%Arc{center: center, radius: radius, start_angle: start_angle, range: range, steps: steps}, bounds) do
     h = center |> Point.x
     k = center |> Point.y
 
@@ -37,7 +33,7 @@ defimpl Vivid.Rasterize, for: Vivid.Arc do
       Point.init(x, y)
     end)
     |> Path.init
-    |> Rasterize.rasterize
+    |> Rasterize.rasterize(bounds)
   end
 
   defp degrees_to_radians(degrees), do: degrees / 360.0 * 2.0 * pi

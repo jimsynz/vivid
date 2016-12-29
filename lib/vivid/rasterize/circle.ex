@@ -17,7 +17,7 @@ defimpl Vivid.Rasterize, for: Vivid.Circle do
   ## Example
 
       iex> Vivid.Circle.init(Vivid.Point.init(5,5), 4)
-      ...> |> Vivid.Rasterize.rasterize
+      ...> |> Vivid.Rasterize.rasterize({0, 0, 10, 10})
       MapSet.new([
         %Vivid.Point{x: 1, y: 4}, %Vivid.Point{x: 1, y: 5},
         %Vivid.Point{x: 1, y: 6}, %Vivid.Point{x: 2, y: 2},
@@ -34,7 +34,7 @@ defimpl Vivid.Rasterize, for: Vivid.Circle do
       ])
   """
 
-  def rasterize(%Circle{center: point, radius: radius}) do
+  def rasterize(%Circle{center: point, radius: radius}, bounds) do
     x_center  = point |> Point.x
     y_center  = point |> Point.y
     r_squared = pow(radius, 2)
@@ -53,6 +53,6 @@ defimpl Vivid.Rasterize, for: Vivid.Circle do
 
     points0 ++ points1
     |> Polygon.init
-    |> Rasterize.rasterize
+    |> Rasterize.rasterize(bounds)
   end
 end

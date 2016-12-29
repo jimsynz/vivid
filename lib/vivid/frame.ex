@@ -1,6 +1,6 @@
 defmodule Vivid.Frame do
   alias Vivid.{Frame, Point, RGBA}
-  defstruct ~w(width height background_colour buffer)a
+  defstruct ~w(width height background_colour shapes)a
 
   @moduledoc """
   A frame buffer or something.
@@ -19,7 +19,7 @@ defmodule Vivid.Frame do
       #Vivid.Frame<[width: 4, height: 4, background_colour: #Vivid.RGBA<{0, 0, 0, 0}>]>
   """
   def init(width \\ 128, height \\ 64, colour \\ RGBA.init(0,0,0,0)) do
-    %Frame{width: width, height: height, background_colour: colour, buffer: allocate_buffer(width * height, colour)}
+    %Frame{width: width, height: height, background_colour: colour, shapes: []}
   end
 
   @doc ~S"""
@@ -93,18 +93,8 @@ defmodule Vivid.Frame do
       " @   \n" <>
       "@    \n"
   """
-  def push(%Frame{buffer: buffer, width: w}=frame, shape, colour) do
-    points = Vivid.Rasterize.rasterize(shape)
-    buffer = Enum.reduce(points, buffer, fn(point, buffer) ->
-      if point_inside_bounds?(point, frame) do
-        x = point |> Point.x
-        y = point |> Point.y
-        List.replace_at(buffer, (x * w) + y, colour)
-      else
-        buffer
-      end
-    end)
-    %{frame | buffer: buffer}
+  def push(%Frame{shapes: shapes}=frame, shape, colour) do
+    %{frame | shapes: [{shape, colour} | shapes]}
   end
 
   @doc """
@@ -137,6 +127,19 @@ defmodule Vivid.Frame do
   """
   def background_colour(%Frame{background_colour: c}), do: c
 
+  def buffer(%Frame{shapes: shapes, width: w, height: h, background_colour: bg}) do
+    Enum.reduce(shapes, allocate_buffer(w * h, bg), fn({shape, colour}, buffer)->
+      points = Vivid.Rasterize.rasterize(shape, {0, 0, w-1, h-1})
+      Enum.reduce(points, buffer, fn(point, buffer) ->
+        x = point |> Point.x
+        y = point |> Point.y
+        pos = (x * w) + y
+        existing = Enum.at(buffer, pos)
+        List.replace_at(buffer, pos, RGBA.over(existing, colour))
+      end)
+    end)
+  end
+
   @doc ~S"""
   Convert a frame buffer to a string for debugging.
 
@@ -148,17 +151,18 @@ defmodule Vivid.Frame do
       "    \n" <>
       "    \n"
   """
-  def to_string(%Frame{buffer: buffer, width: width}) do
-    s = buffer
-    |> Enum.reverse
-    |> Enum.chunk(width)
-    |> Enum.map(fn (row) ->
-      row
+  def to_string(%Frame{width: width}=frame) do
+    s = frame
+      |> buffer
       |> Enum.reverse
-      |> Enum.map(fn(colour) -> RGBA.to_ascii(colour) end)
-      |> Enum.join
-    end)
-    |> Enum.join("\n")
+      |> Enum.chunk(width)
+      |> Enum.map(fn (row) ->
+        row
+        |> Enum.reverse
+        |> Enum.map(&RGBA.to_ascii(&1))
+        |> Enum.join
+      end)
+      |> Enum.join("\n")
     s <> "\n"
   end
 
@@ -172,13 +176,9 @@ defmodule Vivid.Frame do
     :ok
   end
 
+
+
   defp allocate_buffer(size, colour) do
     Enum.map((1..size), fn(_) -> colour end)
   end
-
-  defp point_inside_bounds?(%Point{x: x}, _frame) when x < 0, do: false
-  defp point_inside_bounds?(%Point{y: y}, _frame) when y < 0, do: false
-  defp point_inside_bounds?(%Point{x: x}, %Frame{width: w}) when x >= w, do: false
-  defp point_inside_bounds?(%Point{y: y}, %Frame{height: h}) when y >= h, do: false
-  defp point_inside_bounds?(_point, _frame), do: true
 end

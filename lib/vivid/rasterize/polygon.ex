@@ -23,11 +23,11 @@ defimpl Vivid.Rasterize, for: Vivid.Polygon do
         %Vivid.Point{x: 3, y: 3}
       ])
   """
-  def rasterize(%Polygon{}=polygon) do
+  def rasterize(%Polygon{}=polygon, bounds) do
     lines = polygon |> Polygon.to_lines
 
     Enum.reduce(lines, MapSet.new, fn(line, acc) ->
-      MapSet.union(acc, Rasterize.rasterize(line))
+      MapSet.union(acc, Rasterize.rasterize(line, bounds))
     end)
   end
 end
