@@ -34,7 +34,6 @@ defimpl Enumerable, for: Vivid.Group do
   @doc """
   Reduce's the Path's shapes into an accumulator
 
-
   ## Examples
 
       iex> Vivid.Group.init([Vivid.Point.init(1,2), Vivid.Point.init(2,4)]) |> Enum.reduce(%{}, fn (%Vivid.Point{x: x, y: y}, acc) -> Map.put(acc, x, y) end)

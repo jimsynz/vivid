@@ -30,7 +30,7 @@ defmodule Vivid.Arc do
      and is_number(range)
      and is_number(steps)
   do
-    %Vivid.Arc{
+    %Arc{
       center:      center,
       radius:      radius,
       start_angle: start_angle,
@@ -38,4 +38,10 @@ defmodule Vivid.Arc do
       steps:       steps
     }
   end
+
+  def center(%Arc{center: p}), do: p
+  def radius(%Arc{radius: r}), do: r
+  def start_angle(%Arc{start_angle: a}), do: a
+  def range(%Arc{range: r}), do: r
+  def steps(%Arc{steps: s}), do: s
 end

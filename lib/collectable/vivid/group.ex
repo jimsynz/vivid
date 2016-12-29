@@ -11,7 +11,7 @@ defimpl Collectable, for: Vivid.Group do
   """
 
   def into(%Group{shapes: shapes}) do
-    {MapSet.new, fn
+    {shapes, fn
       new_shapes, {:cont, shape} -> MapSet.put(new_shapes, shape)
       new_shapes, :done          -> Group.init(MapSet.union(shapes, new_shapes))
       _,          :halt          -> :ok
