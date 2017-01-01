@@ -98,6 +98,13 @@ defmodule Vivid.Frame do
   end
 
   @doc """
+  Clear the frame of any shapes.
+  """
+  def clear(%Frame{}=frame) do
+    %{frame | shapes: []}
+  end
+
+  @doc """
   Return the width of the frame.
 
   ## Example
@@ -127,10 +134,15 @@ defmodule Vivid.Frame do
   """
   def background_colour(%Frame{background_colour: c}), do: c
 
-  def buffer(%Frame{shapes: shapes, width: w, height: h, background_colour: bg}) do
+  def buffer(%Frame{shapes: shapes, width: w, height: h, background_colour: bg}, direction \\ :horizontal) do
+    {w,h} = case direction do
+      :horizontal -> {w, h}
+      :vertical   -> {h, w}
+    end
     Enum.reduce(shapes, allocate_buffer(w * h, bg), fn({shape, colour}, buffer)->
-      points = Vivid.Rasterize.rasterize(shape, {0, 0, h-1, w-1})
+      points = Vivid.Rasterize.rasterize(shape, {0, 0, w-1, h-1})
       Enum.reduce(points, buffer, fn(point, buffer) ->
+        point = translate_point(point, direction)
         x = point |> Point.x
         y = point |> Point.y
         pos = (x * w) + y
@@ -177,6 +189,8 @@ defmodule Vivid.Frame do
   end
 
 
+  defp translate_point(point, :horizontal), do: point
+  defp translate_point(point, :vertical), do: Point.swap_xy(point)
 
   defp allocate_buffer(size, colour) do
     Enum.map((1..size), fn(_) -> colour end)

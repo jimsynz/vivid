@@ -37,4 +37,10 @@ defmodule Vivid.Point do
       27
   """
   def y(%Point{y: y}), do: y
+
+  @doc """
+  Simple helper to swap X and Y coordinates - used
+  when translating the frame buffer to vertical.
+  """
+  def swap_xy(%Point{x: x, y: y}), do: Point.init(y, x)
 end

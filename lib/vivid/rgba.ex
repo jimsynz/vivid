@@ -96,6 +96,7 @@ defmodule Vivid.RGBA do
     #Vivid.RGBA<{0.5, 0.5, 0.5, 1.0}>
   """
 
+  def over(nil, %RGBA{}=colour), do: colour
   def over(%RGBA{}, %RGBA{alpha: 1}=visible), do: visible
   def over(%RGBA{}=visible, %RGBA{alpha: 0}), do: visible
   def over(%RGBA{a_red: r0, a_green: g0, a_blue: b0, alpha: a0}, %RGBA{a_red: r1, a_green: g1, a_blue: b1, alpha: a1}) do
