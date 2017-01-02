@@ -28,7 +28,10 @@ defmodule Vivid.Mixfile do
   def package do
     [
       maintainers: [ "James Harton <james@messagerocket.co>" ],
-      licenses: [ "MIT" ]
+      licenses: [ "MIT" ],
+      links: %{
+        "Source" => "https://github.com/jamesotron/vivid.ex"
+      }
     ]
   end
 
