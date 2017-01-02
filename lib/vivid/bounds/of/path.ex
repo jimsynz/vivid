@@ -1,7 +1,6 @@
-defimpl Vivid.Bounds, for: Vivid.Polygon do
+defimpl Vivid.Bounds.Of, for: Vivid.Path do
   alias Vivid.Point
-
-  def bounds(%Vivid.Polygon{vertices: points}) do
+  def bounds(%Vivid.Path{vertices: points}) do
     Enum.reduce(points, nil, fn
       point, nil        -> {point, point}
       point, {min, max} ->

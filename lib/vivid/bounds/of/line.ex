@@ -1,9 +1,8 @@
-defimpl Vivid.Bounds, for: Vivid.Group do
+defimpl Vivid.Bounds.Of, for: Vivid.Line do
   alias Vivid.Point
-  def bounds(%Vivid.Group{shapes: shapes}) do
-    shapes
-    |> Stream.map(&Vivid.Bounds.bounds(&1))
-    |> Enum.reduce(fn
+  def bounds(%Vivid.Line{origin: point0, termination: point1}) do
+    Enum.reduce([point0, point1], nil, fn
+      point, nil        -> {point, point}
       point, {min, max} ->
         x = Point.x(point)
         y = Point.y(point)

@@ -1,4 +1,4 @@
-defimpl Vivid.Bounds, for: Vivid.Frame do
+defimpl Vivid.Bounds.Of, for: Vivid.Frame do
   alias Vivid.{Frame, Point}
 
   def bounds(%Frame{width: w, height: h}) do

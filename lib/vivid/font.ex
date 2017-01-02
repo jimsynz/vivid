@@ -5,8 +5,8 @@ defmodule Vivid.Font do
   @font_vertical_offset 10
 
   def line(str, scale \\ 1.0) do
-    font  = rowmans
-    chars = str
+    font = rowmans
+    str
       |> String.split("")
       |> Stream.reject(fn c -> c == "" end)
       |> Enum.reduce([], fn

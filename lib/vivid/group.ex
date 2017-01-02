@@ -14,10 +14,7 @@ defmodule Vivid.Group do
       iex> circle = Vivid.Circle.init(Vivid.Point.init(5,5), 5)
       ...> line   = Vivid.Line.init(Vivid.Point.init(1,1), Vivid.Point.init(10,10))
       ...> Vivid.Group.init([circle, line])
-      %Vivid.Group{shapes: MapSet.new([
-        %Vivid.Circle{center: %Vivid.Point{x: 5, y: 5}, radius: 5},
-        %Vivid.Line{origin: %Vivid.Point{x: 1, y: 1}, termination: %Vivid.Point{x: 10, y: 10}}
-      ])}
+      #Vivid.Group<[#Vivid.Line<[origin: #Vivid.Point<{1, 1}>, termination: #Vivid.Point<{10, 10}>]>, #Vivid.Circle<[center: #Vivid.Point<{5, 5}>, radius: 5]>]>
 
       iex> Vivid.Group.init
       %Vivid.Group{shapes: MapSet.new()}

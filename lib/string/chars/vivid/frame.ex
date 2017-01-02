@@ -1,9 +1,9 @@
-defimpl String.Chars, for: Vivid.Buffer do
+defimpl String.Chars, for: Vivid.Frame do
   alias Vivid.Frame
 
   def to_string(%Frame{}=frame) do
     frame
     |> Frame.buffer
-    |> to_string
+    |> Kernel.to_string
   end
 end

@@ -1,5 +1,5 @@
 defimpl Vivid.Rasterize, for: Vivid.Line do
-  alias Vivid.{Point, Line}
+  alias Vivid.{Point, Line, Bounds}
 
   @moduledoc """
   Generates points between the origin and termination point of the line
@@ -11,10 +11,12 @@ defimpl Vivid.Rasterize, for: Vivid.Line do
 
   ## Examples
 
-      iex> Vivid.Line.init(Vivid.Point.init(1,1), Vivid.Point.init(3,3)) |> Vivid.Rasterize.rasterize({0, 0, 3, 3})
+      iex> Vivid.Line.init(Vivid.Point.init(1,1), Vivid.Point.init(3,3))
+      ...> |> Vivid.Rasterize.rasterize(Vivid.Bounds.init(0, 0, 3, 3))
       #MapSet<[#Vivid.Point<{1, 1}>, #Vivid.Point<{2, 2}>, #Vivid.Point<{3, 3}>]>
 
-      iex> Vivid.Line.init(Vivid.Point.init(1,1), Vivid.Point.init(4,2)) |> Vivid.Rasterize.rasterize({0, 0, 4, 4})
+      iex> Vivid.Line.init(Vivid.Point.init(1,1), Vivid.Point.init(4,2))
+      ...> |> Vivid.Rasterize.rasterize(Vivid.Bounds.init(0, 0, 4, 4))
       MapSet.new([
         %Vivid.Point{x: 1, y: 1},
         %Vivid.Point{x: 2, y: 1},
@@ -22,7 +24,8 @@ defimpl Vivid.Rasterize, for: Vivid.Line do
         %Vivid.Point{x: 4, y: 2}
       ])
 
-      iex> Vivid.Line.init(Vivid.Point.init(4,4), Vivid.Point.init(4,1)) |> Vivid.Rasterize.rasterize({0, 0, 4, 4})
+      iex> Vivid.Line.init(Vivid.Point.init(4,4), Vivid.Point.init(4,1))
+      ...> |> Vivid.Rasterize.rasterize(Vivid.Bounds.init(0, 0, 4, 4))
       MapSet.new([
         %Vivid.Point{x: 4, y: 4},
         %Vivid.Point{x: 4, y: 3},
@@ -66,7 +69,7 @@ defimpl Vivid.Rasterize, for: Vivid.Line do
   defp choose_largest_of(a, b) when a > b, do: a
   defp choose_largest_of(_, b), do: b
 
-  defp clip(points, {%Point{x: x0, y: y0}, %Point{x: x1, y: y1}}) do
+  defp clip(points, %Bounds{min: %Point{x: x0, y: y0}, max: %Point{x: x1, y: y1}}) do
     points
     |> Stream.filter(fn
       %Point{x: x, y: y} when x >= x0 and x <= x1 and y >= y0 and y <= y1 -> true

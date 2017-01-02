@@ -1,5 +1,5 @@
 defimpl Vivid.Rasterize, for: Vivid.Polygon do
-  alias Vivid.{Polygon, Rasterize, Point}
+  alias Vivid.{Polygon, Rasterize}
 
   @moduledoc """
   Rasterizes the Polygon into a sequence of points.
@@ -10,7 +10,8 @@ defimpl Vivid.Rasterize, for: Vivid.Polygon do
 
   ## Example
 
-      iex> Vivid.Polygon.init([Vivid.Point.init(1,1), Vivid.Point.init(1,3), Vivid.Point.init(3,3), Vivid.Point.init(3,1)]) |> Vivid.Rasterize.rasterize
+      iex> Vivid.Box.init(Vivid.Point.init(1,1),Vivid.Point.init(3,3))
+      ...> |> Vivid.Rasterize.rasterize
       MapSet.new([
         %Vivid.Point{x: 1, y: 1},
         %Vivid.Point{x: 1, y: 2},
@@ -32,6 +33,5 @@ defimpl Vivid.Rasterize, for: Vivid.Polygon do
   end
 
   def fill(points, %Polygon{fill: false}), do: points
-  def fill(points, %Polygon{fill: true}) do
-  end
+  def fill(points, %Polygon{fill: true}), do: points
 end

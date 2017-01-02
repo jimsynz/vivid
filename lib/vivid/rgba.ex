@@ -9,6 +9,15 @@ defmodule Vivid.RGBA do
   Defines a colour in RGBA colour space.
   """
 
+  @doc """
+  Create a colour. Like magic.
+
+  ## Example
+
+      iex> Vivid.RGBA.init(0.1, 0.2, 0.3, 0.4)
+      #Vivid.RGBA<{0.1, 0.2, 0.3, 0.4}>
+  """
+
   def init(red, green, blue), do: init(red, green, blue, 1)
 
   def init(red, green, blue, 1)
@@ -63,14 +72,79 @@ defmodule Vivid.RGBA do
     }
   end
 
+  @doc """
+  Shorthand for white.
+
+  ## Example
+
+      iex> Vivid.RGBA.white
+      #Vivid.RGBA<{1, 1, 1, 1}>
+  """
   def white, do: RGBA.init(1,1,1)
+
+  @doc """
+  Shorthand for black.
+
+  ## Example
+
+      iex> Vivid.RGBA.black
+      #Vivid.RGBA<{0, 0, 0, 1}>
+  """
   def black, do: RGBA.init(0,0,0)
 
+  @doc """
+  Return the red component of the colour.
+
+  ## Example
+
+      iex> Vivid.RGBA.init(0.7, 0.6, 0.5, 0.4)
+      ...> |> Vivid.RGBA.red
+      0.7
+  """
   def red(%RGBA{red: r}),     do: r
+
+  @doc """
+  Return the green component of the colour.
+
+  ## Example
+
+      iex> Vivid.RGBA.init(0.7, 0.6, 0.5, 0.4)
+      ...> |> Vivid.RGBA.green
+      0.6
+  """
   def green(%RGBA{green: g}), do: g
+
+  @doc """
+  Return the blue component of the colour.
+
+  ## Example
+
+      iex> Vivid.RGBA.init(0.7, 0.6, 0.5, 0.4)
+      ...> |> Vivid.RGBA.blue
+      0.5
+  """
   def blue(%RGBA{blue: b}),   do: b
+
+  @doc """
+  Return the alpha component of the colour.
+
+  ## Example
+
+      iex> Vivid.RGBA.init(0.7, 0.6, 0.5, 0.4)
+      ...> |> Vivid.RGBA.alpha
+      0.4
+  """
   def alpha(%RGBA{alpha: a}), do: a
 
+  @doc """
+  Convert a colour to HTML style hex.
+
+  ## Example
+
+      iex> Vivid.RGBA.init(0.7, 0.6, 0.5)
+      ...> |> Vivid.RGBA.to_hex
+      "#B39980"
+  """
   def to_hex(%RGBA{red: r, green: g, blue: b, alpha: 1}) do
     r = r |> f2h
     g = g |> f2h
@@ -91,9 +165,8 @@ defmodule Vivid.RGBA do
 
   ## Examples
 
-    iex> black = Vivid.RGBA(0,0,0,1)
-    ...> Vivid.RGBA.over(black, Vivid.RGBA(1,1,1, 0.5))
-    #Vivid.RGBA<{0.5, 0.5, 0.5, 1.0}>
+      iex> Vivid.RGBA.over(Vivid.RGBA.black, Vivid.RGBA.init(1,1,1, 0.5))
+      #Vivid.RGBA<{0.5, 0.5, 0.5, 1.0}>
   """
 
   def over(nil, %RGBA{}=colour), do: colour
@@ -108,9 +181,24 @@ defmodule Vivid.RGBA do
     RGBA.init(r, g, b, a)
   end
 
+  @doc """
+  Return the luminance of a colour, using some colour mixing ratios I found
+  on stack exchange.
+
+  ## Examples
+
+      iex> Vivid.RGBA.init(1,0,0) |> Vivid.RGBA.luminance
+      0.2128
+
+      iex> Vivid.RGBA.white |> Vivid.RGBA.luminance
+      1.0
+
+      iex> Vivid.RGBA.black |> Vivid.RGBA.luminance
+      0.0
+  """
   def luminance(%RGBA{a_red: r, a_green: g, a_blue: b}) do
     [rl, gl, bl] = [r, g, b ] |> Enum.map(&pow(&1, 2.2))
-    0.2128 * rl + 0.7152 * gl + 0.0722 * bl
+    0.2128 * rl + 0.7150 * gl + 0.0722 * bl
   end
 
   def to_ascii(%RGBA{}=colour) do

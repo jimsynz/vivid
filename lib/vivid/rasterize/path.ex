@@ -10,7 +10,8 @@ defimpl Vivid.Rasterize, for: Vivid.Path do
 
   ## Example
 
-      iex> Vivid.Path.init([Vivid.Point.init(1,1), Vivid.Point.init(1,3), Vivid.Point.init(3,3), Vivid.Point.init(3,1)]) |> Vivid.Rasterize.rasterize({0, 0, 3, 3})
+      iex> Vivid.Path.init([Vivid.Point.init(1,1), Vivid.Point.init(1,3), Vivid.Point.init(3,3), Vivid.Point.init(3,1)])
+      ...> |> Vivid.Rasterize.rasterize(Vivid.Bounds.init(0, 0, 3, 3))
       MapSet.new([
         %Vivid.Point{x: 1, y: 1},
         %Vivid.Point{x: 1, y: 2},

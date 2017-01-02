@@ -43,4 +43,22 @@ defmodule Vivid.Point do
   when translating the frame buffer to vertical.
   """
   def swap_xy(%Point{x: x, y: y}), do: Point.init(y, x)
+
+  @doc """
+  Return the vector in `x` and `y` between point `a` and point `b`.
+  """
+  def vector(%Point{x: x0, y: y0}, %Point{x: x1, y: y1}) do
+    {x1 - x0, y1 - y0}
+  end
+
+  @doc """
+  Round the coordinates in the point to the nearest integer value.
+
+  ## Example
+
+      iex> Vivid.Point.init(1.23, 4.56)
+      ...> |> Vivid.Point.round
+      #Vivid.Point<{1, 5}>
+  """
+  def round(%Point{x: x, y: y}), do: Point.init(Kernel.round(x), Kernel.round(y))
 end

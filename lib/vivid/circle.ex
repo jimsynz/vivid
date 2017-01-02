@@ -13,7 +13,7 @@ defmodule Vivid.Circle do
   ## Example
 
       iex> Vivid.Circle.init(Vivid.Point.init(5,5), 4)
-      %Vivid.Circle{center: %Vivid.Point{x: 5, y: 5}, radius: 4}
+      #Vivid.Circle<[center: #Vivid.Point<{5, 5}>, radius: 4]>
   """
   def init(point, radius), do: init(point, radius, false)
   def init(%Point{}=point, radius, fill)
