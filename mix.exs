@@ -3,7 +3,7 @@ defmodule Vivid.Mixfile do
 
   def project do
     [app: :vivid,
-     version: "0.1.0",
+     version: "0.1.1",
      description: description,
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
