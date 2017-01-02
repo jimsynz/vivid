@@ -83,6 +83,41 @@ Frame.push(frame, shape, RGBA.black)
 @@@@@@@@@@@@@@@@@@@@
 ```
 
+## License
+
+Source code is licensed under the terms of the MIT license, the text of which
+is included in the `LICENSE` file in this distribution.
+
+This distribution includes the Hershey vector font from
+[The Hershey Fonts](http://sol.gfxile.net/hershey/index.html).
+
+Font use restrictions:
+
+```
+ This distribution of the Hershey Fonts may be used by anyone for
+  any purpose, commercial or otherwise, providing that:
+    1. The following acknowledgements must be distributed with
+      the font data:
+      - The Hershey Fonts were originally created by Dr.
+        A. V. Hershey while working at the U. S.
+        National Bureau of Standards.
+      - The format of the Font data in this distribution
+        was originally created by
+          James Hurt
+          Cognition, Inc.
+          900 Technology Park Drive
+          Billerica, MA 01821
+          (mit-eddie!ci-dandelion!hurt)
+    2. The font data in this distribution may be converted into
+      any other format *EXCEPT* the format distributed by
+      the U.S. NTIS (which organization holds the rights
+      to the distribution and use of the font data in that
+      particular format). Not that anybody would really
+      *want* to use their format... each point is described
+      in eight bytes as "xxx yyy:", where xxx and yyy are
+      the coordinate values as ASCII numbers.
+```
+
 ## Status
 
 This library is still experimental, but what few features it has work well.
