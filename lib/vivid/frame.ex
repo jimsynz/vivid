@@ -1,5 +1,5 @@
 defmodule Vivid.Frame do
-  alias Vivid.{Frame, Point, RGBA}
+  alias Vivid.{Frame, RGBA, Buffer}
   defstruct ~w(width height background_colour shapes)a
 
   @moduledoc """
@@ -134,23 +134,9 @@ defmodule Vivid.Frame do
   """
   def background_colour(%Frame{background_colour: c}), do: c
 
-  def buffer(%Frame{shapes: shapes, width: w, height: h, background_colour: bg}, direction \\ :horizontal) do
-    {w,h} = case direction do
-      :horizontal -> {w, h}
-      :vertical   -> {h, w}
-    end
-    Enum.reduce(shapes, allocate_buffer(w * h, bg), fn({shape, colour}, buffer)->
-      points = Vivid.Rasterize.rasterize(shape, {0, 0, w-1, h-1})
-      Enum.reduce(points, buffer, fn(point, buffer) ->
-        point = translate_point(point, direction)
-        x = point |> Point.x
-        y = point |> Point.y
-        pos = (x * w) + y
-        existing = Enum.at(buffer, pos)
-        List.replace_at(buffer, pos, RGBA.over(existing, colour))
-      end)
-    end)
-  end
+  def buffer(%Frame{}=frame), do: Buffer.horizontal(frame)
+  def buffer(%Frame{}=frame, :horizontal), do: Buffer.horizontal(frame)
+  def buffer(%Frame{}=frame, :vertical),   do: Buffer.vertical(frame)
 
   @doc ~S"""
   Convert a frame buffer to a string for debugging.
@@ -163,19 +149,8 @@ defmodule Vivid.Frame do
       "    \n" <>
       "    \n"
   """
-  def to_string(%Frame{width: width}=frame) do
-    s = frame
-      |> buffer
-      |> Enum.reverse
-      |> Enum.chunk(width)
-      |> Enum.map(fn (row) ->
-        row
-        |> Enum.reverse
-        |> Enum.map(&RGBA.to_ascii(&1))
-        |> Enum.join
-      end)
-      |> Enum.join("\n")
-    s <> "\n"
+  def to_string(%Frame{}=frame) do
+    Kernel.to_string(frame)
   end
 
   @doc """
@@ -186,13 +161,5 @@ defmodule Vivid.Frame do
     |> Frame.to_string
     |> IO.write
     :ok
-  end
-
-
-  defp translate_point(point, :horizontal), do: point
-  defp translate_point(point, :vertical), do: Point.swap_xy(point)
-
-  defp allocate_buffer(size, colour) do
-    Enum.map((1..size), fn(_) -> colour end)
   end
 end

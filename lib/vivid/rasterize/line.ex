@@ -66,7 +66,7 @@ defimpl Vivid.Rasterize, for: Vivid.Line do
   defp choose_largest_of(a, b) when a > b, do: a
   defp choose_largest_of(_, b), do: b
 
-  defp clip(points, {x0, y0, x1, y1}=bounds) do
+  defp clip(points, {%Point{x: x0, y: y0}, %Point{x: x1, y: y1}}) do
     points
     |> Stream.filter(fn
       %Point{x: x, y: y} when x >= x0 and x <= x1 and y >= y0 and y <= y1 -> true
