@@ -48,8 +48,8 @@ defmodule Vivid.Frame do
       ...> |> Vivid.Frame.to_string
       "     \n" <>
       " @@@ \n" <>
-      "   @ \n" <>
-      " @@@ \n" <>
+      " @ @ \n" <>
+      " @ @ \n" <>
       "     \n"
 
       iex> Vivid.Frame.init(5,5)

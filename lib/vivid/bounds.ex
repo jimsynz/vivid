@@ -23,7 +23,7 @@ defmodule Vivid.Bounds do
 
       iex> Vivid.Circle.init(Vivid.Point.init(10,10), 10)
       ...> |> Vivid.Bounds.bounds
-      #Vivid.Bounds<[min: #Vivid.Point<{0, 0}>, max: #Vivid.Point<{20, 20}>]>
+      #Vivid.Bounds<[min: #Vivid.Point<{0.0, 0.0}>, max: #Vivid.Point<{20.0, 20.0}>]>
   """
   def bounds(%Bounds{}=bounds), do: bounds
   def bounds(shape) do
@@ -38,7 +38,7 @@ defmodule Vivid.Bounds do
 
       iex> Vivid.Circle.init(Vivid.Point.init(10,10), 10)
       ...> |> Vivid.Bounds.width
-      20
+      20.0
   """
   def width(%Bounds{min: %Point{x: x0}, max: %Point{x: x1}}), do: abs(x1 - x0)
   def width(shape), do: shape |> bounds |> width
@@ -50,7 +50,7 @@ defmodule Vivid.Bounds do
 
       iex> Vivid.Circle.init(Vivid.Point.init(10,10), 10)
       ...> |> Vivid.Bounds.height
-      20
+      20.0
   """
   def height(%Bounds{min: %Point{y: y0}, max: %Point{y: y1}}), do: abs(y1 - y0)
   def height(shape), do: shape |> bounds |> height
@@ -62,19 +62,19 @@ defmodule Vivid.Bounds do
 
       iex> Vivid.Circle.init(Vivid.Point.init(10,10), 10)
       ...> |> Vivid.Bounds.min
-      #Vivid.Point<{0, 0}>
+      #Vivid.Point<{0.0, 0.0}>
   """
   def min(%Bounds{min: min}), do: min
   def min(shape), do: shape |> bounds |> min
 
   @doc """
-  Returns the bottom-left point of the bounds.
+  Returns the top-right point of the bounds.
 
   ## Example
 
       iex> Vivid.Circle.init(Vivid.Point.init(10,10), 10)
       ...> |> Vivid.Bounds.max
-      #Vivid.Point<{20, 20}>
+      #Vivid.Point<{20.0, 20.0}>
   """
   def max(%Bounds{max: max}), do: max
   def max(shape), do: shape |> bounds |> max
@@ -82,13 +82,10 @@ defmodule Vivid.Bounds do
   @doc """
   Returns the center point of the bounds.
 
-  *Warning* this function returns a Point with floating point coordinates,
-  which is great if you need to use it for maths, but will explode the render.
-  Make sure you pipe it through `Point.round` before you use it.
-
   ## Example
 
       iex> Vivid.Circle.init(Vivid.Point.init(10,10), 10)
+      ...> |> Vivid.Circle.to_polygon
       ...> |> Vivid.Bounds.center_of
       #Vivid.Point<{10.0, 10.0}>
   """
@@ -98,4 +95,36 @@ defmodule Vivid.Bounds do
     Point.init(x, y)
   end
   def center_of(shape), do: shape |> bounds |> center_of
+
+  @doc """
+  Returns true if the point is within the bounds.
+
+  ## Examples
+
+        iex> Vivid.Bounds.init(0, 0, 10, 10)
+        ...> |> Vivid.Bounds.contains?(Vivid.Point.init(0, 0))
+        true
+
+        iex> Vivid.Bounds.init(0, 0, 10, 10)
+        ...> |> Vivid.Bounds.contains?(Vivid.Point.init(5, 5))
+        true
+
+        iex> Vivid.Bounds.init(0, 0, 10, 10)
+        ...> |> Vivid.Bounds.contains?(Vivid.Point.init(-1, -1))
+        false
+
+        iex> Vivid.Bounds.init(0, 0, 10, 10)
+        ...> |> Vivid.Bounds.contains?(Vivid.Point.init(-10, -10))
+        false
+
+        iex> Vivid.Bounds.init(0, 0, 10, 10)
+        ...> |> Vivid.Bounds.contains?(Vivid.Point.init(10, 10))
+        true
+
+        iex> Vivid.Bounds.init(0, 0, 10, 10)
+        ...> |> Vivid.Bounds.contains?(Vivid.Point.init(11, 11))
+        false
+  """
+  def contains?(%Bounds{min: %Point{x: x0, y: y0}, max: %Point{x: x1, y: y1}}, %Point{x: x, y: y}) when x0 <= x and x <= x1 and y0 <= y and y <= y1, do: true
+  def contains?(_, _), do: false
 end

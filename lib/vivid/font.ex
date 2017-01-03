@@ -22,7 +22,7 @@ defmodule Vivid.Font do
             lpad
           [{char, lpad} | letters]
       end)
-      |> Enum.map(fn {char, lpad} -> Char.to_shape(char, Point.init(@font_vertical_offset, lpad), scale) end)
+      |> Enum.map(fn {char, lpad} -> Char.to_shape(char, Point.init(lpad, @font_vertical_offset), scale) end)
       |> Enum.into(Group.init)
   end
 

@@ -1,6 +1,6 @@
 defmodule Vivid.Arc do
   alias Vivid.{Arc, Point, Path}
-  import :math, only: [cos: 1, sin: 1, pi: 0]
+  import Vivid.Math
   defstruct ~w(center radius start_angle range steps)a
 
   @moduledoc """
@@ -64,6 +64,4 @@ defmodule Vivid.Arc do
     end)
     |> Path.init
   end
-
-  defp degrees_to_radians(degrees), do: degrees / 360.0 * 2.0 * pi
 end

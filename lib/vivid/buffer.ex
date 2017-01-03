@@ -21,7 +21,6 @@ defmodule Vivid.Buffer do
   """
   def vertical(%Frame{shapes: shapes, width: w, height: h}=frame) do
     bounds = Bounds.bounds(frame)
-    frame  = %{frame | width: h, height: w}
     buffer = allocate(frame)
     buffer = Enum.reduce(shapes, buffer, &vertical_reducer(&1, &2, bounds, h))
     %Buffer{buffer: buffer, rows: w, columns: h}
@@ -30,7 +29,7 @@ defmodule Vivid.Buffer do
   defp horizontal_reducer({shape, colour}, buffer, bounds, width) do
     points = Rasterize.rasterize(shape, bounds)
     Enum.reduce(points, buffer, fn(%Point{x: x, y: y}, buf) ->
-      pos = (x * width) + y
+      pos = (y * width) + x
       existing = Enum.at(buf, pos)
       List.replace_at(buf, pos, RGBA.over(existing, colour))
     end)
@@ -38,8 +37,9 @@ defmodule Vivid.Buffer do
 
   defp vertical_reducer({shape, colour}, buffer, bounds, width) do
     points = Rasterize.rasterize(shape, bounds)
-    Enum.reduce(points, buffer, fn(%Point{x: x, y: y}, buf) ->
-      pos = (x * width) + y
+    Enum.reduce(points, buffer, fn(point, buf) ->
+      point = Point.swap_xy(point)
+      pos = (point.y * width) + point.x
       existing = Enum.at(buf, pos)
       List.replace_at(buf, pos, RGBA.over(existing, colour))
     end)

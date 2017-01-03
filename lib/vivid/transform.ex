@@ -1,8 +1,7 @@
 defmodule Vivid.Transform do
-  alias Vivid.{Point, Transform}
+  alias Vivid.{Point, Transform, Bounds}
   alias Vivid.Transformable
-  import Vivid.Bounds
-  import :math, only: [pi: 0]
+  import Vivid.Math
   defstruct [operations: [], shape: nil]
 
   defmodule Operation do
@@ -23,7 +22,7 @@ defmodule Vivid.Transform do
       ...> |> Vivid.Transform.scale(1.5)
       ...> |> Vivid.Transform.center(frame)
       ...> |> Vivid.Transform.apply
-      #Vivid.Polygon<[#Vivid.Point<{17, 11}>, #Vivid.Point<{28, 22}>, #Vivid.Point<{23, 29}>, #Vivid.Point<{12, 19}>]>
+      #Vivid.Polygon<[#Vivid.Point<{30.106601717798213, 21.696699141100893}>, #Vivid.Point<{19.5, 24.803300858899107}>, #Vivid.Point<{8.893398282201787, 17.303300858899107}>, #Vivid.Point<{19.5, 14.196699141100893}>]>
   """
 
   @doc """
@@ -52,17 +51,17 @@ defmodule Vivid.Transform do
       iex> Vivid.Box.init(Vivid.Point.init(5,5), Vivid.Point.init(10,10))
       ...> |> Vivid.Transform.scale(2)
       ...> |> Vivid.Transform.apply
-      #Vivid.Polygon<[#Vivid.Point<{13, 3}>, #Vivid.Point<{13, 13}>, #Vivid.Point<{3, 13}>, #Vivid.Point<{3, 3}>]>
+      #Vivid.Polygon<[#Vivid.Point<{12.5, 2.5}>, #Vivid.Point<{12.5, 12.5}>, #Vivid.Point<{2.5, 12.5}>, #Vivid.Point<{2.5, 2.5}>]>
 
       iex> Vivid.Box.init(Vivid.Point.init(5,5), Vivid.Point.init(10,10))
       ...> |> Vivid.Transform.scale(2, 4)
       ...> |> Vivid.Transform.apply
-      #Vivid.Polygon<[#Vivid.Point<{13, -3}>, #Vivid.Point<{13, 18}>, #Vivid.Point<{3, 18}>, #Vivid.Point<{3, -3}>]>
+      #Vivid.Polygon<[#Vivid.Point<{12.5, -2.5}>, #Vivid.Point<{12.5, 17.5}>, #Vivid.Point<{2.5, 17.5}>, #Vivid.Point<{2.5, -2.5}>]>
 
   """
   def scale(shape, uniform) do
     fun = fn shape ->
-      origin = center_of(shape)
+      origin = Bounds.center_of(shape)
       &Transform.Point.scale(&1, uniform, uniform, origin)
     end
 
@@ -71,7 +70,7 @@ defmodule Vivid.Transform do
 
   def scale(shape, x, y) do
     fun = fn shape ->
-      origin = center_of(shape)
+      origin = Bounds.center_of(shape)
       &Transform.Point.scale(&1, x, y, origin)
     end
 
@@ -86,18 +85,18 @@ defmodule Vivid.Transform do
       iex> Vivid.Box.init(Vivid.Point.init(10,10), Vivid.Point.init(20,20))
       ...> |> Vivid.Transform.rotate(45)
       ...> |> Vivid.Transform.apply
-      #Vivid.Polygon<[#Vivid.Point<{13, 9}>, #Vivid.Point<{20, 16}>, #Vivid.Point<{17, 21}>, #Vivid.Point<{10, 14}>]>
+      #Vivid.Polygon<[#Vivid.Point<{22.071067811865476, 16.464466094067262}>, #Vivid.Point<{15.0, 18.535533905932738}>, #Vivid.Point<{7.9289321881345245, 13.535533905932738}>, #Vivid.Point<{15.0, 11.464466094067262}>]>
 
       iex> Vivid.Box.init(Vivid.Point.init(10,10), Vivid.Point.init(20,20))
       ...> |> Vivid.Transform.rotate(45, Vivid.Point.init(5,5))
       ...> |> Vivid.Transform.apply
-      #Vivid.Polygon<[#Vivid.Point<{13, 2}>, #Vivid.Point<{20, 9}>, #Vivid.Point<{17, 14}>, #Vivid.Point<{10, 6}>]>
+      #Vivid.Polygon<[#Vivid.Point<{12.071067811865476, 13.535533905932738}>, #Vivid.Point<{5.000000000000002, 15.606601717798215}>, #Vivid.Point<{-2.0710678118654737, 10.606601717798215}>, #Vivid.Point<{5.0, 8.535533905932738}>]>
   """
   def rotate(shape, degrees) do
     radians = degrees_to_radians(degrees)
     fun = fn shape ->
-      origin = center_of(shape)
-      &Transform.Point.rotate(&1, origin, radians)
+      origin = Bounds.center_of(shape)
+      &Transform.Point.rotate_radians(&1, origin, radians)
     end
 
     apply_transform(shape, fun, "rotate-#{degrees}-around-center")
@@ -105,7 +104,7 @@ defmodule Vivid.Transform do
   def rotate(shape, degrees, %Point{x: x, y: y}=origin) do
     radians = degrees_to_radians(degrees)
     fun = fn _shape ->
-      &Transform.Point.rotate(&1, origin, radians)
+      &Transform.Point.rotate_radians(&1, origin, radians)
     end
 
     apply_transform(shape, fun, "rotate-#{degrees}-around-#{x}-#{y}")
@@ -119,18 +118,18 @@ defmodule Vivid.Transform do
       iex> Vivid.Box.init(Vivid.Point.init(10,10), Vivid.Point.init(20,20))
       ...> |> Vivid.Transform.center(Vivid.Bounds.init(0, 0, 12, 12))
       ...> |> Vivid.Transform.apply
-      #Vivid.Polygon<[#Vivid.Point<{11, 1}>, #Vivid.Point<{11, 11}>, #Vivid.Point<{1, 11}>, #Vivid.Point<{1, 1}>]>
+      #Vivid.Polygon<[#Vivid.Point<{11.0, 1.0}>, #Vivid.Point<{11.0, 11.0}>, #Vivid.Point<{1.0, 11.0}>, #Vivid.Point<{1.0, 1.0}>]>
   """
   def center(shape, bounds) do
-    bounds        = bounds(bounds)
-    bounds_width  = width(bounds)
-    bounds_height = height(bounds)
-    bounds_center = center_of(bounds)
+    bounds        = Bounds.bounds(bounds)
+    bounds_width  = Bounds.width(bounds)
+    bounds_height = Bounds.height(bounds)
+    bounds_center = Bounds.center_of(bounds)
     fun = fn shape ->
-      shape_center = center_of(shape)
+      shape_center = Bounds.center_of(shape)
       {tr_x, tr_y} = Point.vector(shape_center, bounds_center)
 
-      &Transform.Point.translate(&1, round(tr_x), round(tr_y))
+      &Transform.Point.translate(&1, tr_x, tr_y)
     end
     apply_transform(shape, fun, "center-within-#{bounds_width}-#{bounds_height}")
   end
@@ -143,18 +142,18 @@ defmodule Vivid.Transform do
       iex> Vivid.Box.init(Vivid.Point.init(10,10), Vivid.Point.init(20,20))
       ...> |> Vivid.Transform.stretch(Vivid.Bounds.init(0, 0, 40, 80))
       ...> |> Vivid.Transform.apply
-      #Vivid.Polygon<[#Vivid.Point<{40, 0}>, #Vivid.Point<{40, 80}>, #Vivid.Point<{0, 80}>, #Vivid.Point<{0, 0}>]>
+      #Vivid.Polygon<[#Vivid.Point<{40.0, 0.0}>, #Vivid.Point<{40.0, 80.0}>, #Vivid.Point<{0.0, 80.0}>, #Vivid.Point<{0.0, 0.0}>]>
   """
   def stretch(shape, bounds) do
-    bounds        = bounds(bounds)
-    bounds_min    = min(bounds)
-    bounds_width  = width(bounds)
-    bounds_height = height(bounds)
+    bounds        = Bounds.bounds(bounds)
+    bounds_min    = Bounds.min(bounds)
+    bounds_width  = Bounds.width(bounds)
+    bounds_height = Bounds.height(bounds)
     fun = fn shape ->
-      shape_bounds  = bounds(shape)
-      shape_width   = width(shape_bounds)
-      shape_height  = height(shape_bounds)
-      shape_min     = min(shape_bounds)
+      shape_bounds  = Bounds.bounds(shape)
+      shape_width   = Bounds.width(shape_bounds)
+      shape_height  = Bounds.height(shape_bounds)
+      shape_min     = Bounds.min(shape_bounds)
 
       {tr_x, tr_y}  = Point.vector(shape_min, bounds_min)
 
@@ -178,25 +177,24 @@ defmodule Vivid.Transform do
       iex> Vivid.Box.init(Vivid.Point.init(10,10), Vivid.Point.init(20,20))
       ...> |> Vivid.Transform.fill(Vivid.Bounds.init(0, 0, 40, 80))
       ...> |> Vivid.Transform.apply
-      #Vivid.Polygon<[#Vivid.Point<{40, 0}>, #Vivid.Point<{40, 40}>, #Vivid.Point<{0, 40}>, #Vivid.Point<{0, 0}>]>
+      #Vivid.Polygon<[#Vivid.Point<{40.0, 0.0}>, #Vivid.Point<{40.0, 40.0}>, #Vivid.Point<{0.0, 40.0}>, #Vivid.Point<{0.0, 0.0}>]>
   """
   def fill(shape, bounds) do
-    bounds        = bounds(bounds)
-    bounds_min    = min(bounds)
-    bounds_width  = width(bounds)
-    bounds_height = height(bounds)
+    bounds        = Bounds.bounds(bounds)
+    bounds_min    = Bounds.min(bounds)
+    bounds_width  = Bounds.width(bounds)
+    bounds_height = Bounds.height(bounds)
     fun = fn shape ->
-      shape_bounds  = bounds(shape)
-      shape_width   = width(shape_bounds)
-      shape_height  = height(shape_bounds)
-      shape_min     = min(shape_bounds)
+      shape_bounds  = Bounds.bounds(shape)
+      shape_width   = Bounds.width(shape_bounds)
+      shape_height  = Bounds.height(shape_bounds)
+      shape_min     = Bounds.min(shape_bounds)
 
       {tr_x, tr_y}  = Point.vector(shape_min, bounds_min)
 
       scale_x       = bounds_width / shape_width
       scale_y       = bounds_height / shape_height
       scale         = if scale_x < scale_y, do: scale_x, else: scale_y
-
 
       fn point ->
         point
@@ -216,18 +214,18 @@ defmodule Vivid.Transform do
       iex> Vivid.Box.init(Vivid.Point.init(10,10), Vivid.Point.init(20,20))
       ...> |> Vivid.Transform.overflow(Vivid.Bounds.init(0, 0, 40, 80))
       ...> |> Vivid.Transform.apply
-      #Vivid.Polygon<[#Vivid.Point<{80, 0}>, #Vivid.Point<{80, 80}>, #Vivid.Point<{0, 80}>, #Vivid.Point<{0, 0}>]>
+      #Vivid.Polygon<[#Vivid.Point<{80.0, 0.0}>, #Vivid.Point<{80.0, 80.0}>, #Vivid.Point<{0.0, 80.0}>, #Vivid.Point<{0.0, 0.0}>]>
   """
   def overflow(shape, bounds) do
-       bounds        = bounds(bounds)
-    bounds_min    = min(bounds)
-    bounds_width  = width(bounds)
-    bounds_height = height(bounds)
+    bounds        = Bounds.bounds(bounds)
+    bounds_min    = Bounds.min(bounds)
+    bounds_width  = Bounds.width(bounds)
+    bounds_height = Bounds.height(bounds)
     fun = fn shape ->
-      shape_bounds  = bounds(shape)
-      shape_width   = width(shape_bounds)
-      shape_height  = height(shape_bounds)
-      shape_min     = min(shape_bounds)
+      shape_bounds  = Bounds.bounds(shape)
+      shape_width   = Bounds.width(shape_bounds)
+      shape_height  = Bounds.height(shape_bounds)
+      shape_min     = Bounds.min(shape_bounds)
 
       {tr_x, tr_y}  = Point.vector(shape_min, bounds_min)
 
@@ -261,12 +259,12 @@ defmodule Vivid.Transform do
       ...>   fn point ->
       ...>     x = point |> Vivid.Point.x
       ...>     y = point |> Vivid.Point.y
-      ...>     x = x - (width / 2) |> round
+      ...>     x = x + (width / 2) |> round
       ...>     Vivid.Point.init(x, y)
       ...>   end
       ...> end)
       ...> |> Vivid.Transform.apply
-      #Vivid.Polygon<[#Vivid.Point<{15, 10}>, #Vivid.Point<{15, 20}>, #Vivid.Point<{5, 20}>, #Vivid.Point<{5, 10}>]>
+      #Vivid.Polygon<[#Vivid.Point<{25, 10}>, #Vivid.Point<{25, 20}>, #Vivid.Point<{15, 20}>, #Vivid.Point<{15, 10}>]>
   """
   def transform(shape, fun), do: apply_transform(shape, fun, inspect(fun))
 
@@ -282,9 +280,6 @@ defmodule Vivid.Transform do
     end)
   end
 
-  # Just because I sometimes do this while debugging
-  def apply(shape), do: shape
-
   defp apply_transform(%Transform{operations: operations}=transform, fun, name) do
     operations = [ %Operation{function: fun, name: name} | operations ]
     %{transform | operations: operations}
@@ -292,6 +287,4 @@ defmodule Vivid.Transform do
   defp apply_transform(shape, fun, name) do
     %Transform{operations: [ %Operation{function: fun, name: name} ], shape: shape}
   end
-
-  defp degrees_to_radians(degrees), do: degrees / 360.0 * 2.0 * pi
 end

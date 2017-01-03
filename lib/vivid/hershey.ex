@@ -52,7 +52,7 @@ defmodule Vivid.Hershey do
     [y,x] = xy |> String.to_charlist
     x = @mid_point - x
     y = y - @mid_point
-    parse_coords([{x, y} | parsed], rest)
+    parse_coords([{y, x} | parsed], rest)
   end
 
   defp get_path(file) do

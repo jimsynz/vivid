@@ -1,6 +1,6 @@
 defmodule Vivid.Transform.Point do
   alias Vivid.Point
-  import :math, only: [cos: 1, sin: 1]
+  import Vivid.Math
 
   @moduledoc """
   Standard transformations which can be applied to points without
@@ -18,21 +18,26 @@ defmodule Vivid.Transform.Point do
   """
   def scale(%Point{}=point, x_factor, y_factor), do: scale(point, x_factor, y_factor, Point.init(0,0))
   def scale(%Point{x: x, y: y}, x_factor, y_factor, %Point{x: xo, y: yo}) do
-    x = (x - xo) * x_factor + xo |> round
-    y = (y - yo) * y_factor + yo |> round
+    x = (x - xo) * x_factor + xo
+    y = (y - yo) * y_factor + yo
     Point.init(x, y)
   end
 
   @doc """
   Rotate a point `degrees` around an origin point.
   """
-  def rotate(%Point{x: x0, y: y0}, %Point{x: x1, y: y1}, radians) do
-    x = x1 - x0
-    y = y1 - y0
+  def rotate(point, origin, degrees), do: rotate_radians(point, origin, degrees_to_radians(degrees))
 
-    x = (x * cos(radians)) - (y * sin(radians)) |> round
-    y = (x * sin(radians)) + (y * cos(radians)) |> round
+  @doc """
+  Rotate a point `radians` around an origin point.
+  """
+  def rotate_radians(%Point{x: x0, y: y0}=p0, %Point{x: x1, y: y1}=p1, radians) do
+    x = x0 - x1
+    y = y0 - y1
 
-    Point.init(x + x0, y + y0)
+    x = (x * cos(radians)) - (y * sin(radians))
+    y = (y * cos(radians)) + (x * sin(radians))
+
+    Point.init(x + x1, y + y1)
   end
 end

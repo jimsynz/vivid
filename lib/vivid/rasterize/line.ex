@@ -35,7 +35,11 @@ defimpl Vivid.Rasterize, for: Vivid.Line do
 
   """
   def rasterize(%Line{}=line, bounds) do
-    origin = line |> Line.origin
+    # Convert the line into absolute coordinates.
+    origin = line |> Line.origin |> Point.round
+    term   = line |> Line.termination |> Point.round
+    line   = Line.init(origin, term)
+
     dx = line |> Line.x_distance
     dy = line |> Line.y_distance
 
@@ -69,12 +73,9 @@ defimpl Vivid.Rasterize, for: Vivid.Line do
   defp choose_largest_of(a, b) when a > b, do: a
   defp choose_largest_of(_, b), do: b
 
-  defp clip(points, %Bounds{min: %Point{x: x0, y: y0}, max: %Point{x: x1, y: y1}}) do
+  defp clip(points, %Bounds{}=bounds) do
     points
-    |> Stream.filter(fn
-      %Point{x: x, y: y} when x >= x0 and x <= x1 and y >= y0 and y <= y1 -> true
-      _ -> false
-    end)
+    |> Stream.filter(&Bounds.contains?(bounds,&1))
     |> Enum.into(MapSet.new)
   end
 

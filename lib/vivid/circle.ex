@@ -1,7 +1,7 @@
 defmodule Vivid.Circle do
   alias Vivid.{Circle, Point, Polygon}
   defstruct ~w(center radius fill)a
-  import :math, only: [pow: 2, sqrt: 1]
+  import Vivid.Math
 
   @moduledoc """
   Represents a circle based on it's center point and radius.
@@ -55,24 +55,21 @@ defmodule Vivid.Circle do
   """
   def circumference(%Circle{radius: radius}), do: 2 * :math.pi * radius
 
-  def to_polygon(%Circle{center: point, radius: radius, fill: fill}) do
-    x_center  = point |> Point.x
-    y_center  = point |> Point.y
-    r_squared = pow(radius, 2)
+  def to_polygon(%Circle{radius: radius}=circle), do: to_polygon(circle, round(radius * 2))
+  def to_polygon(%Circle{center: center, radius: radius, fill: fill}, steps) do
+    h = center |> Point.x
+    k = center |> Point.y
+    step_degree = 360 / steps
 
-    {points0, points1} = Enum.reduce(0-radius..radius, {[], []}, fn (x, {points0, points1}) ->
-      y  = sqrt(r_squared - pow(x, 2)) |> round
-      x  = x_center + x
-      y0 = y_center - y
-      y1 = y_center + y
-      points0 = [ Point.init(x, y0) | points0 ]
-      points1 = [ Point.init(x, y1) | points1 ]
-      {points0, points1}
+    Enum.map(0..steps - 1, fn(step) ->
+      theta = step_degree * step
+      theta = degrees_to_radians(theta)
+
+      x = h + radius * cos(theta)
+      y = k - radius * sin(theta)
+
+      Point.init(x, y)
     end)
-
-    points1 = points1 |> Enum.reverse
-
-    points0 ++ points1
-   |> Polygon.init(fill)
+    |> Polygon.init(fill)
   end
 end
