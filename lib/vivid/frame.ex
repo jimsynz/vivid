@@ -6,6 +6,8 @@ defmodule Vivid.Frame do
   A frame buffer or something.
   """
 
+  @opaque t :: %Frame{width: integer, height: integer, background_colour: RGBA.t, shapes: []}
+
   @doc """
   Initialize a frame buffer.
 
@@ -18,7 +20,10 @@ defmodule Vivid.Frame do
       iex> Vivid.Frame.init(4, 4)
       #Vivid.Frame<[width: 4, height: 4, background_colour: #Vivid.RGBA<{0, 0, 0, 0}>]>
   """
-  def init(width \\ 128, height \\ 64, colour \\ RGBA.init(0,0,0,0)) do
+  @spec init(integer(), integer(), Range.t) :: Frame.t
+  def init(width \\ 128, height \\ 64, %RGBA{}=colour \\ RGBA.init(0,0,0,0))
+  when is_integer(width) and is_integer(height) and width > 0 and height > 0
+  do
     %Frame{width: width, height: height, background_colour: colour, shapes: []}
   end
 
@@ -29,7 +34,7 @@ defmodule Vivid.Frame do
 
       iex> Vivid.Frame.init(5,5)
       ...> |> Vivid.Frame.push(Vivid.Line.init(Vivid.Point.init(1,1), Vivid.Point.init(3,3)), Vivid.RGBA.white)
-      ...> |> Vivid.Frame.to_string
+      ...> |> to_string
       "     \n" <>
       "   @ \n" <>
       "  @  \n" <>
@@ -45,7 +50,7 @@ defmodule Vivid.Frame do
       ...>        Vivid.Point.init(3,1),
       ...>      ]), Vivid.RGBA.white
       ...>    )
-      ...> |> Vivid.Frame.to_string
+      ...> |> to_string
       "     \n" <>
       " @@@ \n" <>
       " @ @ \n" <>
@@ -61,7 +66,7 @@ defmodule Vivid.Frame do
       ...>        Vivid.Point.init(3,1),
       ...>      ]), Vivid.RGBA.white
       ...>    )
-      ...> |> Vivid.Frame.to_string
+      ...> |> to_string
       "     \n" <>
       " @@@ \n" <>
       " @ @ \n" <>
@@ -71,7 +76,7 @@ defmodule Vivid.Frame do
       iex> circle = Vivid.Circle.init(Vivid.Point.init(5,5), 4)
       ...> Vivid.Frame.init(11, 10)
       ...> |> Vivid.Frame.push(circle, Vivid.RGBA.white)
-      ...> |> Vivid.Frame.to_string
+      ...> |> to_string
       "    @@@    \n" <>
       "  @@   @@  \n" <>
       "  @     @  \n" <>
@@ -86,13 +91,14 @@ defmodule Vivid.Frame do
       iex> line = Vivid.Line.init(Vivid.Point.init(0,0), Vivid.Point.init(50,50))
       ...> Vivid.Frame.init(5,5)
       ...> |> Vivid.Frame.push(line, Vivid.RGBA.white)
-      ...> |> Vivid.Frame.to_string
+      ...> |> to_string
       "    @\n" <>
       "   @ \n" <>
       "  @  \n" <>
       " @   \n" <>
       "@    \n"
   """
+  @spec push(Frame.t, Shape.t, RGBA.t) :: Frame.t
   def push(%Frame{shapes: shapes}=frame, shape, colour) do
     %{frame | shapes: [{shape, colour} | shapes]}
   end
@@ -100,6 +106,7 @@ defmodule Vivid.Frame do
   @doc """
   Clear the frame of any shapes.
   """
+  @spec clear(Frame.t) :: Frame.t
   def clear(%Frame{}=frame) do
     %{frame | shapes: []}
   end
@@ -112,6 +119,7 @@ defmodule Vivid.Frame do
       iex> Vivid.Frame.init(80, 25) |> Vivid.Frame.width
       80
   """
+  @spec width(Frame.t) :: integer()
   def width(%Frame{width: w}), do: w
 
   @doc """
@@ -122,44 +130,49 @@ defmodule Vivid.Frame do
       iex> Vivid.Frame.init(80, 25) |> Vivid.Frame.height
       25
   """
+  @spec height(Frame.t) :: integer()
   def height(%Frame{height: h}), do: h
 
   @doc """
-  Return the colour depth of the frame.
+  Return the background colour of the frame.
 
   ## Example
 
       iex> Vivid.Frame.init(80, 25) |> Vivid.Frame.background_colour
       #Vivid.RGBA<{0, 0, 0, 0}>
   """
+  @spec background_colour(Frame.t) :: RGBA.t
   def background_colour(%Frame{background_colour: c}), do: c
 
-  def buffer(%Frame{}=frame), do: Buffer.horizontal(frame)
-  def buffer(%Frame{}=frame, :horizontal), do: Buffer.horizontal(frame)
-  def buffer(%Frame{}=frame, :vertical),   do: Buffer.vertical(frame)
-
-  @doc ~S"""
-  Convert a frame buffer to a string for debugging.
-
-  ## Examples
-
-      iex> Vivid.Frame.init(4, 4) |> Vivid.Frame.to_string
-      "    \n" <>
-      "    \n" <>
-      "    \n" <>
-      "    \n"
-  """
-  def to_string(%Frame{}=frame) do
-    Kernel.to_string(frame)
-  end
 
   @doc """
-  Print the frame buffer to stdout for debugging.
+  Change the background colour of the frame.
+
+  ## Example
+
+      iex> Vivid.Frame.init(80,25)
+      ...> |> Vivid.Frame.background_colour(Vivid.RGBA.white)
+      ...> |> Vivid.Frame.background_colour
+      #Vivid.RGBA<{1, 1, 1, 1}>
   """
-  def puts(%Frame{}=frame) do
-    frame
-    |> Frame.to_string
-    |> IO.write
-    :ok
-  end
+  @spec background_colour(Frame.t, RGBA.t) :: Frame.t
+  def background_colour(%Frame{}=frame, %RGBA{}=c), do: %{frame | background_colour: c}
+
+  @doc """
+  Render a frame into a buffer for display.
+
+  You can specify either `:horizontal` or `:vertical` mode, where in
+  `:horizontal` mode the buffer is rendered row-by-row then column-by-column
+  and in `:vertical` mode the buffer is rendered column-by-column then
+  row-by-row.
+
+  Returns a one-dimensional List of %RGBA{} colours with alpha-compositing
+  completed.
+  """
+  @spec buffer(Frame.t) :: [RGBA.t]
+  def buffer(%Frame{}=frame), do: Buffer.horizontal(frame)
+
+  @spec buffer(Frame.t, :horizontal | :vertical) :: [RGBA.t]
+  def buffer(%Frame{}=frame, :horizontal), do: Buffer.horizontal(frame)
+  def buffer(%Frame{}=frame, :vertical),   do: Buffer.vertical(frame)
 end
