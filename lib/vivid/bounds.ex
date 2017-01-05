@@ -1,10 +1,12 @@
 defmodule Vivid.Bounds do
-  alias Vivid.{Bounds, Point}
+  alias Vivid.{Bounds, Point, Shape}
   defstruct ~w(min max)a
 
   @moduledoc """
   Provides information about the bounds of a box and pixel positions within it.
   """
+
+  @opaque t :: %Bounds{min: Point.t, max: Point.t}
 
   @doc """
   Initialise arbitrary bounds.
@@ -14,6 +16,7 @@ defmodule Vivid.Bounds do
       iex> Vivid.Bounds.init(0, 0, 5, 5)
       #Vivid.Bounds<[min: #Vivid.Point<{0, 0}>, max: #Vivid.Point<{5, 5}>]>
   """
+  @spec init(number, number, number, number) :: Bounds.t
   def init(x0, y0, x1, y1), do: %Bounds{min: Point.init(x0, y0), max: Point.init(x1, y1)}
 
   @doc """
@@ -25,6 +28,7 @@ defmodule Vivid.Bounds do
       ...> |> Vivid.Bounds.bounds
       #Vivid.Bounds<[min: #Vivid.Point<{0.0, 0.0}>, max: #Vivid.Point<{20.0, 20.0}>]>
   """
+  @spec bounds(Shape.t) :: Bounds.t
   def bounds(%Bounds{}=bounds), do: bounds
   def bounds(shape) do
     {min, max} = Vivid.Bounds.Of.bounds(shape)
@@ -40,6 +44,7 @@ defmodule Vivid.Bounds do
       ...> |> Vivid.Bounds.width
       20.0
   """
+  @spec width(Shape.t) :: number
   def width(%Bounds{min: %Point{x: x0}, max: %Point{x: x1}}), do: abs(x1 - x0)
   def width(shape), do: shape |> bounds |> width
 
@@ -52,6 +57,7 @@ defmodule Vivid.Bounds do
       ...> |> Vivid.Bounds.height
       20.0
   """
+  @spec height(Shape.t) :: number
   def height(%Bounds{min: %Point{y: y0}, max: %Point{y: y1}}), do: abs(y1 - y0)
   def height(shape), do: shape |> bounds |> height
 
@@ -64,6 +70,7 @@ defmodule Vivid.Bounds do
       ...> |> Vivid.Bounds.min
       #Vivid.Point<{0.0, 0.0}>
   """
+  @spec min(Shape.t) :: Point.t
   def min(%Bounds{min: min}), do: min
   def min(shape), do: shape |> bounds |> min
 
@@ -76,6 +83,7 @@ defmodule Vivid.Bounds do
       ...> |> Vivid.Bounds.max
       #Vivid.Point<{20.0, 20.0}>
   """
+  @spec max(Shape.t) :: Point.t
   def max(%Bounds{max: max}), do: max
   def max(shape), do: shape |> bounds |> max
 
@@ -89,6 +97,7 @@ defmodule Vivid.Bounds do
       ...> |> Vivid.Bounds.center_of
       #Vivid.Point<{10.0, 10.0}>
   """
+  @spec center_of(Shape.t) :: Point.t
   def center_of(%Bounds{min: %Point{x: x0, y: y0}, max: %Point{x: x1, y: y1}}) do
     x = x0 + (x1 - x0) / 2
     y = y0 + (y1 - y0) / 2
@@ -125,6 +134,7 @@ defmodule Vivid.Bounds do
         ...> |> Vivid.Bounds.contains?(Vivid.Point.init(11, 11))
         false
   """
+  @spec contains?(Shape.t, Point.t) :: boolean
   def contains?(%Bounds{min: %Point{x: x0, y: y0}, max: %Point{x: x1, y: y1}}, %Point{x: x, y: y}) when x0 <= x and x <= x1 and y0 <= y and y <= y1, do: true
   def contains?(_, _), do: false
 end

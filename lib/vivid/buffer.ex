@@ -4,11 +4,32 @@ defmodule Vivid.Buffer do
 
   @moduledoc """
   Used to convert a Frame into a buffer for display.
+
+  You're unlikely to need to use this module directly, instead you will
+  likely want to use `Frame.buffer/2` instead.
+
+  Buffer implements the `Enumerable` protocol.
   """
 
-  @doc """
+  @opaque t :: %Buffer{buffer: [RGBA.t], rows: integer, columns: integer}
+
+  @doc ~S"""
   Render the buffer horizontally, ie across rows then up columns.
+
+  ## Example
+
+      iex> use Vivid
+      ...> Frame.init(5, 5, RGBA.white)
+      ...> |> Frame.push(Line.init(Point.init(0, 2), Point.init(5, 2)), RGBA.black)
+      ...> |> Buffer.horizontal
+      ...> |> to_string
+      "@@@@@\n" <>
+      "@@@@@\n" <>
+      "     \n" <>
+      "@@@@@\n" <>
+      "@@@@@\n"
   """
+  @spec horizontal(Frame.t) :: [RGBA.t]
   def horizontal(%Frame{shapes: shapes, width: w, height: h}=frame) do
     buffer = allocate(frame)
     bounds = Bounds.bounds(frame)
@@ -16,9 +37,23 @@ defmodule Vivid.Buffer do
     %Buffer{buffer: buffer, rows: h, columns: w}
   end
 
-  @doc """
+  @doc ~S"""
   Render the buffer vertically, ie up columns then across rows.
+
+  ## Example
+
+      iex> use Vivid
+      ...> Frame.init(5, 5, RGBA.white)
+      ...> |> Frame.push(Line.init(Point.init(0, 2), Point.init(5, 2)), RGBA.black)
+      ...> |> Buffer.vertical
+      ...> |> to_string
+      "@@ @@\n" <>
+      "@@ @@\n" <>
+      "@@ @@\n" <>
+      "@@ @@\n" <>
+      "@@ @@\n"
   """
+  @spec vertical(Frame.t) :: [RGBA.t]
   def vertical(%Frame{shapes: shapes, width: w, height: h}=frame) do
     bounds = Bounds.bounds(frame)
     buffer = allocate(frame)

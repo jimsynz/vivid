@@ -7,7 +7,18 @@ defmodule Vivid.RGBA do
 
   @moduledoc """
   Defines a colour in RGBA colour space.
+
+  Colour and alpha values are defined as `0 >= n >= 1`.
   """
+
+  @type zero_to_one :: number
+  @opaque t :: %RGBA{red:     zero_to_one,
+                     green:   zero_to_one,
+                     blue:    zero_to_one,
+                     alpha:   zero_to_one,
+                     a_red:   zero_to_one,
+                     a_green: zero_to_one,
+                     a_blue:  zero_to_one}
 
   @doc """
   Create a colour. Like magic.
@@ -17,9 +28,10 @@ defmodule Vivid.RGBA do
       iex> Vivid.RGBA.init(0.1, 0.2, 0.3, 0.4)
       #Vivid.RGBA<{0.1, 0.2, 0.3, 0.4}>
   """
-
+  @spec init(zero_to_one, zero_to_one, zero_to_one) :: RGBA.t
   def init(red, green, blue), do: init(red, green, blue, 1)
 
+  @spec init(zero_to_one, zero_to_one, zero_to_one, zero_to_one) :: RGBA.t
   def init(red, green, blue, 1)
   when is_number(red) and is_number(green) and is_number(blue)
    and red >= 0 and red <= 1
@@ -80,6 +92,7 @@ defmodule Vivid.RGBA do
       iex> Vivid.RGBA.white
       #Vivid.RGBA<{1, 1, 1, 1}>
   """
+  @spec white() :: RGBA.t
   def white, do: RGBA.init(1,1,1)
 
   @doc """
@@ -90,6 +103,7 @@ defmodule Vivid.RGBA do
       iex> Vivid.RGBA.black
       #Vivid.RGBA<{0, 0, 0, 1}>
   """
+  @spec black() :: RGBA.t
   def black, do: RGBA.init(0,0,0)
 
   @doc """
@@ -101,7 +115,8 @@ defmodule Vivid.RGBA do
       ...> |> Vivid.RGBA.red
       0.7
   """
-  def red(%RGBA{red: r}),     do: r
+  @spec red(RGBA.t) :: zero_to_one
+  def red(%RGBA{red: r}), do: r
 
   @doc """
   Return the green component of the colour.
@@ -112,6 +127,7 @@ defmodule Vivid.RGBA do
       ...> |> Vivid.RGBA.green
       0.6
   """
+  @spec green(RGBA.t) :: zero_to_one
   def green(%RGBA{green: g}), do: g
 
   @doc """
@@ -123,7 +139,8 @@ defmodule Vivid.RGBA do
       ...> |> Vivid.RGBA.blue
       0.5
   """
-  def blue(%RGBA{blue: b}),   do: b
+  @spec blue(RGBA.t) :: zero_to_one
+  def blue(%RGBA{blue: b}), do: b
 
   @doc """
   Return the alpha component of the colour.
@@ -134,6 +151,7 @@ defmodule Vivid.RGBA do
       ...> |> Vivid.RGBA.alpha
       0.4
   """
+  @spec alpha(RGBA.t) :: zero_to_one
   def alpha(%RGBA{alpha: a}), do: a
 
   @doc """
@@ -145,6 +163,7 @@ defmodule Vivid.RGBA do
       ...> |> Vivid.RGBA.to_hex
       "#B39980"
   """
+  @spec to_hex(RGBA.t) :: String.t
   def to_hex(%RGBA{red: r, green: g, blue: b, alpha: 1}) do
     r = r |> f2h
     g = g |> f2h
@@ -168,7 +187,7 @@ defmodule Vivid.RGBA do
       iex> Vivid.RGBA.over(Vivid.RGBA.black, Vivid.RGBA.init(1,1,1, 0.5))
       #Vivid.RGBA<{0.5, 0.5, 0.5, 1.0}>
   """
-
+  @spec over(RGBA.t, RGBA.t) :: RGBA.t
   def over(nil, %RGBA{}=colour), do: colour
   def over(%RGBA{}, %RGBA{alpha: 1}=visible), do: visible
   def over(%RGBA{}=visible, %RGBA{alpha: 0}), do: visible
@@ -196,11 +215,22 @@ defmodule Vivid.RGBA do
       iex> Vivid.RGBA.black |> Vivid.RGBA.luminance
       0.0
   """
+  @spec luminance(RGBA.t) :: zero_to_one
   def luminance(%RGBA{a_red: r, a_green: g, a_blue: b}) do
     [rl, gl, bl] = [r, g, b ] |> Enum.map(&pow(&1, 2.2))
     0.2128 * rl + 0.7150 * gl + 0.0722 * bl
   end
 
+  @doc """
+  Convert a colour to an ASCII character.
+
+  This isn't very scientific, but helps with debugging and is used in the
+  implementations of `String.Chars` for Vivid types.
+
+  The chacaters used (from black to white) are `" .:-=+*#%@"`. These are
+  chosen based on the `luminance/1` value of the colour.
+  """
+  @spec to_ascii(RGBA.t) :: String.t
   def to_ascii(%RGBA{}=colour) do
     l = luminance(colour)
     c = l * (@ascii_luminance_map_length - 1) |> round

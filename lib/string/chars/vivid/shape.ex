@@ -1,6 +1,8 @@
 defmodule Vivid.ShapeToString do
   alias Vivid.{Bounds, Frame, Transform, RGBA}
 
+  @moduledoc false
+
   def to_string(shape) do
     bounds = Bounds.bounds(shape)
     width  = Bounds.width(bounds) + 3 |> round

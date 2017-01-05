@@ -7,6 +7,8 @@ defmodule Vivid.Line do
   Represents a line segment between two Points in 2D space.
   """
 
+  @opaque t :: %Line{origin: Point.t, termination: Point.t}
+
   @doc ~S"""
   Creates a Line.
 
@@ -16,9 +18,12 @@ defmodule Vivid.Line do
       %Vivid.Line{origin: %Vivid.Point{x: 1, y: 1}, termination: %Vivid.Point{x: 4, y: 4}}
 
   """
+  @spec init(Point.t, Point.t) :: Line.t
   def init(%Point{}=o, %Point{}=t) do
     %Line{origin: o, termination: t}
   end
+
+  @spec init([Point.t]) :: Line.t
   def init([o,t]) do
     init(o,t)
   end
@@ -31,6 +36,7 @@ defmodule Vivid.Line do
       iex> Vivid.Line.init(Vivid.Point.init(1,1), Vivid.Point.init(4,4)) |> Vivid.Line.origin
       %Vivid.Point{x: 1, y: 1}
   """
+  @spec origin(Line.t) :: Point.t
   def origin(%Line{origin: o}), do: o
 
   @doc ~S"""
@@ -41,6 +47,7 @@ defmodule Vivid.Line do
       iex> Vivid.Line.init(Vivid.Point.init(1,1), Vivid.Point.init(4,4)) |> Vivid.Line.termination
       %Vivid.Point{x: 4, y: 4}
   """
+  @spec termination(Line.t) :: Point.t
   def termination(%Line{termination: t}), do: t
 
   @doc ~S"""
@@ -51,6 +58,7 @@ defmodule Vivid.Line do
       iex> Vivid.Line.init(Vivid.Point.init(1,1), Vivid.Point.init(14,4)) |> Vivid.Line.width
       13
   """
+  @spec width(Line.t) :: number
   def width(%Line{}=line), do: abs(x_distance(line))
 
   @doc ~S"""
@@ -61,6 +69,7 @@ defmodule Vivid.Line do
       iex> Vivid.Line.init(Vivid.Point.init(14,1), Vivid.Point.init(1,4)) |> Vivid.Line.x_distance
       -13
   """
+  @spec x_distance(Line.t) :: number
   def x_distance(%Line{origin: %Point{x: x0}, termination: %Point{x: x1}}), do: x1 - x0
 
   @doc ~S"""
@@ -71,7 +80,7 @@ defmodule Vivid.Line do
       iex> Vivid.Line.init(Vivid.Point.init(1,1), Vivid.Point.init(4,14)) |> Vivid.Line.height
       13
   """
-
+  @spec height(Line.t) :: number
   def height(%Line{}=line), do: abs(y_distance(line))
 
   @doc ~S"""
@@ -82,6 +91,7 @@ defmodule Vivid.Line do
       iex> Vivid.Line.init(Vivid.Point.init(1,14), Vivid.Point.init(4,1)) |> Vivid.Line.y_distance
       -13
   """
+  @spec y_distance(Line.t) :: number
   def y_distance(%Line{origin: %Point{y: y0}, termination: %Point{y: y1}}), do: y1 - y0
 
   @doc ~S"""
@@ -93,6 +103,7 @@ defmodule Vivid.Line do
       iex> Vivid.Line.init(Vivid.Point.init(1,1), Vivid.Point.init(4,5)) |> Vivid.Line.length
       5.0
   """
+  @spec length(Line.t) :: number
   def length(%Line{}=line) do
     dx2 = line |> width |> pow(2)
     dy2 = line |> height |> pow(2)

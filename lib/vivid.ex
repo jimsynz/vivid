@@ -10,6 +10,9 @@ defmodule Vivid do
   @moduledoc ~S"""
   Vivid is a 2D rendering engine implemented purely in Elixir.
 
+  If you add `use Vivid` to your module then aliases for all the common Vivid
+  modules will automatically be defined for you.
+
   ## Examples
 
     Drawing a box on the frame

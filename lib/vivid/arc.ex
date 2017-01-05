@@ -52,7 +52,7 @@ defmodule Vivid.Arc do
       ...> |> Vivid.Arc.center
       #Vivid.Point<{10, 10}>
   """
-  @spec center(Art.t) :: Point.t
+  @spec center(Arc.t) :: Point.t
   def center(%Arc{center: p}), do: p
 
   @doc """
@@ -65,7 +65,7 @@ defmodule Vivid.Arc do
       ...> |> Vivid.Arc.center
       #Vivid.Point<{15, 15}>
   """
-  @spec center(Art.t, Point.t) :: Arc.t
+  @spec center(Arc.t, Point.t) :: Arc.t
   def center(%Arc{}=a, %Point{}=p), do: %{a | center: p}
 
   @doc """

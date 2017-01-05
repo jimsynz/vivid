@@ -1,9 +1,42 @@
 defmodule Vivid.Frame do
-  alias Vivid.{Frame, RGBA, Buffer}
+  alias Vivid.{Frame, RGBA, Buffer, Shape}
   defstruct ~w(width height background_colour shapes)a
 
-  @moduledoc """
-  A frame buffer or something.
+  @moduledoc ~S"""
+  Frame represents a collection of colours and shapes.
+
+  Frame implements both the `Enumerable` and `Collectable` protocols.
+
+  ## Examples
+
+        iex> use Vivid
+        ...> Enum.map(1..5, fn i ->
+        ...>   line = Line.init(Point.init(1,1), Point.init(20, i * 4))
+        ...>   {line, RGBA.black}
+        ...> end)
+        ...> |> Enum.into(Frame.init(24, 21, RGBA.white))
+        ...> |> to_string
+        "@@@@@@@@@@@@@@@@@@@@ @@@\n" <>
+        "@@@@@@@@@@@@@@@@@@@ @@@@\n" <>
+        "@@@@@@@@@@@@@@@@@@ @@@@@\n" <>
+        "@@@@@@@@@@@@@@@@@ @@@@@@\n" <>
+        "@@@@@@@@@@@@@@@@ @@@ @@@\n" <>
+        "@@@@@@@@@@@@@@@ @@@ @@@@\n" <>
+        "@@@@@@@@@@@@@@ @@  @@@@@\n" <>
+        "@@@@@@@@@@@@@ @@ @@@@@@@\n" <>
+        "@@@@@@@@@@@@ @@ @@@@ @@@\n" <>
+        "@@@@@@@@@@@ @@ @@@  @@@@\n" <>
+        "@@@@@@@@@@ @  @@  @@@@@@\n" <>
+        "@@@@@@@@@ @ @@  @@@@@@@@\n" <>
+        "@@@@@@@@ @ @@ @@@@@  @@@\n" <>
+        "@@@@@@@   @  @@@   @@@@@\n" <>
+        "@@@@@@  @  @@@  @@@@@@@@\n" <>
+        "@@@@@  @ @@   @@@@@@@@@@\n" <>
+        "@@@@       @@@@@@    @@@\n" <>
+        "@@@     @@@      @@@@@@@\n" <>
+        "@@         @@@@@@@@@@@@@\n" <>
+        "@    @@@@@@@@@@@@@@@@@@@\n" <>
+        "@@@@@@@@@@@@@@@@@@@@@@@@\n"
   """
 
   @opaque t :: %Frame{width: integer, height: integer, background_colour: RGBA.t, shapes: []}
@@ -166,7 +199,7 @@ defmodule Vivid.Frame do
   and in `:vertical` mode the buffer is rendered column-by-column then
   row-by-row.
 
-  Returns a one-dimensional List of %RGBA{} colours with alpha-compositing
+  Returns a one-dimensional List of `RGBA` colours with alpha-compositing
   completed.
   """
   @spec buffer(Frame.t) :: [RGBA.t]

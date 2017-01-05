@@ -1,15 +1,30 @@
 defmodule Vivid.Path do
-  alias Vivid.{Path, Point, Line}
+  alias Vivid.{Path, Point, Line, Shape}
   defstruct vertices: []
 
   @moduledoc """
   Describes a path as a series of vertices.
+
+  Path implements both the `Enumerable` and `Collectable` protocols.
   """
 
-  @doc """
-  Initialize a path either empty or from a list of points.
+  @opaque t :: %Path{vertices: [Shape.t]}
 
-  ## Examples
+  @doc """
+  Initialize an empty path.
+
+  ## Example
+
+      iex> Vivid.Path.init
+      %Vivid.Path{vertices: []}
+  """
+  @spec init() :: Path.t
+  def init, do: %Path{vertices: []}
+
+  @doc """
+  Initialize a path from a list of points.
+
+  ## Example
 
       iex> Vivid.Path.init([Vivid.Point.init(1,1), Vivid.Point.init(1,2), Vivid.Point.init(2,2), Vivid.Point.init(2,1)])
       %Vivid.Path{vertices: [
@@ -18,13 +33,9 @@ defmodule Vivid.Path do
         %Vivid.Point{x: 2, y: 2},
         %Vivid.Point{x: 2, y: 1}
       ]}
-
-      iex> Vivid.Path.init
-      %Vivid.Path{vertices: []}
   """
-
+  @spec init([Point.t]) :: Path.t
   def init(points) when is_list(points), do: %Path{vertices: points}
-  def init, do: %Path{vertices: []}
 
   @doc """
   Convert a path into a list of lines joined by the vertices.
@@ -39,6 +50,7 @@ defmodule Vivid.Path do
        %Vivid.Line{origin: %Vivid.Point{x: 2, y: 2},
          termination: %Vivid.Point{x: 2, y: 1}}]
   """
+  @spec to_lines(Path.t) :: [Line.t]
   def to_lines(%Path{vertices: points}) do
     points_to_lines([], points)
   end
@@ -51,6 +63,7 @@ defmodule Vivid.Path do
       iex> Vivid.Path.init([Vivid.Point.init(1,1), Vivid.Point.init(2,2)]) |> Vivid.Path.delete(Vivid.Point.init(2,2))
       %Vivid.Path{vertices: [%Vivid.Point{x: 1, y: 1}]}
   """
+  @spec delete(Path.t, Point.t) :: Path.t
   def delete(%Path{vertices: points}, %Point{}=point) do
     points
     |> List.delete(point)
@@ -65,6 +78,7 @@ defmodule Vivid.Path do
       iex> Vivid.Path.init([Vivid.Point.init(1,1), Vivid.Point.init(2,2)]) |> Vivid.Path.delete_at(1)
       %Vivid.Path{vertices: [%Vivid.Point{x: 1, y: 1}]}
   """
+  @spec delete_at(Path.t, integer) :: Path.t
   def delete_at(%Path{vertices: points}, index) do
     points
     |> List.delete_at(index)
@@ -72,20 +86,21 @@ defmodule Vivid.Path do
   end
 
   @doc """
-  Remove a vertex at a specific index in the Path.
+  Return the first vertex in the Path.
 
   ## Example
 
       iex> Vivid.Path.init([Vivid.Point.init(1,1), Vivid.Point.init(2,2)]) |> Vivid.Path.first
       %Vivid.Point{x: 1, y: 1}
   """
+  @spec first(Path.t) :: Point.t
   def first(%Path{vertices: points}) do
     points
     |> List.first
   end
 
   @doc """
-  Remove a vertex at a specific index in the Path.
+  Insert a vertex at a specific index in the Path.
 
   ## Example
 
@@ -96,6 +111,7 @@ defmodule Vivid.Path do
         %Vivid.Point{x: 2, y: 2}
       ]}
   """
+  @spec insert_at(Path.t, integer, Point.t) :: Path.t
   def insert_at(%Path{vertices: points}, index, %Point{}=point) do
     points
     |> List.insert_at(index, point)
@@ -103,20 +119,21 @@ defmodule Vivid.Path do
   end
 
   @doc """
-  Remove a vertex at a specific index in the Path.
+  Return the last vertex in the Path.
 
   ## Example
 
       iex> Vivid.Path.init([Vivid.Point.init(1,1), Vivid.Point.init(2,2)]) |> Vivid.Path.last
       %Vivid.Point{x: 2, y: 2}
   """
+  @spec last(Path.t) :: Point.t
   def last(%Path{vertices: points}) do
     points
     |> List.last
   end
 
   @doc """
-  Remove a vertex at a specific index in the Path.
+  Replace a vertex at a specific index in the Path.
 
   ## Example
 
@@ -127,20 +144,21 @@ defmodule Vivid.Path do
         %Vivid.Point{x: 3, y: 3}
       ]}
   """
+  @spec replace_at(Path.t, integer, Point.t) :: Path.t
   def replace_at(%Path{vertices: points}, index, %Point{}=point) do
     points
     |> List.replace_at(index, point)
     |> init
   end
 
-  def points_to_lines(lines, []), do: lines
+  defp points_to_lines(lines, []), do: lines
 
-  def points_to_lines([], [origin | [term | points]]) do
+  defp points_to_lines([], [origin | [term | points]]) do
     line = Line.init(origin, term)
     points_to_lines([line], points)
   end
 
-  def points_to_lines(lines, [point | rest]) do
+  defp points_to_lines(lines, [point | rest]) do
     origin = lines |> List.last |> Line.termination
     term   = point
     lines  = lines ++ [Line.init(origin, term)]

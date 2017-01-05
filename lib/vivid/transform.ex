@@ -1,11 +1,16 @@
 defmodule Vivid.Transform do
-  alias Vivid.{Point, Transform, Bounds}
+  alias Vivid.{Point, Transform, Bounds, Shape}
   alias Vivid.Transformable
   import Vivid.Math
   defstruct [operations: [], shape: nil]
 
   defmodule Operation do
+    alias __MODULE__
     defstruct ~w(function name)a
+
+    @moduledoc false
+
+    @opaque t :: %Operation{function: function, name: String.t}
   end
 
   @moduledoc """
@@ -25,6 +30,10 @@ defmodule Vivid.Transform do
       #Vivid.Polygon<[#Vivid.Point<{30.106601717798213, 21.696699141100893}>, #Vivid.Point<{19.5, 24.803300858899107}>, #Vivid.Point<{8.893398282201787, 17.303300858899107}>, #Vivid.Point<{19.5, 14.196699141100893}>]>
   """
 
+  @opaque t :: %Transform{shape: Shape.t, operations: [Operation.t]}
+  @type shape_or_transform :: Transform.t | Shape.t
+  @type degrees :: number
+
   @doc """
   Translate (ie move) a shape by adding `x` and `y` to each Point.
 
@@ -35,6 +44,7 @@ defmodule Vivid.Transform do
       ...> |> Vivid.Transform.apply
       #Vivid.Polygon<[#Vivid.Point<{15, 10}>, #Vivid.Point<{15, 15}>, #Vivid.Point<{10, 15}>, #Vivid.Point<{10, 10}>]>
   """
+  @spec translate(shape_or_transform, number, number) :: Transform.t
   def translate(shape, x, y) do
     fun = fn _shape ->
       &Transform.Point.translate(&1, x, y)
@@ -59,6 +69,7 @@ defmodule Vivid.Transform do
       #Vivid.Polygon<[#Vivid.Point<{12.5, -2.5}>, #Vivid.Point<{12.5, 17.5}>, #Vivid.Point<{2.5, 17.5}>, #Vivid.Point<{2.5, -2.5}>]>
 
   """
+  @spec scale(shape_or_transform, number) :: Transform.t
   def scale(shape, uniform) do
     fun = fn shape ->
       origin = Bounds.center_of(shape)
@@ -68,6 +79,7 @@ defmodule Vivid.Transform do
     apply_transform(shape, fun, "scale-#{uniform}x")
   end
 
+  @spec scale(shape_or_transform, number, number) :: Transform.t
   def scale(shape, x, y) do
     fun = fn shape ->
       origin = Bounds.center_of(shape)
@@ -78,7 +90,7 @@ defmodule Vivid.Transform do
   end
 
   @doc """
-  Rotate a shape around an origin point. The default point the shape's center.
+  Rotate a shape around it's center point.
 
   ## Example
 
@@ -86,12 +98,8 @@ defmodule Vivid.Transform do
       ...> |> Vivid.Transform.rotate(45)
       ...> |> Vivid.Transform.apply
       #Vivid.Polygon<[#Vivid.Point<{22.071067811865476, 16.464466094067262}>, #Vivid.Point<{15.0, 18.535533905932738}>, #Vivid.Point<{7.9289321881345245, 13.535533905932738}>, #Vivid.Point<{15.0, 11.464466094067262}>]>
-
-      iex> Vivid.Box.init(Vivid.Point.init(10,10), Vivid.Point.init(20,20))
-      ...> |> Vivid.Transform.rotate(45, Vivid.Point.init(5,5))
-      ...> |> Vivid.Transform.apply
-      #Vivid.Polygon<[#Vivid.Point<{12.071067811865476, 13.535533905932738}>, #Vivid.Point<{5.000000000000002, 15.606601717798215}>, #Vivid.Point<{-2.0710678118654737, 10.606601717798215}>, #Vivid.Point<{5.0, 8.535533905932738}>]>
   """
+  @spec rotate(shape_or_transform, degrees) :: Transform.t
   def rotate(shape, degrees) do
     radians = degrees_to_radians(degrees)
     fun = fn shape ->
@@ -101,6 +109,18 @@ defmodule Vivid.Transform do
 
     apply_transform(shape, fun, "rotate-#{degrees}-around-center")
   end
+
+  @doc """
+  Rotate a shape around an origin point.
+
+  ## Example
+
+      iex> Vivid.Box.init(Vivid.Point.init(10,10), Vivid.Point.init(20,20))
+      ...> |> Vivid.Transform.rotate(45, Vivid.Point.init(5,5))
+      ...> |> Vivid.Transform.apply
+      #Vivid.Polygon<[#Vivid.Point<{12.071067811865476, 13.535533905932738}>, #Vivid.Point<{5.000000000000002, 15.606601717798215}>, #Vivid.Point<{-2.0710678118654737, 10.606601717798215}>, #Vivid.Point<{5.0, 8.535533905932738}>]>
+  """
+  @spec rotate(shape_or_transform, degrees, Point.t) :: Transform.t
   def rotate(shape, degrees, %Point{x: x, y: y}=origin) do
     radians = degrees_to_radians(degrees)
     fun = fn _shape ->
@@ -120,6 +140,7 @@ defmodule Vivid.Transform do
       ...> |> Vivid.Transform.apply
       #Vivid.Polygon<[#Vivid.Point<{11.0, 1.0}>, #Vivid.Point<{11.0, 11.0}>, #Vivid.Point<{1.0, 11.0}>, #Vivid.Point<{1.0, 1.0}>]>
   """
+  @spec center(shape_or_transform, Shape.t) :: Transform.t
   def center(shape, bounds) do
     bounds        = Bounds.bounds(bounds)
     bounds_width  = Bounds.width(bounds)
@@ -144,6 +165,7 @@ defmodule Vivid.Transform do
       ...> |> Vivid.Transform.apply
       #Vivid.Polygon<[#Vivid.Point<{40.0, 0.0}>, #Vivid.Point<{40.0, 80.0}>, #Vivid.Point<{0.0, 80.0}>, #Vivid.Point<{0.0, 0.0}>]>
   """
+  @spec stretch(shape_or_transform, Shape.t) :: Transform.t
   def stretch(shape, bounds) do
     bounds        = Bounds.bounds(bounds)
     bounds_min    = Bounds.min(bounds)
@@ -179,6 +201,7 @@ defmodule Vivid.Transform do
       ...> |> Vivid.Transform.apply
       #Vivid.Polygon<[#Vivid.Point<{40.0, 0.0}>, #Vivid.Point<{40.0, 40.0}>, #Vivid.Point<{0.0, 40.0}>, #Vivid.Point<{0.0, 0.0}>]>
   """
+  @spec fill(shape_or_transform, Shape.t) :: Transform.t
   def fill(shape, bounds) do
     bounds        = Bounds.bounds(bounds)
     bounds_min    = Bounds.min(bounds)
@@ -216,6 +239,7 @@ defmodule Vivid.Transform do
       ...> |> Vivid.Transform.apply
       #Vivid.Polygon<[#Vivid.Point<{80.0, 0.0}>, #Vivid.Point<{80.0, 80.0}>, #Vivid.Point<{0.0, 80.0}>, #Vivid.Point<{0.0, 0.0}>]>
   """
+  @spec overflow(shape_or_transform, Shape.t) :: Transform.t
   def overflow(shape, bounds) do
     bounds        = Bounds.bounds(bounds)
     bounds_min    = Bounds.min(bounds)
@@ -246,15 +270,16 @@ defmodule Vivid.Transform do
   Create an arbitrary transformation.
 
   Takes a shape and a function which is called with a shape argument (not necessarily the shape
-  passed-in, depending on where this transformation is in the transformation pipeline.
+  passed-in, depending on where this transformation is in the transformation pipeline).
 
   The function must return another function which takes and manipulates a point.
 
   ## Example
 
+  The example below translates a point right by half it's width.
+
       iex> Vivid.Box.init(Vivid.Point.init(10,10), Vivid.Point.init(20,20))
       ...> |> Vivid.Transform.transform(fn shape ->
-      ...>   # Translate a point right by half it's width
       ...>   width = Vivid.Bounds.width(shape)
       ...>   fn point ->
       ...>     x = point |> Vivid.Point.x
@@ -266,11 +291,13 @@ defmodule Vivid.Transform do
       ...> |> Vivid.Transform.apply
       #Vivid.Polygon<[#Vivid.Point<{25, 10}>, #Vivid.Point<{25, 20}>, #Vivid.Point<{15, 20}>, #Vivid.Point<{15, 10}>]>
   """
+  @spec transform(shape_or_transform, function) :: Transform.t
   def transform(shape, fun), do: apply_transform(shape, fun, inspect(fun))
 
   @doc """
   Apply a transformation pipeline returning the modified shape.
   """
+  @spec apply(Transform.t) :: Shape.t
   def apply(%Transform{operations: operations, shape: shape}) do
     operations
     |> Enum.reverse
