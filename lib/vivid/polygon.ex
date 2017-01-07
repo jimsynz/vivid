@@ -158,51 +158,6 @@ defmodule Vivid.Polygon do
     |> init
   end
 
-  @doc """
-  Determine if a Point is within the polygon using the Point-In-Polygon Algorithm.
-
-  ## Example
-
-      iex> use Vivid
-      ...> Box.init(Point.init(2,2), Point.init(5,5))
-      ...> |> Box.to_polygon
-      ...> |> Polygon.inside?(Point.init(3,3))
-      true
-
-      iex> use Vivid
-      ...> Box.init(Point.init(2,2), Point.init(5,5))
-      ...> |> Box.to_polygon
-      ...> |> Polygon.inside?(Point.init(1,1))
-      false
-  """
-  def inside?(%Polygon{}=poly, %Point{x: x, y: y}) do
-    xs = poly
-      |> Polygon.to_lines
-      |> Stream.map(&Line.point_at_y(&1, y))
-      |> Stream.filter(fn
-        %Point{} -> true
-        nil      -> false
-      end)
-      |> Stream.uniq
-      |> Enum.map(&Point.x(&1))
-
-    left = xs
-      |> Stream.filter(fn
-        x1 when x1 < x -> true
-        _             -> false
-      end)
-      |> Enum.count
-
-    right = xs
-      |> Stream.filter(fn
-        x1 when x1 >= x -> true
-        _             -> false
-      end)
-      |> Enum.count
-
-    Integer.is_odd(left) && Integer.is_odd(right)
-  end
-
   defp points_to_lines(lines, []) do
     origin = lines |> List.last |> Line.termination
     term   = lines |> List.first |> Line.origin

@@ -108,12 +108,12 @@ defmodule Vivid.Box do
       #Vivid.Polygon<[#Vivid.Point<{1, 1}>, #Vivid.Point<{1, 4}>, #Vivid.Point<{4, 4}>, #Vivid.Point<{4, 1}>]>
   """
   @spec to_polygon(Box.t) :: Polygon.t
-  def to_polygon(box) do
+  def to_polygon(%Box{fill: fill}=box) do
     Polygon.init([
       bottom_left(box),
       top_left(box),
       top_right(box),
       bottom_right(box)
-    ])
+    ], fill)
   end
 end

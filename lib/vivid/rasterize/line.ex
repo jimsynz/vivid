@@ -57,8 +57,8 @@ defimpl Vivid.Rasterize, for: Vivid.Line do
 
       reduce_points(points, steps, current_x, current_y, x_increment, y_increment)
     end
-    |> pixel_round
-    |> clip(bounds)
+    |> Stream.map(&Point.round(&1))
+    |> Stream.filter(&Bounds.contains?(bounds,&1))
     |> Enum.into(MapSet.new)
   end
 
@@ -68,21 +68,10 @@ defimpl Vivid.Rasterize, for: Vivid.Line do
     next_x = current_x + x_increment
     next_y = current_y + y_increment
     steps  = steps - 1
-    points = MapSet.put(points, Point.init(round(next_x), round(next_y)))
+    points = MapSet.put(points, Point.init(next_x, next_y))
     reduce_points(points, steps, next_x, next_y, x_increment, y_increment)
   end
 
   defp choose_largest_of(a, b) when a > b, do: a
   defp choose_largest_of(_, b), do: b
-
-  defp pixel_round(points) do
-    points
-    |> Stream.map(&Point.round(&1))
-  end
-
-  defp clip(points, %Bounds{}=bounds) do
-    points
-    |> Stream.filter(&Bounds.contains?(bounds,&1))
-  end
-
 end

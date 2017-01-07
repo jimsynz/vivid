@@ -2,11 +2,13 @@ defimpl Inspect, for: Vivid.Circle do
   alias Vivid.Circle
   import Inspect.Algebra
 
-  def inspect(circle, opts) do
-    details = [
-      center: Circle.center(circle),
-      radius: Circle.radius(circle)
-    ]
+  def inspect(%Circle{center: c, radius: r, fill: true}, opts) do
+    details = [center: c, radius: r, fill: true]
+    concat ["#Vivid.Circle<", to_doc(details, opts), ">"]
+  end
+
+  def inspect(%Circle{center: c, radius: r}, opts) do
+    details = [center: c, radius: r]
     concat ["#Vivid.Circle<", to_doc(details, opts), ">"]
   end
 end

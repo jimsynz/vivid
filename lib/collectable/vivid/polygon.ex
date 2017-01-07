@@ -10,10 +10,10 @@ defimpl Collectable, for: Vivid.Polygon do
       %Vivid.Polygon{vertices: [%Vivid.Point{x: 1, y: 1}]}
   """
 
-  def into(%Polygon{vertices: points}) do
+  def into(%Polygon{vertices: points, fill: fill}) do
     {[], fn
       list, {:cont, %Point{}=point} -> [ point | list ]
-      list, :done                   -> Polygon.init(points ++ list)
+      list, :done                   -> Polygon.init(points ++ list, fill)
       _,    :halt                   -> :ok
     end}
   end
