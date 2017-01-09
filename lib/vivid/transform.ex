@@ -13,7 +13,7 @@ defmodule Vivid.Transform do
     @opaque t :: %Operation{function: function, name: String.t}
   end
 
-  @moduledoc """
+  @moduledoc ~S"""
   Creates and applies a "pipeline" of transformations to a shape.
   Transformation operations are collected up and only run once, when `apply` is called.
 
@@ -21,13 +21,55 @@ defmodule Vivid.Transform do
 
   Take a square, rotate it 45°, scale it up 50% and center it within a frame.
 
-      iex> frame = Vivid.Frame.init(40,40)
-      ...> Vivid.Box.init(Vivid.Point.init(0,0), Vivid.Point.init(10,10))
-      ...> |> Vivid.Transform.rotate(45)
-      ...> |> Vivid.Transform.scale(1.5)
-      ...> |> Vivid.Transform.center(frame)
-      ...> |> Vivid.Transform.apply
-      #Vivid.Polygon<[#Vivid.Point<{30.106601717798213, 21.696699141100893}>, #Vivid.Point<{19.5, 24.803300858899107}>, #Vivid.Point<{8.893398282201787, 17.303300858899107}>, #Vivid.Point<{19.5, 14.196699141100893}>]>
+      iex> use Vivid
+      ...> frame = Frame.init(40, 40, RGBA.white)
+      ...> box = Box.init(Point.init(0,0), Point.init(10,10))
+      ...>   |> Transform.rotate(45)
+      ...>   |> Transform.scale(1.5)
+      ...>   |> Transform.center(frame)
+      ...>   |> Transform.apply
+      ...> Frame.push(frame, box, RGBA.black)
+      ...> |> to_string
+      "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@@@@ @@@@@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@@@ @ @@@@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@@ @@@ @@@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@ @@@@@ @@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@ @@@@@@@ @@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@  @@@@@@@@@ @@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@ @@@@@@@@@@@@ @@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@ @@@@@@@@@@@@@@ @@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@ @@@@@@@@@@@@@@@@ @@@@@@@@@@@\n" <>
+      "@@@@@@@@@@ @@@@@@@@@@@@@@@@@@ @@@@@@@@@@\n" <>
+      "@@@@@@@@@ @@@@@@@@@@@@@@@@@@@@ @@@@@@@@@\n" <>
+      "@@@@@@@@@@ @@@@@@@@@@@@@@@@@@ @@@@@@@@@@\n" <>
+      "@@@@@@@@@@@ @@@@@@@@@@@@@@@@ @@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@ @@@@@@@@@@@@@@ @@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@ @@@@@@@@@@@@ @@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@ @@@@@@@@@@ @@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@ @@@@@@@@@ @@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@ @@@@@@@ @@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@ @@@@@ @@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@@ @@@ @@@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@@@ @ @@@@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@@@@ @@@@@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n"
   """
 
   @opaque t :: %Transform{shape: Shape.t, operations: [Operation.t]}
@@ -89,7 +131,7 @@ defmodule Vivid.Transform do
     apply_transform(shape, fun, "scale-#{x}x-#{y}x")
   end
 
-  @doc """
+  @doc ~S"""
   Rotate a shape around it's center point.
 
   ## Example
@@ -97,7 +139,24 @@ defmodule Vivid.Transform do
       iex> Vivid.Box.init(Vivid.Point.init(10,10), Vivid.Point.init(20,20))
       ...> |> Vivid.Transform.rotate(45)
       ...> |> Vivid.Transform.apply
-      #Vivid.Polygon<[#Vivid.Point<{22.071067811865476, 16.464466094067262}>, #Vivid.Point<{15.0, 18.535533905932738}>, #Vivid.Point<{7.9289321881345245, 13.535533905932738}>, #Vivid.Point<{15.0, 11.464466094067262}>]>
+      ...> |> to_string
+      "@@@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@ @@@@@@@@\n" <>
+      "@@@@@@@ @ @@@@@@@\n" <>
+      "@@@@@@ @@@ @@@@@@\n" <>
+      "@@@@@ @@@@@ @@@@@\n" <>
+      "@@@@ @@@@@@@ @@@@\n" <>
+      "@@@ @@@@@@@@@ @@@\n" <>
+      "@@ @@@@@@@@@@@ @@\n" <>
+      "@ @@@@@@@@@@@@@ @\n" <>
+      "@@ @@@@@@@@@@@ @@\n" <>
+      "@@@ @@@@@@@@@ @@@\n" <>
+      "@@@@ @@@@@@@ @@@@\n" <>
+      "@@@@@ @@@@@ @@@@@\n" <>
+      "@@@@@@ @@@ @@@@@@\n" <>
+      "@@@@@@@ @ @@@@@@@\n" <>
+      "@@@@@@@@ @@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@\n"
   """
   @spec rotate(shape_or_transform, degrees) :: Transform.t
   def rotate(shape, degrees) do
@@ -110,7 +169,7 @@ defmodule Vivid.Transform do
     apply_transform(shape, fun, "rotate-#{degrees}-around-center")
   end
 
-  @doc """
+  @doc ~S"""
   Rotate a shape around an origin point.
 
   ## Example
@@ -118,7 +177,24 @@ defmodule Vivid.Transform do
       iex> Vivid.Box.init(Vivid.Point.init(10,10), Vivid.Point.init(20,20))
       ...> |> Vivid.Transform.rotate(45, Vivid.Point.init(5,5))
       ...> |> Vivid.Transform.apply
-      #Vivid.Polygon<[#Vivid.Point<{12.071067811865476, 13.535533905932738}>, #Vivid.Point<{5.000000000000002, 15.606601717798215}>, #Vivid.Point<{-2.0710678118654737, 10.606601717798215}>, #Vivid.Point<{5.0, 8.535533905932738}>]>
+      ...> |> to_string
+      "@@@@@@@@@@@@@@@@@\n" <>
+      "@@@@@@@@ @@@@@@@@\n" <>
+      "@@@@@@@ @ @@@@@@@\n" <>
+      "@@@@@@ @@@ @@@@@@\n" <>
+      "@@@@@ @@@@@ @@@@@\n" <>
+      "@@@@ @@@@@@@ @@@@\n" <>
+      "@@@ @@@@@@@@@ @@@\n" <>
+      "@@ @@@@@@@@@@@ @@\n" <>
+      "@ @@@@@@@@@@@@@ @\n" <>
+      "@@ @@@@@@@@@@@ @@\n" <>
+      "@@@ @@@@@@@@@ @@@\n" <>
+      "@@@@ @@@@@@@ @@@@\n" <>
+      "@@@@@ @@@@@ @@@@@\n" <>
+      "@@@@@@ @@@ @@@@@@\n" <>
+      "@@@@@@@ @ @@@@@@@\n" <>
+      "@@@@@@@@ @@@@@@@@\n" <>
+      "@@@@@@@@@@@@@@@@@\n"
   """
   @spec rotate(shape_or_transform, degrees, Point.t) :: Transform.t
   def rotate(shape, degrees, %Point{x: x, y: y}=origin) do
@@ -130,15 +206,31 @@ defmodule Vivid.Transform do
     apply_transform(shape, fun, "rotate-#{degrees}-around-#{x}-#{y}")
   end
 
-  @doc """
+  @doc ~S"""
   Center a shape within the specified bounds.
 
   ## Examples
 
-      iex> Vivid.Box.init(Vivid.Point.init(10,10), Vivid.Point.init(20,20))
-      ...> |> Vivid.Transform.center(Vivid.Bounds.init(0, 0, 12, 12))
-      ...> |> Vivid.Transform.apply
-      #Vivid.Polygon<[#Vivid.Point<{11.0, 1.0}>, #Vivid.Point<{11.0, 11.0}>, #Vivid.Point<{1.0, 11.0}>, #Vivid.Point<{1.0, 1.0}>]>
+      iex> use Vivid
+      ...> frame = Frame.init(13,13, RGBA.white)
+      ...> box = Box.init(Point.init(10,10), Point.init(20,20))
+      ...>   |> Vivid.Transform.center(Bounds.init(0, 0, 12, 12))
+      ...>   |> Vivid.Transform.apply
+      ...> Frame.push(frame, box, RGBA.black)
+      ...> |> to_string
+      "@@@@@@@@@@@@@\n" <>
+      "@           @\n" <>
+      "@ @@@@@@@@@ @\n" <>
+      "@ @@@@@@@@@ @\n" <>
+      "@ @@@@@@@@@ @\n" <>
+      "@ @@@@@@@@@ @\n" <>
+      "@ @@@@@@@@@ @\n" <>
+      "@ @@@@@@@@@ @\n" <>
+      "@ @@@@@@@@@ @\n" <>
+      "@ @@@@@@@@@ @\n" <>
+      "@ @@@@@@@@@ @\n" <>
+      "@           @\n" <>
+      "@@@@@@@@@@@@@\n"
   """
   @spec center(shape_or_transform, Shape.t) :: Transform.t
   def center(shape, bounds) do

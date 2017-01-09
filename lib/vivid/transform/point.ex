@@ -44,13 +44,9 @@ defmodule Vivid.Transform.Point do
   Rotate a point `radians` around an origin point.
   """
   @spec rotate_radians(Point.t, Point.t, radians) :: Point.t
-  def rotate_radians(%Point{x: x0, y: y0}, %Point{x: x1, y: y1}, radians) do
-    x = x0 - x1
-    y = y0 - y1
-
-    x = (x * cos(radians)) - (y * sin(radians))
-    y = (y * cos(radians)) + (x * sin(radians))
-
-    Point.init(x + x1, y + y1)
+  def rotate_radians(%Point{x: x0, y: y0}=_point, %Point{x: x1, y: y1}=_center, radians) do
+    x = cos(radians) * (x0-x1) - sin(radians) * (y0-y1) + x1
+    y = sin(radians) * (x0-x1) + cos(radians) * (y0-y1) + y1
+    Point.init(x,y)
   end
 end

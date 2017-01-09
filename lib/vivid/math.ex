@@ -19,5 +19,5 @@ defmodule Vivid.Math do
       iex> 180 |> Vivid.Math.degrees_to_radians
       :math.pi
   """
-  def degrees_to_radians(degrees), do: degrees / 360.0 * 2.0 * pi
+  def degrees_to_radians(degrees), do: degrees / 180.0 * pi
 end
