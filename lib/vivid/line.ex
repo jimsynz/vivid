@@ -136,4 +136,59 @@ defmodule Vivid.Line do
     cross_product == 0.0
   end
 
+  @doc """
+  Find the point on the line where it intersects with the specified `x` axis.
+
+  ## Example
+
+      iex> use Vivid
+      ...> Line.init(Point.init(25, 15), Point.init(5, 2))
+      ...> |> Line.x_intersect(10)
+      #Vivid.Point<{10, 5.25}>
+  """
+  @spec x_intersect(Line.t, integer) :: Point.t | nil
+  def x_intersect(%Line{origin: %Point{x: x0}=p, termination: %Point{x: x1}}, x) when x == x0 and x == x1, do: p
+  def x_intersect(%Line{origin: %Point{x: x0}=p0, termination: %Point{x: x1}=p1}, x) when x0 > x1 do
+    x_intersect(%Line{origin: p1, termination: p0}, x)
+  end
+  def x_intersect(%Line{origin: %Point{x: x0}=p}, x) when x0 == x, do: p
+  def x_intersect(%Line{termination: %Point{x: x0}=p}, x) when x0 == x, do: p
+  def x_intersect(%Line{origin: %Point{x: x0, y: y0}, termination: %Point{x: x1, y: y1}}, x) when x0 < x and x < x1 do
+    rx = (x - x0) / (x1 - x0)
+    y = if y1 > y0 do
+          rx * (y1 - y0) + y0
+        else
+          rx * (y0 - y1) + y1
+        end
+    Point.init(x, y)
+  end
+  def x_intersect(_line, _x), do: nil
+
+  @doc """
+  Find the point on the line where it intersects with the specified `y` axis.
+
+  ## Example
+
+      iex> use Vivid
+      ...> Line.init(Point.init(25, 15), Point.init(5, 2))
+      ...> |> Line.y_intersect(10)
+      #Vivid.Point<{17.307692307692307, 10}>
+  """
+  @spec y_intersect(Line.t, integer) :: Point.t | nil
+  def y_intersect(%Line{origin: %Point{y: y0}=p, termination: %Point{y: y1}}, y) when y == y0 and y == y1, do: p
+  def y_intersect(%Line{origin: %Point{y: y0}=p0, termination: %Point{y: y1}=p1}, y) when y0 > y1 do
+    y_intersect(%Line{origin: p1, termination: p0}, y)
+  end
+  def y_intersect(%Line{origin: %Point{y: y0}=p}, y) when y0 == y, do: p
+  def y_intersect(%Line{termination: %Point{y: y0}=p}, y) when y0 == y, do: p
+  def y_intersect(%Line{origin: %Point{x: x0, y: y0}, termination: %Point{x: x1, y: y1}}, y) when y0 < y and y < y1 do
+    ry = (y - y0) / (y1 - y0)
+    x = if x1 > x0 do
+          ry * (x1 - x0) + x0
+        else
+          ry * (x0 - x1) + x1
+        end
+    Point.init(x, y)
+  end
+  def y_intersect(_line, _y), do: nil
 end
