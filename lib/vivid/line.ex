@@ -44,8 +44,10 @@ defmodule Vivid.Line do
 
   ## Example
 
-      iex> Vivid.Line.init(Vivid.Point.init(1,1), Vivid.Point.init(4,4)) |> Vivid.Line.termination
-      %Vivid.Point{x: 4, y: 4}
+      iex> use Vivid
+      ...> Line.init(Point.init(1,1), Point.init(4,4))
+      ...> |> Line.termination
+      #Vivid.Point<{4, 4}>
   """
   @spec termination(Line.t) :: Point.t
   def termination(%Line{termination: t}), do: t
@@ -155,11 +157,7 @@ defmodule Vivid.Line do
   def x_intersect(%Line{termination: %Point{x: x0}=p}, x) when x0 == x, do: p
   def x_intersect(%Line{origin: %Point{x: x0, y: y0}, termination: %Point{x: x1, y: y1}}, x) when x0 < x and x < x1 do
     rx = (x - x0) / (x1 - x0)
-    y = if y1 > y0 do
-          rx * (y1 - y0) + y0
-        else
-          rx * (y0 - y1) + y1
-        end
+    y  = rx * (y1 - y0) + y0
     Point.init(x, y)
   end
   def x_intersect(_line, _x), do: nil
@@ -183,12 +181,46 @@ defmodule Vivid.Line do
   def y_intersect(%Line{termination: %Point{y: y0}=p}, y) when y0 == y, do: p
   def y_intersect(%Line{origin: %Point{x: x0, y: y0}, termination: %Point{x: x1, y: y1}}, y) when y0 < y and y < y1 do
     ry = (y - y0) / (y1 - y0)
-    x = if x1 > x0 do
-          ry * (x1 - x0) + x0
-        else
-          ry * (x0 - x1) + x1
-        end
+    x  = ry * (x1 - x0) + x0
     Point.init(x, y)
   end
   def y_intersect(_line, _y), do: nil
+
+  @doc """
+  Returns true if a line is horizontal.
+
+  ## Example
+
+      iex> use Vivid
+      ...> Line.init(Point.init(10,10), Point.init(20,10))
+      ...> |> Line.horizontal?
+      true
+
+      iex> use Vivid
+      ...> Line.init(Point.init(10,10), Point.init(20,11))
+      ...> |> Line.horizontal?
+      false
+  """
+  @spec horizontal?(Line.t) :: boolean
+  def horizontal?(%Line{origin: %Point{y: y0}, termination: %Point{y: y1}}) when y0 == y1, do: true
+  def horizontal?(_line), do: false
+
+  @doc """
+  Returns true if a line is vertical.
+
+  ## Example
+
+      iex> use Vivid
+      ...> Line.init(Point.init(10,10), Point.init(10,20))
+      ...> |> Line.vertical?
+      true
+
+      iex> use Vivid
+      ...> Line.init(Point.init(10,10), Point.init(11,20))
+      ...> |> Line.vertical?
+      false
+  """
+  @spec vertical?(Line.t) :: boolean
+  def vertical?(%Line{origin: %Point{x: x0}, termination: %Point{x: x1}}) when x0 == x1, do: true
+  def vertical?(_line), do: false
 end
