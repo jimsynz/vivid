@@ -158,6 +158,9 @@ defmodule Vivid.Polygon do
     |> init
   end
 
+  def filled?(%Polygon{fill: fill}), do: fill
+  def fill(%Polygon{}=polygon, fill) when is_boolean(fill), do: %{polygon | fill: fill}
+
   defp points_to_lines(lines, []) do
     origin = lines |> List.last |> Line.termination
     term   = lines |> List.first |> Line.origin

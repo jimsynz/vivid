@@ -17,17 +17,17 @@ defmodule Vivid.SLPFA do
     |> process_edge_table
   end
 
-  defp process_edge_table([active0, active1 | edge_table]) do
-    scan_line = active0.y_min
-    active = [active0, active1]
+  defp process_edge_table([a0 | _]=edge_table) do
+    scan_line = a0.y_min
+    {active, edge_table} = update_active_list(scan_line, [], edge_table)
     points = pixels_for_active_list(MapSet.new, active, scan_line)
     process_edge_table(points, active, edge_table, scan_line + 1)
   end
 
-  defp process_edge_table(points, _active, [], scan_line), do: points
+  defp process_edge_table(points, []=_active, _edge_table, scan_line), do: points
 
   defp process_edge_table(points, active, edge_table, scan_line) do
-    active = update_active_list(scan_line, active, edge_table)
+    {active, edge_table} = update_active_list(scan_line, active, edge_table)
     points = pixels_for_active_list(points, active, scan_line)
     active = increment_active_edges(active)
     process_edge_table(points, active, edge_table, scan_line + 1)
@@ -64,10 +64,23 @@ defmodule Vivid.SLPFA do
   end
 
   defp update_active_list(scan_line, active, edge_table) do
-    active
-    |> Enum.reject(&remove_processed_edges(&1, scan_line))
-    |> add_active_edges(scan_line, edge_table)
-    |> Enum.sort(&sort_by_x_and_slope(&1, &2))
+    {active, edge_table} = active
+      |> Stream.concat(edge_table)
+      |> Enum.reduce({[], []}, fn
+        %EdgeBucket{y_min: y_min, y_max: y_max}=edge, {active, edge_table} when y_min <= scan_line and y_max > scan_line ->
+          active = [edge | active]
+          {active, edge_table}
+        %EdgeBucket{y_min: y_min}=edge, {active, edge_table} when y_min >= scan_line ->
+          edge_table = [edge | edge_table]
+          {active, edge_table}
+        _edge_bucket, {active, edge_table} ->
+          {active, edge_table}
+      end)
+
+    active = active
+      |> Enum.sort(&sort_by_x_and_slope(&1, &2))
+
+    {active, edge_table}
   end
 
   defp sort_by_x_and_slope(%EdgeBucket{x: x0},
@@ -75,21 +88,10 @@ defmodule Vivid.SLPFA do
                            when x0 < x1, do: true
   defp sort_by_x_and_slope(%EdgeBucket{x: x0},
                            %EdgeBucket{x: x1})
-                           when x1 > x0, do: false
+                           when x0 > x1, do: false
   defp sort_by_x_and_slope(%EdgeBucket{distance_x: dx0, distance_y: dy0},
                            %EdgeBucket{distance_x: dx1, distance_y: dy1}),
                            do: (dx0 / dy0) < (dx1 / dy1)
-
-  defp add_active_edges(active, _scan_line, []), do: Enum.reverse(active)
-  defp add_active_edges(active, scan_line, [%EdgeBucket{y_min: y_min}=edge | edge_table]) when scan_line == y_min do
-    add_active_edges([edge | active], scan_line, edge_table)
-  end
-  defp add_active_edges(active, scan_line, [_ | edge_table]) do
-    add_active_edges(active, scan_line, edge_table)
-  end
-
-  defp remove_processed_edges(%EdgeBucket{y_max: y}, scan_line) when y == scan_line, do: true
-  defp remove_processed_edges(_edge_bucket, _scan_line), do: false
 
   defp create_edge_table(vertices) do
     vertices
