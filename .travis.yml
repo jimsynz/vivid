@@ -5,4 +5,4 @@ otp_release:
   - 19.2
 script:
   - mix test
-  - mix credo --strict
+  - MIX_ENV=test mix credo --strict
