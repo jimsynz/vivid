@@ -2,6 +2,7 @@ defimpl Inspect, for: Vivid.Line do
   alias Vivid.Line
   import Inspect.Algebra
 
+  @spec inspect(Line.t, any) :: String.t
   def inspect(line, opts) do
     details = [
       origin:      Line.origin(line),

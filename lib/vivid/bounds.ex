@@ -1,5 +1,5 @@
 defmodule Vivid.Bounds do
-  alias Vivid.{Bounds, Point, Shape}
+  alias Vivid.{Bounds, Point, Shape, Bounds.Of}
   defstruct ~w(min max)a
 
   @moduledoc """
@@ -29,9 +29,9 @@ defmodule Vivid.Bounds do
       #Vivid.Bounds<[min: #Vivid.Point<{0.0, 0.0}>, max: #Vivid.Point<{20.0, 20.0}>]>
   """
   @spec bounds(Shape.t) :: Bounds.t
-  def bounds(%Bounds{}=bounds), do: bounds
+  def bounds(%Bounds{} = bounds), do: bounds
   def bounds(shape) do
-    {min, max} = Vivid.Bounds.Of.bounds(shape)
+    {min, max} = Of.bounds(shape)
     %Bounds{min: min, max: max}
   end
 

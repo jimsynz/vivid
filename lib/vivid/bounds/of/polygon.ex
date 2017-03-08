@@ -1,17 +1,6 @@
 defimpl Vivid.Bounds.Of, for: Vivid.Polygon do
-  alias Vivid.Point
+  alias Vivid.{Polygon, Point}
 
-  def bounds(%Vivid.Polygon{vertices: points}) do
-    Enum.reduce(points, nil, fn
-      point, nil        -> {point, point}
-      point, {min, max} ->
-        x = Point.x(point)
-        y = Point.y(point)
-        min = if x < Point.x(min), do: Point.init(x, min.y), else: min
-        min = if y < Point.y(min), do: Point.init(min.x, y), else: min
-        max = if x > Point.x(max), do: Point.init(x, max.y), else: max
-        max = if y > Point.y(max), do: Point.init(max.x, y), else: max
-        {min, max}
-    end)
-  end
+  @spec bounds(Polygon.t) :: {Point.t, Point.t}
+  def bounds(%Polygon{vertices: points}), do: Vivid.Bounds.Of.bounds(points)
 end

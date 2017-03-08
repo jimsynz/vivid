@@ -6,7 +6,6 @@ defmodule Vivid.Circle do
   @moduledoc """
   Represents a circle based on it's center point and radius.
   """
-
   @opaque t :: %Circle{center: Point.t, radius: number, fill: boolean}
 
   @doc """
@@ -18,13 +17,13 @@ defmodule Vivid.Circle do
       #Vivid.Circle<[center: #Vivid.Point<{5, 5}>, radius: 4]>
   """
   @spec init(Point.t, number) :: Circle.t
-  def init(%Point{}=point, radius)
+  def init(%Point{} = point, radius)
   when is_number(radius) and radius > 0,
   do: init(point, radius, false)
 
   @doc false
   @spec init(Point.t, number, boolean) :: Circle.t
-  def init(%Point{}=point, radius, fill)
+  def init(%Point{} = point, radius, fill)
   when is_number(radius) and is_boolean(fill) and radius > 0
   do
     %Circle{
@@ -117,14 +116,14 @@ defmodule Vivid.Circle do
       "@@@@@@@@@@@\n"
   """
   @spec to_polygon(Circle.t) :: Polygon.t
-  def to_polygon(%Circle{radius: radius}=circle), do: to_polygon(circle, round(radius * 2))
+  def to_polygon(%Circle{radius: radius} = circle), do: to_polygon(circle, round(radius * 2))
   @spec to_polygon(Circle.t, number) :: Polygon.t
   def to_polygon(%Circle{center: center, radius: radius, fill: fill}, steps) do
     h = center |> Point.x
     k = center |> Point.y
     step_degree = 360 / steps
 
-    Enum.map(0..steps - 1, fn(step) ->
+    points = Enum.map(0..steps - 1, fn(step) ->
       theta = step_degree * step
       theta = degrees_to_radians(theta)
 
@@ -133,6 +132,8 @@ defmodule Vivid.Circle do
 
       Point.init(x, y)
     end)
+
+    points
     |> Polygon.init(fill)
   end
 end

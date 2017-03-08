@@ -39,7 +39,8 @@ defmodule Vivid.Frame do
         "@@@@@@@@@@@@@@@@@@@@@@@@\n"
   """
 
-  @opaque t :: %Frame{width: integer, height: integer, background_colour: RGBA.t, shapes: []}
+  @opaque t :: %Frame{width: integer, height: integer,
+                      background_colour: RGBA.t, shapes: []}
 
   @doc """
   Initialize a frame buffer.
@@ -54,7 +55,7 @@ defmodule Vivid.Frame do
       #Vivid.Frame<[width: 4, height: 4, background_colour: #Vivid.RGBA<{0, 0, 0, 0}>]>
   """
   @spec init(integer(), integer(), Range.t) :: Frame.t
-  def init(width \\ 128, height \\ 64, %RGBA{}=colour \\ RGBA.init(0,0,0,0))
+  def init(width \\ 128, height \\ 64, %RGBA{} = colour \\ RGBA.init(0,0,0,0))
   when is_integer(width) and is_integer(height) and width > 0 and height > 0
   do
     %Frame{width: width, height: height, background_colour: colour, shapes: []}
@@ -132,7 +133,7 @@ defmodule Vivid.Frame do
       "@    \n"
   """
   @spec push(Frame.t, Shape.t, RGBA.t) :: Frame.t
-  def push(%Frame{shapes: shapes}=frame, shape, colour) do
+  def push(%Frame{shapes: shapes} = frame, shape, colour) do
     %{frame | shapes: [{shape, colour} | shapes]}
   end
 
@@ -140,7 +141,7 @@ defmodule Vivid.Frame do
   Clear the frame of any shapes.
   """
   @spec clear(Frame.t) :: Frame.t
-  def clear(%Frame{}=frame) do
+  def clear(%Frame{} = frame) do
     %{frame | shapes: []}
   end
 
@@ -177,7 +178,6 @@ defmodule Vivid.Frame do
   @spec background_colour(Frame.t) :: RGBA.t
   def background_colour(%Frame{background_colour: c}), do: c
 
-
   @doc """
   Change the background colour of the frame.
 
@@ -189,7 +189,7 @@ defmodule Vivid.Frame do
       #Vivid.RGBA<{1, 1, 1, 1}>
   """
   @spec background_colour(Frame.t, RGBA.t) :: Frame.t
-  def background_colour(%Frame{}=frame, %RGBA{}=c), do: %{frame | background_colour: c}
+  def background_colour(%Frame{} = frame, %RGBA{} = c), do: %{frame | background_colour: c}
 
   @doc """
   Render a frame into a buffer for display.
@@ -203,9 +203,9 @@ defmodule Vivid.Frame do
   completed.
   """
   @spec buffer(Frame.t) :: [RGBA.t]
-  def buffer(%Frame{}=frame), do: Buffer.horizontal(frame)
+  def buffer(%Frame{} = frame), do: Buffer.horizontal(frame)
 
   @spec buffer(Frame.t, :horizontal | :vertical) :: [RGBA.t]
-  def buffer(%Frame{}=frame, :horizontal), do: Buffer.horizontal(frame)
-  def buffer(%Frame{}=frame, :vertical),   do: Buffer.vertical(frame)
+  def buffer(%Frame{} = frame, :horizontal), do: Buffer.horizontal(frame)
+  def buffer(%Frame{} = frame, :vertical),   do: Buffer.vertical(frame)
 end

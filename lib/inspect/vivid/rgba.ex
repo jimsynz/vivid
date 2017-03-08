@@ -2,6 +2,7 @@ defimpl Inspect, for: Vivid.RGBA do
   alias Vivid.RGBA
   import Inspect.Algebra
 
+  @spec inspect(RGBA.t, any) :: String.t
   def inspect(colour, opts) do
     red   = RGBA.red(colour)
     green = RGBA.green(colour)

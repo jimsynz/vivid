@@ -30,10 +30,10 @@ defmodule Vivid.Buffer do
       "@@@@@\n"
   """
   @spec horizontal(Frame.t) :: [RGBA.t]
-  def horizontal(%Frame{shapes: shapes, width: w, height: h}=frame) do
-    buffer = allocate(frame)
-    bounds = Bounds.bounds(frame)
-    buffer = Enum.reduce(shapes, buffer, &horizontal_reducer(&1, &2, bounds, w))
+  def horizontal(%Frame{shapes: shapes, width: w, height: h} = frame) do
+    empty_buffer = allocate(frame)
+    bounds       = Bounds.bounds(frame)
+    buffer       = Enum.reduce(shapes, empty_buffer, &horizontal_reducer(&1, &2, bounds, w))
     %Buffer{buffer: buffer, rows: h, columns: w}
   end
 
@@ -54,10 +54,11 @@ defmodule Vivid.Buffer do
       "@@ @@\n"
   """
   @spec vertical(Frame.t) :: [RGBA.t]
-  def vertical(%Frame{shapes: shapes, width: w, height: h}=frame) do
-    bounds = Bounds.bounds(frame)
-    buffer = allocate(frame)
-    buffer = Enum.reduce(shapes, buffer, &vertical_reducer(&1, &2, bounds, h))
+  def vertical(%Frame{shapes: shapes, width: w, height: h} = frame) do
+    bounds       = Bounds.bounds(frame)
+    empty_buffer = allocate(frame)
+    buffer       = Enum.reduce(shapes, empty_buffer, &vertical_reducer(&1, &2, bounds, h))
+
     %Buffer{buffer: buffer, rows: w, columns: h}
   end
 
@@ -83,5 +84,5 @@ defmodule Vivid.Buffer do
   defp allocate(%Frame{width: w, height: h, background_colour: bg}), do: generate_buffer([], w * h, bg)
 
   defp generate_buffer(buffer, 0, _colour), do: buffer
-  defp generate_buffer(buffer, i, colour), do: generate_buffer([ colour | buffer ], i - 1, colour)
+  defp generate_buffer(buffer, i, colour), do: generate_buffer([colour | buffer], i - 1, colour)
 end

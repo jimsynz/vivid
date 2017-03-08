@@ -19,7 +19,7 @@ defmodule Vivid.Line do
 
   """
   @spec init(Point.t, Point.t) :: Line.t
-  def init(%Point{}=o, %Point{}=t) do
+  def init(%Point{} = o, %Point{} = t) do
     %Line{origin: o, termination: t}
   end
 
@@ -61,7 +61,7 @@ defmodule Vivid.Line do
       13
   """
   @spec width(Line.t) :: number
-  def width(%Line{}=line), do: abs(x_distance(line))
+  def width(%Line{} = line), do: abs(x_distance(line))
 
   @doc ~S"""
   Calculates the X (horizontal) distance between the origin and termination points.
@@ -83,7 +83,7 @@ defmodule Vivid.Line do
       13
   """
   @spec height(Line.t) :: number
-  def height(%Line{}=line), do: abs(y_distance(line))
+  def height(%Line{} = line), do: abs(y_distance(line))
 
   @doc ~S"""
   Calculates the Y (vertical) distance between the origin and termination points.
@@ -106,7 +106,7 @@ defmodule Vivid.Line do
       5.0
   """
   @spec length(Line.t) :: number
-  def length(%Line{}=line) do
+  def length(%Line{} = line) do
     dx2 = line |> width |> pow(2)
     dy2 = line |> height |> pow(2)
     sqrt(dx2 + dy2)
@@ -128,7 +128,7 @@ defmodule Vivid.Line do
     false
   """
   @spec on?(Line.t, Point.t) :: boolean
-  def on?(%Line{origin: origin, termination: termination}, %Point{}=point) do
+  def on?(%Line{origin: origin, termination: termination}, %Point{} = point) do
     x_distance_point  = point.x  - termination.x
     y_distance_point  = point.y  - termination.y
     x_distance_origin = origin.x - termination.x
@@ -149,12 +149,12 @@ defmodule Vivid.Line do
       #Vivid.Point<{10, 5.25}>
   """
   @spec x_intersect(Line.t, integer) :: Point.t | nil
-  def x_intersect(%Line{origin: %Point{x: x0}=p, termination: %Point{x: x1}}, x) when x == x0 and x == x1, do: p
-  def x_intersect(%Line{origin: %Point{x: x0}=p0, termination: %Point{x: x1}=p1}, x) when x0 > x1 do
+  def x_intersect(%Line{origin: %Point{x: x0} = p, termination: %Point{x: x1}}, x) when x == x0 and x == x1, do: p
+  def x_intersect(%Line{origin: %Point{x: x0} = p0, termination: %Point{x: x1} = p1}, x) when x0 > x1 do
     x_intersect(%Line{origin: p1, termination: p0}, x)
   end
-  def x_intersect(%Line{origin: %Point{x: x0}=p}, x) when x0 == x, do: p
-  def x_intersect(%Line{termination: %Point{x: x0}=p}, x) when x0 == x, do: p
+  def x_intersect(%Line{origin: %Point{x: x0} = p}, x) when x0 == x, do: p
+  def x_intersect(%Line{termination: %Point{x: x0} = p}, x) when x0 == x, do: p
   def x_intersect(%Line{origin: %Point{x: x0, y: y0}, termination: %Point{x: x1, y: y1}}, x) when x0 < x and x < x1 do
     rx = (x - x0) / (x1 - x0)
     y  = rx * (y1 - y0) + y0
@@ -173,12 +173,12 @@ defmodule Vivid.Line do
       #Vivid.Point<{17.307692307692307, 10}>
   """
   @spec y_intersect(Line.t, integer) :: Point.t | nil
-  def y_intersect(%Line{origin: %Point{y: y0}=p, termination: %Point{y: y1}}, y) when y == y0 and y == y1, do: p
-  def y_intersect(%Line{origin: %Point{y: y0}=p0, termination: %Point{y: y1}=p1}, y) when y0 > y1 do
+  def y_intersect(%Line{origin: %Point{y: y0} = p, termination: %Point{y: y1}}, y) when y == y0 and y == y1, do: p
+  def y_intersect(%Line{origin: %Point{y: y0} = p0, termination: %Point{y: y1} = p1}, y) when y0 > y1 do
     y_intersect(%Line{origin: p1, termination: p0}, y)
   end
-  def y_intersect(%Line{origin: %Point{y: y0}=p}, y) when y0 == y, do: p
-  def y_intersect(%Line{termination: %Point{y: y0}=p}, y) when y0 == y, do: p
+  def y_intersect(%Line{origin: %Point{y: y0} = p}, y) when y0 == y, do: p
+  def y_intersect(%Line{termination: %Point{y: y0} = p}, y) when y0 == y, do: p
   def y_intersect(%Line{origin: %Point{x: x0, y: y0}, termination: %Point{x: x1, y: y1}}, y) when y0 < y and y < y1 do
     ry = (y - y0) / (y1 - y0)
     x  = ry * (x1 - x0) + x0

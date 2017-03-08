@@ -1,6 +1,7 @@
 defimpl String.Chars, for: Vivid.Buffer do
   alias Vivid.{Buffer, RGBA}
 
+  @spec to_string(Buffer.t) :: String.t
   def to_string(%Buffer{buffer: buffer, columns: columns}) do
     s = buffer
       |> Enum.reverse

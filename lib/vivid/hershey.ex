@@ -11,6 +11,7 @@ defmodule Vivid.Hershey do
   Returns a map of "character IDs" to %Char{} structs, which can
   be passed to `char_to_shape` to turn into renderable shapes.
   """
+  @spec definitions(String.t) :: Enumerable.t
   def definitions(file) do
     file
     |> get_path
@@ -19,7 +20,7 @@ defmodule Vivid.Hershey do
     |> Stream.map(&parse_line(&1))
   end
 
-  defp fix_wrapped_lines(next, nil), do: {[], String.replace(next, ~r/[\r\n]+/, "") }
+  defp fix_wrapped_lines(next, nil), do: {[], String.replace(next, ~r/[\r\n]+/, "")}
   defp fix_wrapped_lines(next, last) do
     next = next |> String.replace(~r/[\n\r]+/, "")
     if Regex.match?(~r/^\ *[0-9]+/, next) do
@@ -50,13 +51,13 @@ defmodule Vivid.Hershey do
   defp parse_coords(parsed, " R" <> rest), do: parse_coords([:pen_up | parsed], rest)
   defp parse_coords(parsed, << xy::binary-size(2), rest::binary >>) do
     [y,x] = xy |> String.to_charlist
-    x = @mid_point - x
-    y = y - @mid_point
-    parse_coords([{y, x} | parsed], rest)
+    normalized_x = @mid_point - x
+    normalized_y = y - @mid_point
+    parse_coords([{normalized_y, normalized_x} | parsed], rest)
   end
 
   defp get_path(file) do
-    priv_dir
+    priv_dir()
     |> Path.join("hershey")
     |> Path.join("#{file}.jhf")
   end

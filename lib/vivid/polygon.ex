@@ -71,7 +71,7 @@ defmodule Vivid.Polygon do
       %Vivid.Polygon{vertices: [%Vivid.Point{x: 1, y: 1}]}
   """
   @spec delete(Polygon.t, Point.t) :: Polygon.t
-  def delete(%Polygon{vertices: points}, %Point{}=point) do
+  def delete(%Polygon{vertices: points}, %Point{} = point) do
     points
     |> List.delete(point)
     |> init
@@ -119,7 +119,7 @@ defmodule Vivid.Polygon do
       ]}
   """
   @spec insert_at(Polygon.t, integer, Point.t) :: Polygon.t
-  def insert_at(%Polygon{vertices: points}, index, %Point{}=point) do
+  def insert_at(%Polygon{vertices: points}, index, %Point{} = point) do
     points
     |> List.insert_at(index, point)
     |> init
@@ -152,7 +152,7 @@ defmodule Vivid.Polygon do
       ]}
   """
   @spec replace_at(Polygon.t, integer, Point.t) :: Polygon.t
-  def replace_at(%Polygon{vertices: points}, index, %Point{}=point) do
+  def replace_at(%Polygon{vertices: points}, index, %Point{} = point) do
     points
     |> List.replace_at(index, point)
     |> init

@@ -28,7 +28,7 @@ defmodule Vivid.Arc do
       }
   """
   @spec init(Point.t, number, number, number, integer) :: Arc.t
-  def init(%Point{}=center, radius, start_angle, range, steps \\ 12)
+  def init(%Point{} = center, radius, start_angle, range, steps \\ 12)
     when is_number(radius)
      and is_number(start_angle)
      and is_number(range)
@@ -66,7 +66,7 @@ defmodule Vivid.Arc do
       #Vivid.Point<{15, 15}>
   """
   @spec center(Arc.t, Point.t) :: Arc.t
-  def center(%Arc{}=a, %Point{}=p), do: %{a | center: p}
+  def center(%Arc{} = a, %Point{} = p), do: %{a | center: p}
 
   @doc """
   Returns the radius of an Arc
@@ -91,7 +91,7 @@ defmodule Vivid.Arc do
       10
   """
   @spec radius(Arc.t, number) :: Arc.t
-  def radius(%Arc{}=a, r) when is_number(r), do: %{a | radius: r}
+  def radius(%Arc{} = a, r) when is_number(r), do: %{a | radius: r}
 
   @doc """
   Returns the start angle of an Arc
@@ -116,7 +116,7 @@ defmodule Vivid.Arc do
       45
   """
   @spec start_angle(Arc.t, number) :: Arc.t
-  def start_angle(%Arc{}=a, theta), do: %{a | start_angle: theta}
+  def start_angle(%Arc{} = a, theta), do: %{a | start_angle: theta}
 
   @doc """
   Returns the range of the Arc
@@ -141,7 +141,7 @@ defmodule Vivid.Arc do
       270
   """
   @spec range(Arc.t, number) :: Arc.t
-  def range(%Arc{}=a, theta) when is_number(theta), do: %{a | range: theta}
+  def range(%Arc{} = a, theta) when is_number(theta), do: %{a | range: theta}
 
   @doc """
   Returns the number of steps in the Arc
@@ -166,7 +166,7 @@ defmodule Vivid.Arc do
       19
   """
   @spec steps(Arc.t, integer) :: Arc.t
-  def steps(%Arc{}=a, s) when is_integer(s), do: %{a | steps: s}
+  def steps(%Arc{} = a, s) when is_integer(s), do: %{a | steps: s}
 
   @doc """
   Converts the Arc into a Path, which is used for a bunch of things like
@@ -186,7 +186,7 @@ defmodule Vivid.Arc do
     step_degree = range / steps
     start_angle = start_angle - 180
 
-    Enum.map(0..steps, fn(step) ->
+    points = Enum.map(0..steps, fn(step) ->
       theta = (step_degree * step) + start_angle
       theta = degrees_to_radians(theta)
 
@@ -195,6 +195,8 @@ defmodule Vivid.Arc do
 
       Point.init(x, y)
     end)
+
+    points
     |> Path.init
   end
 end

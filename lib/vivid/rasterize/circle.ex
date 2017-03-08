@@ -3,11 +3,6 @@ defimpl Vivid.Rasterize, for: Vivid.Circle do
 
   @moduledoc """
   Rasterizes a circle into points.
-
-
-  x^2 + y^2 = r^2
-
-  y = sqrt(pow(r,2) - pow(x)2)
   """
 
   @doc ~S"""
@@ -32,7 +27,7 @@ defimpl Vivid.Rasterize, for: Vivid.Circle do
         %Vivid.Point{x: 9, y: 5}, %Vivid.Point{x: 9, y: 6}
       ])
   """
-
+  @spec rasterize(Circle.t, Bounds.t) :: MapSet.t
   def rasterize(circle, bounds) do
     circle
     |> Circle.to_polygon

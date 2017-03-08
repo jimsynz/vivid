@@ -2,6 +2,7 @@ defimpl Inspect, for: Vivid.Circle do
   alias Vivid.Circle
   import Inspect.Algebra
 
+  @spec inspect(Cirlcle.t, any) :: String.t
   def inspect(%Circle{center: c, radius: r, fill: true}, opts) do
     details = [center: c, radius: r, fill: true]
     concat ["#Vivid.Circle<", to_doc(details, opts), ">"]

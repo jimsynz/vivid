@@ -2,6 +2,7 @@ defimpl Inspect, for: Vivid.Point do
   alias Vivid.Point
   import Inspect.Algebra
 
+  @spec inspect(Point.t, any) :: String.t
   def inspect(point, opts) do
     x = point |> Point.x
     y = point |> Point.y

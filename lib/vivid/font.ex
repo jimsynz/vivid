@@ -1,6 +1,5 @@
 defmodule Vivid.Font do
-  alias Vivid.{Point, Group, Shape}
-  alias Vivid.Font.Char
+  alias Vivid.{Hershey, Point, Group, Shape, Font.Char}
 
   @font_vertical_offset 10
 
@@ -47,7 +46,7 @@ defmodule Vivid.Font do
   """
   @spec line(String.t, number) :: Shape.t
   def line(str, scale \\ 1.0) do
-    font = rowmans
+    font = rowmans()
     str
       |> String.split("")
       |> Stream.reject(fn c -> c == "" end)
@@ -56,7 +55,7 @@ defmodule Vivid.Font do
           char = Map.get(font, letter)
           lpad = Char.left_pad(char, scale)
           [{char, lpad}]
-        letter, [{lchar, lpad} | _]=letters ->
+        letter, [{lchar, lpad} | _] = letters ->
           char = Map.get(font, letter)
           lpad =
             Char.left_pad(char, scale) +
@@ -88,7 +87,7 @@ defmodule Vivid.Font do
 
   defp font(name) do
     name
-    |> Vivid.Hershey.definitions
+    |> Hershey.definitions
     |> Enum.to_list
   end
 end

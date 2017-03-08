@@ -3,6 +3,7 @@ defimpl Inspect, for: Vivid.Transform do
   alias Vivid.Transform.Operation
   import Inspect.Algebra
 
+  @spec inspect(Transform.t, any) :: String.t
   def inspect(%Transform{operations: operations, shape: shape}, opts) do
     operations = operations
       |> Stream.map(fn %Operation{name: name} -> name end)

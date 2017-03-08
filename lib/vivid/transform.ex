@@ -197,7 +197,7 @@ defmodule Vivid.Transform do
       "@@@@@@@@@@@@@@@@@\n"
   """
   @spec rotate(shape_or_transform, degrees, Point.t) :: Transform.t
-  def rotate(shape, degrees, %Point{x: x, y: y}=origin) do
+  def rotate(shape, degrees, %Point{x: x, y: y} = origin) do
     radians = degrees_to_radians(degrees)
     fun = fn _shape ->
       &Transform.Point.rotate_radians(&1, origin, radians)
@@ -399,11 +399,11 @@ defmodule Vivid.Transform do
     end)
   end
 
-  defp apply_transform(%Transform{operations: operations}=transform, fun, name) do
-    operations = [ %Operation{function: fun, name: name} | operations ]
+  defp apply_transform(%Transform{operations: operations} = transform, fun, name) do
+    operations = [%Operation{function: fun, name: name} | operations]
     %{transform | operations: operations}
   end
   defp apply_transform(shape, fun, name) do
-    %Transform{operations: [ %Operation{function: fun, name: name} ], shape: shape}
+    %Transform{operations: [%Operation{function: fun, name: name}], shape: shape}
   end
 end
