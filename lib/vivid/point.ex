@@ -59,7 +59,7 @@ defmodule Vivid.Point do
   def swap_xy(%Point{x: x, y: y}), do: Point.init(y, x)
 
   @doc """
-  Return the vector in `x` and `y` between point `a` and point `b`.
+  Return the vector in x and y between point `a` and point `b`.
 
   ## Example
 
@@ -70,7 +70,7 @@ defmodule Vivid.Point do
       {10, 10}
   """
   @spec vector(Point.t, Point.t) :: {number, number}
-  def vector(%Point{x: x0, y: y0}, %Point{x: x1, y: y1}) do
+  def vector(%Point{x: x0, y: y0} = _a, %Point{x: x1, y: y1} = _b) do
     {x1 - x0, y1 - y0}
   end
 

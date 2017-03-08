@@ -11,6 +11,11 @@ defmodule Vivid.Bounds do
   @doc """
   Initialise arbitrary bounds.
 
+  * `x0` - The x coordinate of the bottom-left pixel.
+  * `y0` - The y coordinate of the bottom-left pixel.
+  * `x1` - The x coordinate of the top-right pixel.
+  * `y1` - The y coordinate of the top-right pixel.
+
   ## Example
 
       iex> Vivid.Bounds.init(0, 0, 5, 5)
@@ -22,6 +27,8 @@ defmodule Vivid.Bounds do
   @doc """
   Return the bounding box required to encapsulate the shape.
 
+  * `shape` - A shape whose bounds you want to measure.
+
   ## Example
 
       iex> Vivid.Circle.init(Vivid.Point.init(10,10), 10)
@@ -29,7 +36,7 @@ defmodule Vivid.Bounds do
       #Vivid.Bounds<[min: #Vivid.Point<{0.0, 0.0}>, max: #Vivid.Point<{20.0, 20.0}>]>
   """
   @spec bounds(Shape.t) :: Bounds.t
-  def bounds(%Bounds{} = bounds), do: bounds
+  def bounds(%Bounds{} = shape), do: shape
   def bounds(shape) do
     {min, max} = Of.bounds(shape)
     %Bounds{min: min, max: max}
@@ -38,6 +45,8 @@ defmodule Vivid.Bounds do
   @doc """
   Returns the width of a shape.
 
+  * `shape` - The shape whose width you want to measure.
+
   ## Example
 
       iex> Vivid.Circle.init(Vivid.Point.init(10,10), 10)
@@ -45,11 +54,13 @@ defmodule Vivid.Bounds do
       20.0
   """
   @spec width(Shape.t) :: number
-  def width(%Bounds{min: %Point{x: x0}, max: %Point{x: x1}}), do: abs(x1 - x0)
+  def width(%Bounds{min: %Point{x: x0}, max: %Point{x: x1}} = _shape), do: abs(x1 - x0)
   def width(shape), do: shape |> bounds |> width
 
   @doc """
   Returns the height of a shape.
+
+  * `shape` - The shape whose height you want to measure.
 
   ## Example
 
@@ -64,6 +75,8 @@ defmodule Vivid.Bounds do
   @doc """
   Returns the bottom-left point of the bounds.
 
+  * `shape` - The shape whose bottom-left pixel you want to find.
+
   ## Example
 
       iex> Vivid.Circle.init(Vivid.Point.init(10,10), 10)
@@ -71,11 +84,13 @@ defmodule Vivid.Bounds do
       #Vivid.Point<{0.0, 0.0}>
   """
   @spec min(Shape.t) :: Point.t
-  def min(%Bounds{min: min}), do: min
+  def min(%Bounds{min: min} = _shape), do: min
   def min(shape), do: shape |> bounds |> min
 
   @doc """
   Returns the top-right point of the bounds.
+
+  * `shape` - The shape whose top-right pixel you want to find.
 
   ## Example
 
@@ -89,6 +104,8 @@ defmodule Vivid.Bounds do
 
   @doc """
   Returns the center point of the bounds.
+
+  * `shape` - The shape whose center-most pixel you want to find.
 
   ## Example
 
@@ -107,6 +124,9 @@ defmodule Vivid.Bounds do
 
   @doc """
   Returns true if the point is within the bounds.
+
+  * `shape` - A shape you wish to test.
+  * `point` - The point you wish to test.
 
   ## Examples
 
@@ -135,6 +155,6 @@ defmodule Vivid.Bounds do
         false
   """
   @spec contains?(Shape.t, Point.t) :: boolean
-  def contains?(%Bounds{min: %Point{x: x0, y: y0}, max: %Point{x: x1, y: y1}}, %Point{x: x, y: y}) when x0 <= x and x <= x1 and y0 <= y and y <= y1, do: true
-  def contains?(_, _), do: false
+  def contains?(%Bounds{min: %Point{x: x0, y: y0}, max: %Point{x: x1, y: y1}} = _shape, %Point{x: x, y: y} = _point) when x0 <= x and x <= x1 and y0 <= y and y <= y1, do: true
+  def contains?(_shape, _point), do: false
 end
