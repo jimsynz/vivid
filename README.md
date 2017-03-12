@@ -1,7 +1,7 @@
 # Vivid
 
 [![Build Status](https://travis-ci.org/jamesotron/vivid.ex.svg?branch=master)](https://travis-ci.org/jamesotron/vivid.ex)
-[![Inline docs](https://inch-ci.org/github/jamesotron/vivid.svg)](https://inch-ci.org/github/jamesotron/vivid)
+[![Inline docs](https://inch-ci.org/github/jamesotron/vivid.ex.svg)](https://inch-ci.org/github/jamesotron/vivid.ex)
 
 Vivid is a simple 2D rendering library.
 
