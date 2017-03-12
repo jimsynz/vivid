@@ -14,6 +14,14 @@ I plan to use it to render polygons for display on a
   * Supports arbitrary transformations shape transformations.
   * Renders shapes onto a buffer.
   * 100% pure Elixir with no dependencies.
+  * Render to PNG using [vivid_png](https://github.com/jamesotron/vivid_png.ex).
+
+## Plea for help
+
+I've been trying to get a version of the [Scan Line Polygon Fill Algorithm](http://bit.ly/2lR6zIR)
+working (see the `slpfa` branch) but have failed to achieve satisfactory
+results. If you're at all familiar with computer graphics or just curious
+please take a look.
 
 ## Demo
 
