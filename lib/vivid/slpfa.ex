@@ -11,6 +11,76 @@ defmodule Vivid.SLPFA do
     @moduledoc false
   end
 
+  @doc """
+
+  iex> use Vivid
+  ...> frame = Frame.init(16, 16, RGBA.black)
+  ...> polygon = Polygon.init([Point.init(1, 1), Point.init(4, 1), Point.init(4, 7), Point.init(11, 7), Point.init(11, 1), Point.init(14, 1), Point.init(14, 14), Point.init(1, 14)])
+  ...> Frame.push(frame, polygon, RGBA.white)
+  ...>   |> to_string
+  "                \n" <>
+  " @@@@@@@@@@@@@@ \n" <>
+  " @            @ \n" <>
+  " @            @ \n" <>
+  " @            @ \n" <>
+  " @            @ \n" <>
+  " @            @ \n" <>
+  " @            @ \n" <>
+  " @  @@@@@@@@  @ \n" <>
+  " @  @      @  @ \n" <>
+  " @  @      @  @ \n" <>
+  " @  @      @  @ \n" <>
+  " @  @      @  @ \n" <>
+  " @  @      @  @ \n" <>
+  " @@@@      @@@@ \n" <>
+  "                \n"
+
+  iex> use Vivid
+  ...> frame = Frame.init(16, 16, RGBA.black)
+  ...> polygon = Polygon.init([Point.init(1, 1), Point.init(4, 1), Point.init(4, 7), Point.init(11, 7), Point.init(11, 1), Point.init(14, 1), Point.init(14, 14), Point.init(1, 14)]) |> Vivid.SLPFA.fill |> Group.init
+  ...> Frame.push(frame, polygon, RGBA.white)
+  ...>   |> to_string
+  "                \n" <>
+  "                \n" <>
+  "  @@@@@@@@@@@@  \n" <>
+  "  @@@@@@@@@@@@  \n" <>
+  "  @@@@@@@@@@@@  \n" <>
+  "  @@@@@@@@@@@@  \n" <>
+  "  @@@@@@@@@@@@  \n" <>
+  "  @@@@@@@@@@@@  \n" <>
+  "  @@@@@@@@@@@@  \n" <>
+  "  @@        @@  \n" <>
+  "  @@        @@  \n" <>
+  "  @@        @@  \n" <>
+  "  @@        @@  \n" <>
+  "  @@        @@  \n" <>
+  "  @@        @@  \n" <>
+  "                \n"
+
+  iex> use Vivid
+  ...> frame = Frame.init(16, 16, RGBA.black)
+  ...> polygon = Polygon.init([Point.init(1, 1), Point.init(4, 1), Point.init(4, 7), Point.init(11, 7), Point.init(11, 1), Point.init(14, 1), Point.init(14, 14), Point.init(1, 14)])
+  ...> inside = polygon |> Vivid.SLPFA.fill |> Group.init
+  ...> Frame.push(frame, polygon, RGBA.white)
+  ...>   |> Frame.push(inside, RGBA.white)
+  ...>   |> to_string
+  "                \n" <>
+  " @@@@@@@@@@@@@@ \n" <>
+  " @@@@@@@@@@@@@@ \n" <>
+  " @@@@@@@@@@@@@@ \n" <>
+  " @@@@@@@@@@@@@@ \n" <>
+  " @@@@@@@@@@@@@@ \n" <>
+  " @@@@@@@@@@@@@@ \n" <>
+  " @@@@@@@@@@@@@@ \n" <>
+  " @@@@@@@@@@@@@@ \n" <>
+  " @@@@      @@@@ \n" <>
+  " @@@@      @@@@ \n" <>
+  " @@@@      @@@@ \n" <>
+  " @@@@      @@@@ \n" <>
+  " @@@@      @@@@ \n" <>
+  " @@@@      @@@@ \n" <>
+  "                \n"
+  """
   def fill(%Polygon{vertices: vertices}=polygon) do
     vertices
     |> create_edge_table
@@ -57,7 +127,7 @@ defmodule Vivid.SLPFA do
     active
     |> Stream.chunk(2)
     |> Enum.reduce(points, fn [a0, a1], points ->
-      Enum.reduce(a0.x..a1.x, points, fn x, points ->
+      Enum.reduce(a0.x+1..a1.x-1, points, fn x, points ->
         MapSet.put(points, Point.init(x, y))
       end)
     end)
