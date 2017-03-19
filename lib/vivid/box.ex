@@ -21,11 +21,10 @@ defmodule Vivid.Box do
       #Vivid.Box<[bottom_left: #Vivid.Point<{1, 1}>, top_right: #Vivid.Point<{4, 4}>]>
   """
   @spec init(Point.t, Point.t) :: Box.t
-  def init(%Point{}=bl, %Point{}=tr), do: init(bl, tr, false)
+  def init(%Point{} = bl, %Point{} = tr), do: init(bl, tr, false)
 
-  @doc false
   @spec init(Point.t, Point.t, boolean) :: Box.t
-  def init(%Point{}=bl, %Point{}=tr, fill) when is_boolean(fill), do: %Box{bottom_left: bl, top_right: tr, fill: fill}
+  def init(%Point{} = bl, %Point{} = tr, fill) when is_boolean(fill), do: %Box{bottom_left: bl, top_right: tr, fill: fill}
 
   @doc """
   Initialize a box from the bounds of an arbitrary shape.
@@ -37,7 +36,7 @@ defmodule Vivid.Box do
       ...> |> Box.init_from_bounds
       #Vivid.Box<[bottom_left: #Vivid.Point<{0.0, 0.2447174185242318}>, top_right: #Vivid.Point<{10.0, 9.755282581475768}>]>
   """
-  @spec init_from_bounds(Shape.t) :: Box.t
+  @spec init_from_bounds(Shape.t, boolean) :: Box.t
   def init_from_bounds(shape, fill \\ false) do
     bounds = shape |> Bounds.bounds
     min    = bounds |> Bounds.min
@@ -108,7 +107,7 @@ defmodule Vivid.Box do
       #Vivid.Polygon<[#Vivid.Point<{1, 1}>, #Vivid.Point<{1, 4}>, #Vivid.Point<{4, 4}>, #Vivid.Point<{4, 1}>]>
   """
   @spec to_polygon(Box.t) :: Polygon.t
-  def to_polygon(%Box{fill: fill}=box) do
+  def to_polygon(%Box{fill: fill} = box) do
     Polygon.init([
       bottom_left(box),
       top_left(box),

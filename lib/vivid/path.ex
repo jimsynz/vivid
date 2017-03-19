@@ -64,7 +64,7 @@ defmodule Vivid.Path do
       %Vivid.Path{vertices: [%Vivid.Point{x: 1, y: 1}]}
   """
   @spec delete(Path.t, Point.t) :: Path.t
-  def delete(%Path{vertices: points}, %Point{}=point) do
+  def delete(%Path{vertices: points}, %Point{} = point) do
     points
     |> List.delete(point)
     |> init
@@ -112,7 +112,7 @@ defmodule Vivid.Path do
       ]}
   """
   @spec insert_at(Path.t, integer, Point.t) :: Path.t
-  def insert_at(%Path{vertices: points}, index, %Point{}=point) do
+  def insert_at(%Path{vertices: points}, index, %Point{} = point) do
     points
     |> List.insert_at(index, point)
     |> init
@@ -145,7 +145,7 @@ defmodule Vivid.Path do
       ]}
   """
   @spec replace_at(Path.t, integer, Point.t) :: Path.t
-  def replace_at(%Path{vertices: points}, index, %Point{}=point) do
+  def replace_at(%Path{vertices: points}, index, %Point{} = point) do
     points
     |> List.replace_at(index, point)
     |> init

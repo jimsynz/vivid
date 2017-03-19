@@ -34,7 +34,8 @@ defimpl Vivid.Rasterize, for: Vivid.Line do
       ])
 
   """
-  def rasterize(%Line{}=line, bounds) do
+  @spec rasterize(Line.t, Bounds.t) :: MapSet.t
+  def rasterize(%Line{} = line, bounds) do
     # Convert the line into absolute coordinates.
     origin = line |> Line.origin |> Point.round
     term   = line |> Line.termination |> Point.round
@@ -45,7 +46,7 @@ defimpl Vivid.Rasterize, for: Vivid.Line do
 
     steps = choose_largest_of(abs(dx), abs(dy))
 
-    if steps == 0 do
+    points = if steps == 0 do
       MapSet.new([origin])
     else
       x_increment = dx / steps
@@ -55,21 +56,24 @@ defimpl Vivid.Rasterize, for: Vivid.Line do
       current_x = origin |> Point.x
       current_y = origin |> Point.y
 
-      reduce_points(points, steps, current_x, current_y, x_increment, y_increment)
+      reduce_points({points, steps, current_x,
+                     current_y, x_increment, y_increment})
     end
+
+    points
     |> Stream.map(&Point.round(&1))
     |> Stream.filter(&Bounds.contains?(bounds,&1))
     |> Enum.into(MapSet.new)
   end
 
-  defp reduce_points(points, 0, _, _, _, _), do: points
+  defp reduce_points({points, 0, _, _, _, _}), do: points
 
-  defp reduce_points(points, steps, current_x, current_y, x_increment, y_increment) do
+  defp reduce_points({points, steps, current_x, current_y, x_increment, y_increment}) do
     next_x = current_x + x_increment
     next_y = current_y + y_increment
     steps  = steps - 1
     points = MapSet.put(points, Point.init(next_x, next_y))
-    reduce_points(points, steps, next_x, next_y, x_increment, y_increment)
+    reduce_points({points, steps, next_x, next_y, x_increment, y_increment})
   end
 
   defp choose_largest_of(a, b) when a > b, do: a

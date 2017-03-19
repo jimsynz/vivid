@@ -20,6 +20,12 @@ defmodule Vivid.RGBA do
                      a_green: zero_to_one,
                      a_blue:  zero_to_one}
 
+  # I would put this at the bottom, but it has to be defined *before* it's
+  # used in the guard.
+  defmacrop zero_to_one?(value) do
+    quote do: is_number(unquote(value)) and unquote(value) >= 0 and unquote(value) <= 1
+  end
+
   @doc """
   Create a colour. Like magic.
 
@@ -33,10 +39,7 @@ defmodule Vivid.RGBA do
 
   @spec init(zero_to_one, zero_to_one, zero_to_one, zero_to_one) :: RGBA.t
   def init(red, green, blue, 1)
-  when is_number(red) and is_number(green) and is_number(blue)
-   and red >= 0 and red <= 1
-   and green >= 0 and green <= 1
-   and blue >= 0 and blue <= 1
+  when zero_to_one?(red) and zero_to_one?(green) and zero_to_one?(blue)
   do
     %RGBA{
       red:     red,
@@ -50,11 +53,8 @@ defmodule Vivid.RGBA do
   end
 
   def init(red, green, blue, 0)
-  when is_number(red) and is_number(green) and is_number(blue)
-   and red >= 0 and red <= 1
-   and green >= 0 and green <= 1
-   and blue >= 0 and blue <= 1
- do
+  when zero_to_one?(red) and zero_to_one?(green) and zero_to_one?(blue)
+  do
     %RGBA{
       red:     red,
       green:   green,
@@ -67,11 +67,7 @@ defmodule Vivid.RGBA do
   end
 
   def init(red, green, blue, alpha)
-  when is_number(red) and is_number(green) and is_number(blue) and is_number(alpha)
-   and red >= 0 and red <= 1
-   and green >= 0 and green <= 1
-   and blue >= 0 and blue <= 1
-   and alpha >= 0 and alpha <= 1
+  when zero_to_one?(red) and zero_to_one?(green) and zero_to_one?(blue) and zero_to_one?(alpha)
   do
     %RGBA{
       red:     red,
@@ -188,14 +184,14 @@ defmodule Vivid.RGBA do
       #Vivid.RGBA<{0.5, 0.5, 0.5, 1.0}>
   """
   @spec over(RGBA.t, RGBA.t) :: RGBA.t
-  def over(nil, %RGBA{}=colour), do: colour
-  def over(%RGBA{}, %RGBA{alpha: 1}=visible), do: visible
-  def over(%RGBA{}=visible, %RGBA{alpha: 0}), do: visible
+  def over(nil, %RGBA{} = colour), do: colour
+  def over(%RGBA{}, %RGBA{alpha: 1} = visible), do: visible
+  def over(%RGBA{} = visible, %RGBA{alpha: 0}), do: visible
   def over(%RGBA{a_red: r0, a_green: g0, a_blue: b0, alpha: a0}, %RGBA{a_red: r1, a_green: g1, a_blue: b1, alpha: a1}) do
     a = a0 + a1 * (1 - a0)
 
     [r, g, b] = [{r0, r1}, {g0, g1}, {b0, b1}]
-      |> Enum.map(fn {c0, c1}-> c1 + c0 * (1 - a1) end)
+      |> Enum.map(fn {c0, c1} -> c1 + c0 * (1 - a1) end)
 
     RGBA.init(r, g, b, a)
   end
@@ -217,7 +213,7 @@ defmodule Vivid.RGBA do
   """
   @spec luminance(RGBA.t) :: zero_to_one
   def luminance(%RGBA{a_red: r, a_green: g, a_blue: b}) do
-    [rl, gl, bl] = [r, g, b ] |> Enum.map(&pow(&1, 2.2))
+    [rl, gl, bl] = [r, g, b] |> Enum.map(&pow(&1, 2.2))
     0.2128 * rl + 0.7150 * gl + 0.0722 * bl
   end
 
@@ -231,21 +227,18 @@ defmodule Vivid.RGBA do
   chosen based on the `luminance/1` value of the colour.
   """
   @spec to_ascii(RGBA.t) :: String.t
-  def to_ascii(%RGBA{}=colour) do
+  def to_ascii(%RGBA{} = colour) do
     l = luminance(colour)
-    c = l * (@ascii_luminance_map_length - 1) |> round
+    c = round(l * (@ascii_luminance_map_length - 1))
     elem(@ascii_luminance_map, c)
   end
 
-  defp f2h(f) do
-    h = f * 0xff
-      |> round
-      |> Integer.to_string(16)
+  defp f2h(f) when f >= 0 and f <= 1 and is_float(f) do
+    h = Integer.to_string(round(f * 0xff), 16)
 
     case h |> String.length do
       1 -> "0" <> h
       2 -> h
     end
   end
-
 end

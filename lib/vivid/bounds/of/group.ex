@@ -1,5 +1,7 @@
 defimpl Vivid.Bounds.Of, for: Vivid.Group do
   alias Vivid.Point
+
+  @spec bounds(Group.t) :: {Point.t, Point.t}
   def bounds(%Vivid.Group{shapes: shapes}) do
     shapes
     |> Enum.map(&Vivid.Bounds.Of.bounds(&1))

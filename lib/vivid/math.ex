@@ -19,5 +19,6 @@ defmodule Vivid.Math do
       iex> 180 |> Vivid.Math.degrees_to_radians
       :math.pi
   """
+  @spec degrees_to_radians(number) :: float
   def degrees_to_radians(degrees), do: degrees / 180.0 * pi()
 end

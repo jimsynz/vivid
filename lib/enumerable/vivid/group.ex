@@ -14,6 +14,7 @@ defimpl Enumerable, for: Vivid.Group do
       ...> |> Enum.count
       2
   """
+  @spec count(Group.t) :: {:ok, non_neg_integer}
   def count(%Group{shapes: shapes}), do: {:ok, Enum.count(shapes)}
 
   @doc """
@@ -29,6 +30,7 @@ defimpl Enumerable, for: Vivid.Group do
       ...> |> Enum.member?(Vivid.Point.init(2,2))
       false
   """
+  @spec member?(Group.t, Shape.t) :: {:ok, boolean}
   def member?(%Group{shapes: shapes}, shape), do: {:ok, Enum.member?(shapes, shape)}
 
   @doc """
@@ -39,5 +41,6 @@ defimpl Enumerable, for: Vivid.Group do
       iex> Vivid.Group.init([Vivid.Point.init(1,2), Vivid.Point.init(2,4)]) |> Enum.reduce(%{}, fn (%Vivid.Point{x: x, y: y}, acc) -> Map.put(acc, x, y) end)
       %{1 => 2, 2 => 4}
   """
+  @spec reduce(Group.t, Collectable.t, (Shape.t, Collectable.t -> Collectable.t)) :: Collectable.t
   def reduce(%Group{shapes: shapes}, acc, fun), do: Enumerable.MapSet.reduce(shapes, acc, fun)
 end
