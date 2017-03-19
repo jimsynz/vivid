@@ -4,6 +4,10 @@ defmodule Vivid.SLPFA do
   @moduledoc """
   Scanline Polygon Filling Algorithm, as per
   https://hackernoon.com/computer-graphics-scan-line-polygon-fill-algorithm-3cb47283df6#.20fac9f40
+
+  This algorithm only fills the *inside* of a polygon, leaving you free to
+  to compose it with the original polygon if you want to use different border
+  and fill colours, for example.
   """
 
   defmodule EdgeBucket do
@@ -11,77 +15,88 @@ defmodule Vivid.SLPFA do
     @moduledoc false
   end
 
-  @doc """
+  @doc ~S"""
+  Fills the inside area of a polygon using the Scanline Polygon Filling
+  Algorithm.
 
-  iex> use Vivid
-  ...> frame = Frame.init(16, 16, RGBA.black)
-  ...> polygon = Polygon.init([Point.init(1, 1), Point.init(4, 1), Point.init(4, 7), Point.init(11, 7), Point.init(11, 1), Point.init(14, 1), Point.init(14, 14), Point.init(1, 14)])
-  ...> Frame.push(frame, polygon, RGBA.white)
-  ...>   |> to_string
-  "                \n" <>
-  " @@@@@@@@@@@@@@ \n" <>
-  " @            @ \n" <>
-  " @            @ \n" <>
-  " @            @ \n" <>
-  " @            @ \n" <>
-  " @            @ \n" <>
-  " @            @ \n" <>
-  " @  @@@@@@@@  @ \n" <>
-  " @  @      @  @ \n" <>
-  " @  @      @  @ \n" <>
-  " @  @      @  @ \n" <>
-  " @  @      @  @ \n" <>
-  " @  @      @  @ \n" <>
-  " @@@@      @@@@ \n" <>
-  "                \n"
+  ## Examples
 
-  iex> use Vivid
-  ...> frame = Frame.init(16, 16, RGBA.black)
-  ...> polygon = Polygon.init([Point.init(1, 1), Point.init(4, 1), Point.init(4, 7), Point.init(11, 7), Point.init(11, 1), Point.init(14, 1), Point.init(14, 14), Point.init(1, 14)]) |> Vivid.SLPFA.fill |> Group.init
-  ...> Frame.push(frame, polygon, RGBA.white)
-  ...>   |> to_string
-  "                \n" <>
-  "                \n" <>
-  "  @@@@@@@@@@@@  \n" <>
-  "  @@@@@@@@@@@@  \n" <>
-  "  @@@@@@@@@@@@  \n" <>
-  "  @@@@@@@@@@@@  \n" <>
-  "  @@@@@@@@@@@@  \n" <>
-  "  @@@@@@@@@@@@  \n" <>
-  "  @@@@@@@@@@@@  \n" <>
-  "  @@        @@  \n" <>
-  "  @@        @@  \n" <>
-  "  @@        @@  \n" <>
-  "  @@        @@  \n" <>
-  "  @@        @@  \n" <>
-  "  @@        @@  \n" <>
-  "                \n"
+  The original polygon.
 
-  iex> use Vivid
-  ...> frame = Frame.init(16, 16, RGBA.black)
-  ...> polygon = Polygon.init([Point.init(1, 1), Point.init(4, 1), Point.init(4, 7), Point.init(11, 7), Point.init(11, 1), Point.init(14, 1), Point.init(14, 14), Point.init(1, 14)])
-  ...> inside = polygon |> Vivid.SLPFA.fill |> Group.init
-  ...> Frame.push(frame, polygon, RGBA.white)
-  ...>   |> Frame.push(inside, RGBA.white)
-  ...>   |> to_string
-  "                \n" <>
-  " @@@@@@@@@@@@@@ \n" <>
-  " @@@@@@@@@@@@@@ \n" <>
-  " @@@@@@@@@@@@@@ \n" <>
-  " @@@@@@@@@@@@@@ \n" <>
-  " @@@@@@@@@@@@@@ \n" <>
-  " @@@@@@@@@@@@@@ \n" <>
-  " @@@@@@@@@@@@@@ \n" <>
-  " @@@@@@@@@@@@@@ \n" <>
-  " @@@@      @@@@ \n" <>
-  " @@@@      @@@@ \n" <>
-  " @@@@      @@@@ \n" <>
-  " @@@@      @@@@ \n" <>
-  " @@@@      @@@@ \n" <>
-  " @@@@      @@@@ \n" <>
-  "                \n"
+      iex> use Vivid
+      ...> frame = Frame.init(16, 16, RGBA.black)
+      ...> polygon = Polygon.init([Point.init(1, 1), Point.init(4, 1), Point.init(4, 7), Point.init(11, 7), Point.init(11, 1), Point.init(14, 1), Point.init(14, 14), Point.init(1, 14)])
+      ...> Frame.push(frame, polygon, RGBA.white)
+      ...>   |> to_string
+      "                \n" <>
+      " @@@@@@@@@@@@@@ \n" <>
+      " @            @ \n" <>
+      " @            @ \n" <>
+      " @            @ \n" <>
+      " @            @ \n" <>
+      " @            @ \n" <>
+      " @            @ \n" <>
+      " @  @@@@@@@@  @ \n" <>
+      " @  @      @  @ \n" <>
+      " @  @      @  @ \n" <>
+      " @  @      @  @ \n" <>
+      " @  @      @  @ \n" <>
+      " @  @      @  @ \n" <>
+      " @@@@      @@@@ \n" <>
+      "                \n"
+
+  The filled area of the polygon
+
+      iex> use Vivid
+      ...> frame = Frame.init(16, 16, RGBA.black)
+      ...> polygon = Polygon.init([Point.init(1, 1), Point.init(4, 1), Point.init(4, 7), Point.init(11, 7), Point.init(11, 1), Point.init(14, 1), Point.init(14, 14), Point.init(1, 14)]) |> Vivid.SLPFA.fill |> Group.init
+      ...> Frame.push(frame, polygon, RGBA.white)
+      ...>   |> to_string
+      "                \n" <>
+      "                \n" <>
+      "  @@@@@@@@@@@@  \n" <>
+      "  @@@@@@@@@@@@  \n" <>
+      "  @@@@@@@@@@@@  \n" <>
+      "  @@@@@@@@@@@@  \n" <>
+      "  @@@@@@@@@@@@  \n" <>
+      "  @@@@@@@@@@@@  \n" <>
+      "  @@@@@@@@@@@@  \n" <>
+      "  @@        @@  \n" <>
+      "  @@        @@  \n" <>
+      "  @@        @@  \n" <>
+      "  @@        @@  \n" <>
+      "  @@        @@  \n" <>
+      "  @@        @@  \n" <>
+      "                \n"
+
+  The polygon and the fill combined.
+
+      iex> use Vivid
+      ...> frame = Frame.init(16, 16, RGBA.black)
+      ...> polygon = Polygon.init([Point.init(1, 1), Point.init(4, 1), Point.init(4, 7), Point.init(11, 7), Point.init(11, 1), Point.init(14, 1), Point.init(14, 14), Point.init(1, 14)])
+      ...> inside = polygon |> Vivid.SLPFA.fill |> Group.init
+      ...> Frame.push(frame, polygon, RGBA.white)
+      ...>   |> Frame.push(inside, RGBA.white)
+      ...>   |> to_string
+      "                \n" <>
+      " @@@@@@@@@@@@@@ \n" <>
+      " @@@@@@@@@@@@@@ \n" <>
+      " @@@@@@@@@@@@@@ \n" <>
+      " @@@@@@@@@@@@@@ \n" <>
+      " @@@@@@@@@@@@@@ \n" <>
+      " @@@@@@@@@@@@@@ \n" <>
+      " @@@@@@@@@@@@@@ \n" <>
+      " @@@@@@@@@@@@@@ \n" <>
+      " @@@@      @@@@ \n" <>
+      " @@@@      @@@@ \n" <>
+      " @@@@      @@@@ \n" <>
+      " @@@@      @@@@ \n" <>
+      " @@@@      @@@@ \n" <>
+      " @@@@      @@@@ \n" <>
+      "                \n"
   """
-  def fill(%Polygon{vertices: vertices}=polygon) do
+  @spec fill(Polygon.t) :: MapSet.t
+  def fill(%Polygon{vertices: vertices}) do
     vertices
     |> create_edge_table
     |> process_edge_table
@@ -94,7 +109,7 @@ defmodule Vivid.SLPFA do
     process_edge_table(points, active, edge_table, scan_line + 1)
   end
 
-  defp process_edge_table(points, []=_active, _edge_table, scan_line), do: points
+  defp process_edge_table(points, []=_active, _edge_table, _scan_line), do: points
 
   defp process_edge_table(points, active, edge_table, scan_line) do
     {active, edge_table} = update_active_list(scan_line, active, edge_table)
@@ -108,7 +123,7 @@ defmodule Vivid.SLPFA do
       %EdgeBucket{distance_x: 0}=edge_bucket ->
         edge_bucket
       %EdgeBucket{distance_x: dx, sum: s}=edge_bucket ->
-        edge_bucket = edge_bucket
+        edge_bucket
           |> Map.put(:sum, s + dx)
           |> increment_edge
     end)

@@ -56,7 +56,7 @@ defmodule Vivid.Hershey do
   end
 
   defp get_path(file) do
-    priv_dir
+    priv_dir()
     |> Path.join("hershey")
     |> Path.join("#{file}.jhf")
   end

@@ -1,5 +1,5 @@
 defimpl Vivid.Rasterize, for: Vivid.Polygon do
-  alias Vivid.{Polygon, Rasterize, Point, Bounds, Line, SLPFA}
+  alias Vivid.{Polygon, Rasterize, Bounds, SLPFA}
   require Integer
 
   defmodule InvalidPolygonError do
@@ -34,17 +34,26 @@ defimpl Vivid.Rasterize, for: Vivid.Polygon do
   end
 
   def rasterize(%Polygon{fill: false}=polygon, bounds) do
+    polygon_border(polygon, bounds)
+  end
+
+  def rasterize(%Polygon{fill: true}=polygon, bounds) do
+    filled_polygon_inside_area(polygon, bounds)
+    |> MapSet.union(polygon_border(polygon, bounds))
+  end
+
+  def filled_polygon_inside_area(polygon, bounds) do
+    polygon
+    |> SLPFA.fill
+    |> Enum.filter(&Bounds.contains?(bounds, &1))
+    |> Enum.into(MapSet.new)
+  end
+
+  def polygon_border(polygon, bounds) do
     lines = polygon |> Polygon.to_lines
 
     Enum.reduce(lines, MapSet.new, fn(line, acc) ->
       MapSet.union(acc, Rasterize.rasterize(line, bounds))
     end)
-  end
-
-  def rasterize(%Polygon{fill: true}=polygon, bounds) do
-    polygon
-    |> SLPFA.fill
-    |> Enum.filter(&Bounds.contains?(bounds, &1))
-    |> Enum.into(MapSet.new)
   end
 end

@@ -47,7 +47,7 @@ defmodule Vivid.Font do
   """
   @spec line(String.t, number) :: Shape.t
   def line(str, scale \\ 1.0) do
-    font = rowmans
+    font = rowmans()
     str
       |> String.split("")
       |> Stream.reject(fn c -> c == "" end)
