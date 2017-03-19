@@ -158,8 +158,42 @@ defmodule Vivid.Polygon do
     |> init
   end
 
+  @doc """
+  Is the polygon filled or not?
+
+  ## Example
+
+      iex> use Vivid
+      ...> Polygon.init([Point.init(1,1), Point.init(2,2), Point.init(1,2)])
+      ...> |> Polygon.filled?
+      false
+
+      iex> use Vivid
+      ...> Polygon.init([Point.init(1,1), Point.init(2,2), Point.init(1,2)], true)
+      ...> |> Polygon.filled?
+      true
+
+      iex> use Vivid
+      ...> Polygon.init([Point.init(1,1), Point.init(2,2), Point.init(1,2)], false)
+      ...> |> Polygon.filled?
+      false
+  """
+  @spec filled?(Polygon.t) :: boolean
   def filled?(%Polygon{fill: fill}), do: fill
-  def fill(%Polygon{}=polygon, fill) when is_boolean(fill), do: %{polygon | fill: fill}
+
+  @doc """
+  Turn on or off filling for this polygon.
+
+  ## Example
+
+      iex> use Vivid
+      ...> Polygon.init([Point.init(1,1), Point.init(2,2), Point.init(1,2)])
+      ...> |> Polygon.fill(true)
+      ...> |> Polygon.filled?
+      true
+  """
+  @spec fill(Polygon.t, boolean) :: Polygon.t
+  def fill(%Polygon{} = polygon, fill) when is_boolean(fill), do: %{polygon | fill: fill}
 
   defp points_to_lines(lines, []) do
     origin = lines |> List.last |> Line.termination

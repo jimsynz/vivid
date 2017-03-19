@@ -102,34 +102,34 @@ defmodule Vivid.SLPFA do
     |> process_edge_table
   end
 
-  defp process_edge_table([a0 | _]=edge_table) do
+  defp process_edge_table([a0 | _] = edge_table) do
     scan_line = a0.y_min
     {active, edge_table} = update_active_list(scan_line, [], edge_table)
     points = pixels_for_active_list(MapSet.new, active, scan_line)
     process_edge_table(points, active, edge_table, scan_line + 1)
   end
 
-  defp process_edge_table(points, []=_active, _edge_table, _scan_line), do: points
+  defp process_edge_table(points, [] = _active, _edge_table, _scan_line), do: points
 
   defp process_edge_table(points, active, edge_table, scan_line) do
     {active, edge_table} = update_active_list(scan_line, active, edge_table)
     points = pixels_for_active_list(points, active, scan_line)
-    active = increment_active_edges(active)
-    process_edge_table(points, active, edge_table, scan_line + 1)
+    new_active = increment_active_edges(active)
+    process_edge_table(points, new_active, edge_table, scan_line + 1)
   end
 
   defp increment_active_edges(active) do
     Enum.map(active, fn
-      %EdgeBucket{distance_x: 0}=edge_bucket ->
+      %EdgeBucket{distance_x: 0} = edge_bucket ->
         edge_bucket
-      %EdgeBucket{distance_x: dx, sum: s}=edge_bucket ->
+      %EdgeBucket{distance_x: dx, sum: s} = edge_bucket ->
         edge_bucket
           |> Map.put(:sum, s + dx)
           |> increment_edge
     end)
   end
 
-  defp increment_edge(%EdgeBucket{sum: sum, distance_y: dy, sign: sign, x: x}=edge_bucket) when sum >= dy do
+  defp increment_edge(%EdgeBucket{sum: sum, distance_y: dy, sign: sign, x: x} = edge_bucket) when sum >= dy do
     edge_bucket
     |> Map.put(:x, x + sign)
     |> Map.put(:sum, sum - dy)
@@ -142,7 +142,7 @@ defmodule Vivid.SLPFA do
     active
     |> Stream.chunk(2)
     |> Enum.reduce(points, fn [a0, a1], points ->
-      Enum.reduce(a0.x+1..a1.x-1, points, fn x, points ->
+      Enum.reduce(a0.x + 1..a1.x - 1, points, fn x, points ->
         MapSet.put(points, Point.init(x, y))
       end)
     end)
@@ -152,20 +152,20 @@ defmodule Vivid.SLPFA do
     {active, edge_table} = active
       |> Stream.concat(edge_table)
       |> Enum.reduce({[], []}, fn
-        %EdgeBucket{y_min: y_min, y_max: y_max}=edge, {active, edge_table} when y_min <= scan_line and y_max > scan_line ->
+        %EdgeBucket{y_min: y_min, y_max: y_max} = edge, {active, edge_table} when y_min <= scan_line and y_max > scan_line ->
           active = [edge | active]
           {active, edge_table}
-        %EdgeBucket{y_min: y_min}=edge, {active, edge_table} when y_min >= scan_line ->
+        %EdgeBucket{y_min: y_min} = edge, {active, edge_table} when y_min >= scan_line ->
           edge_table = [edge | edge_table]
           {active, edge_table}
         _edge_bucket, {active, edge_table} ->
           {active, edge_table}
       end)
 
-    active = active
+    new_active = active
       |> Enum.sort(&sort_by_x_and_slope(&1, &2))
 
-    {active, edge_table}
+    {new_active, edge_table}
   end
 
   defp sort_by_x_and_slope(%EdgeBucket{x: x0},
@@ -191,7 +191,7 @@ defmodule Vivid.SLPFA do
     |> Enum.sort(&sort_by_min_y(&1, &2))
   end
 
-  defp line_left_to_right(%Line{origin: %Point{x: x0}=p0, termination: %Point{x: x1}=p1}) when x0 > x1, do: Line.init(p1, p0)
+  defp line_left_to_right(%Line{origin: %Point{x: x0} = p0, termination: %Point{x: x1} = p1}) when x0 > x1, do: Line.init(p1, p0)
   defp line_left_to_right(line), do: line
 
   defp line_to_edge_bucket(%Line{origin: p0, termination: p1}) do

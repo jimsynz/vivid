@@ -34,23 +34,24 @@ defimpl Vivid.Rasterize, for: Vivid.Polygon do
     raise InvalidPolygonError, "Polygon does not contain enough edges."
   end
 
-  def rasterize(%Polygon{fill: false}=polygon, bounds) do
+  def rasterize(%Polygon{fill: false} = polygon, bounds) do
     polygon_border(polygon, bounds)
   end
 
-  def rasterize(%Polygon{fill: true}=polygon, bounds) do
-    filled_polygon_inside_area(polygon, bounds)
+  def rasterize(%Polygon{fill: true} = polygon, bounds) do
+    polygon
+    |> filled_polygon_inside_area(bounds)
     |> MapSet.union(polygon_border(polygon, bounds))
   end
 
-  def filled_polygon_inside_area(polygon, bounds) do
+  defp filled_polygon_inside_area(polygon, bounds) do
     polygon
     |> SLPFA.fill
     |> Enum.filter(&Bounds.contains?(bounds, &1))
     |> Enum.into(MapSet.new)
   end
 
-  def polygon_border(polygon, bounds) do
+  defp polygon_border(polygon, bounds) do
     lines = polygon |> Polygon.to_lines
 
     Enum.reduce(lines, MapSet.new, fn(line, acc) ->
