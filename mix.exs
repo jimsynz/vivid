@@ -1,15 +1,21 @@
 defmodule Vivid.Mixfile do
   use Mix.Project
 
+  @version "0.4.0"
+
   def project do
     [app: :vivid,
-     version: "0.4.0",
+     version: @version,
      description: description(),
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      package: package(),
-     deps: deps()]
+     deps: deps(),
+   docs: [source_ref: "v#{@version}",
+          main: "Vivid",
+          canonical: "http://hexdocs.pm/vivid",
+          source_url: "https://github.com/jamesotron/vivid.ex"]]
   end
 
   # Configuration for the OTP application
