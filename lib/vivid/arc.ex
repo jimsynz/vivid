@@ -56,7 +56,7 @@ defmodule Vivid.Arc do
   def center(%Arc{center: p}), do: p
 
   @doc """
-  Changes the center point of an Arc
+  Changes the center `point` of `arc`.
 
   ## Example
 
@@ -66,7 +66,7 @@ defmodule Vivid.Arc do
       #Vivid.Point<{15, 15}>
   """
   @spec center(Arc.t, Point.t) :: Arc.t
-  def center(%Arc{} = a, %Point{} = p), do: %{a | center: p}
+  def center(%Arc{} = arc, %Point{} = point), do: %{arc | center: point}
 
   @doc """
   Returns the radius of an Arc
@@ -81,7 +81,7 @@ defmodule Vivid.Arc do
   def radius(%Arc{radius: r}), do: r
 
   @doc """
-  Change the radius of an Arc
+  Change the `radius` of `arc`.
 
   ## Example
 
@@ -91,7 +91,7 @@ defmodule Vivid.Arc do
       10
   """
   @spec radius(Arc.t, number) :: Arc.t
-  def radius(%Arc{} = a, r) when is_number(r), do: %{a | radius: r}
+  def radius(%Arc{} = arc, radius) when is_number(radius), do: %{arc | radius: radius}
 
   @doc """
   Returns the start angle of an Arc
@@ -156,7 +156,7 @@ defmodule Vivid.Arc do
   def steps(%Arc{steps: s}), do: s
 
   @doc """
-  Changes the number of steps in an Arc
+  Changes the number of `steps` in `arc`.
 
   ## Example
 
@@ -166,7 +166,7 @@ defmodule Vivid.Arc do
       19
   """
   @spec steps(Arc.t, integer) :: Arc.t
-  def steps(%Arc{} = a, s) when is_integer(s), do: %{a | steps: s}
+  def steps(%Arc{} = arc, steps) when is_integer(steps), do: %{arc | steps: steps}
 
   @doc """
   Converts the Arc into a Path, which is used for a bunch of things like

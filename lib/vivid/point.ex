@@ -9,7 +9,7 @@ defmodule Vivid.Point do
   @opaque t :: %Point{x: number, y: number}
 
   @doc ~S"""
-  Creates a Point.
+  Creates a Point using `x` and `y` coordinates.
 
   ## Examples
 

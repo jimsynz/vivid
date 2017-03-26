@@ -96,7 +96,7 @@ defmodule Vivid.Transform do
   end
 
   @doc """
-  Scale a shape around it's center point.
+  Uniformly scale a shape around it's center point.
 
   ## Examples
 
@@ -104,12 +104,6 @@ defmodule Vivid.Transform do
       ...> |> Vivid.Transform.scale(2)
       ...> |> Vivid.Transform.apply
       #Vivid.Polygon<[#Vivid.Point<{12.5, 2.5}>, #Vivid.Point<{12.5, 12.5}>, #Vivid.Point<{2.5, 12.5}>, #Vivid.Point<{2.5, 2.5}>]>
-
-      iex> Vivid.Box.init(Vivid.Point.init(5,5), Vivid.Point.init(10,10))
-      ...> |> Vivid.Transform.scale(2, 4)
-      ...> |> Vivid.Transform.apply
-      #Vivid.Polygon<[#Vivid.Point<{12.5, -2.5}>, #Vivid.Point<{12.5, 17.5}>, #Vivid.Point<{2.5, 17.5}>, #Vivid.Point<{2.5, -2.5}>]>
-
   """
   @spec scale(shape_or_transform, number) :: Transform.t
   def scale(shape, uniform) do
@@ -121,6 +115,17 @@ defmodule Vivid.Transform do
     apply_transform(shape, fun, "scale-#{uniform}x")
   end
 
+  @doc """
+  Scale a shape around it's center point using the given `x` and `y` multipliers.
+
+  ## Examples
+
+      iex> Vivid.Box.init(Vivid.Point.init(5,5), Vivid.Point.init(10,10))
+      ...> |> Vivid.Transform.scale(2, 4)
+      ...> |> Vivid.Transform.apply
+      #Vivid.Polygon<[#Vivid.Point<{12.5, -2.5}>, #Vivid.Point<{12.5, 17.5}>, #Vivid.Point<{2.5, 17.5}>, #Vivid.Point<{2.5, -2.5}>]>
+
+  """
   @spec scale(shape_or_transform, number, number) :: Transform.t
   def scale(shape, x, y) do
     fun = fn shape ->

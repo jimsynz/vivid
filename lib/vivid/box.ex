@@ -12,7 +12,10 @@ defmodule Vivid.Box do
   @opaque t :: Box.t
 
   @doc """
-  Initialize a Box from it's bottom left and top right points.
+  Initialize an unfilled Box from it's bottom left and top right points.
+
+  * `bottom_left` - the bottom left `Point` of the box.
+  * `top_right` - the top right `Point` of the box.
 
   ## Examples
 
@@ -21,10 +24,23 @@ defmodule Vivid.Box do
       #Vivid.Box<[bottom_left: #Vivid.Point<{1, 1}>, top_right: #Vivid.Point<{4, 4}>]>
   """
   @spec init(Point.t, Point.t) :: Box.t
-  def init(%Point{} = bl, %Point{} = tr), do: init(bl, tr, false)
+  def init(%Point{} = bottom_left, %Point{} = top_right), do: init(bottom_left, top_right, false)
 
+  @doc """
+  Initialize a Box from it's bottom left and top right points and whether it's filled.
+
+  * `bottom_left` - the bottom left `Point` of the box.
+  * `top_right` - the top right `Point` of the box.
+  * `fill` - whether or not the box should be filled.
+
+  ## Examples
+
+      iex> use Vivid
+      ...> Box.init(Point.init(1,1), Point.init(4,4))
+      #Vivid.Box<[bottom_left: #Vivid.Point<{1, 1}>, top_right: #Vivid.Point<{4, 4}>]>
+  """
   @spec init(Point.t, Point.t, boolean) :: Box.t
-  def init(%Point{} = bl, %Point{} = tr, fill) when is_boolean(fill), do: %Box{bottom_left: bl, top_right: tr, fill: fill}
+  def init(%Point{} = bottom_left, %Point{} = top_right, fill) when is_boolean(fill), do: %Box{bottom_left: bottom_left, top_right: top_right, fill: fill}
 
   @doc """
   Initialize a box from the bounds of an arbitrary shape.
