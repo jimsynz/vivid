@@ -12,11 +12,13 @@ defmodule Vivid.Arc do
   @doc ~S"""
   Creates an Arc.
 
-  `center` is a Point definining the center point of the arc's parent circle.
-  `radius` is the radius of the parent circle.
-  `start_angle` is the angle at which to start drawing the arc, `0` is vertical.
-  `range` is the number of degrees to draw the arc.
-  `steps` the arc is drawn by dividing it into a number of lines. Defaults to 12.
+  * `center` is a Point definining the center point of the arc's parent circle.
+  * `radius` is the radius of the parent circle.
+  * `start_angle` is the angle at which to start drawing the arc, `0` is vertical.
+  * `range` is the number of degrees to draw the arc.
+  * `steps` the arc is drawn by dividing it into a number of lines. Defaults to 12.
+
+  ## Examples
 
       iex> Vivid.Arc.init(Vivid.Point.init(5,5), 4, 45, 15)
       %Vivid.Arc{
@@ -44,7 +46,7 @@ defmodule Vivid.Arc do
   end
 
   @doc """
-  Returns the center point of an Arc
+  Returns the center point of an `arc`.
 
   ## Example
 
@@ -53,7 +55,7 @@ defmodule Vivid.Arc do
       #Vivid.Point<{10, 10}>
   """
   @spec center(Arc.t) :: Point.t
-  def center(%Arc{center: p}), do: p
+  def center(%Arc{center: p} = _arc), do: p
 
   @doc """
   Changes the center `point` of `arc`.
@@ -69,7 +71,7 @@ defmodule Vivid.Arc do
   def center(%Arc{} = arc, %Point{} = point), do: %{arc | center: point}
 
   @doc """
-  Returns the radius of an Arc
+  Returns the radius of an `arc`.
 
   ## Example
 
@@ -78,7 +80,7 @@ defmodule Vivid.Arc do
       5
   """
   @spec radius(Arc.t) :: number
-  def radius(%Arc{radius: r}), do: r
+  def radius(%Arc{radius: r} = _arc), do: r
 
   @doc """
   Change the `radius` of `arc`.
@@ -94,7 +96,7 @@ defmodule Vivid.Arc do
   def radius(%Arc{} = arc, radius) when is_number(radius), do: %{arc | radius: radius}
 
   @doc """
-  Returns the start angle of an Arc
+  Returns the start angle of an `arc`.
 
   ## Example
 
@@ -103,10 +105,10 @@ defmodule Vivid.Arc do
       0
   """
   @spec start_angle(Arc.t) :: number
-  def start_angle(%Arc{start_angle: a}), do: a
+  def start_angle(%Arc{start_angle: a} = _arc), do: a
 
   @doc """
-  Change the start angle of an Arc
+  Change the start angle of an `arc`.
 
   ## Example
 
@@ -116,10 +118,10 @@ defmodule Vivid.Arc do
       45
   """
   @spec start_angle(Arc.t, number) :: Arc.t
-  def start_angle(%Arc{} = a, theta), do: %{a | start_angle: theta}
+  def start_angle(%Arc{} = arc, theta), do: %{arc | start_angle: theta}
 
   @doc """
-  Returns the range of the Arc
+  Returns the range of the `arc`.
 
   ## Example
 
@@ -128,10 +130,10 @@ defmodule Vivid.Arc do
       90
   """
   @spec range(Arc.t) :: number
-  def range(%Arc{range: r}), do: r
+  def range(%Arc{range: r} = _arc), do: r
 
   @doc """
-  Change the range of an Arc
+  Change the range of an `arc`.
 
   ## Example
 
@@ -141,10 +143,10 @@ defmodule Vivid.Arc do
       270
   """
   @spec range(Arc.t, number) :: Arc.t
-  def range(%Arc{} = a, theta) when is_number(theta), do: %{a | range: theta}
+  def range(%Arc{} = arc, theta) when is_number(theta), do: %{arc | range: theta}
 
   @doc """
-  Returns the number of steps in the Arc
+  Returns the number of steps in the `arc`.
 
   ## Example
 
@@ -153,7 +155,7 @@ defmodule Vivid.Arc do
       12
   """
   @spec steps(Arc.t) :: integer
-  def steps(%Arc{steps: s}), do: s
+  def steps(%Arc{steps: s} = _arc), do: s
 
   @doc """
   Changes the number of `steps` in `arc`.
@@ -169,7 +171,7 @@ defmodule Vivid.Arc do
   def steps(%Arc{} = arc, steps) when is_integer(steps), do: %{arc | steps: steps}
 
   @doc """
-  Converts the Arc into a Path, which is used for a bunch of things like
+  Converts the `arc` into a Path, which is used for a bunch of things like
   Transforms, Bounds calculation, Rasterization, etc.
 
   ## Example
@@ -179,7 +181,7 @@ defmodule Vivid.Arc do
       #Vivid.Path<[#Vivid.Point<{5, 10}>, #Vivid.Point<{6, 13}>, #Vivid.Point<{8, 14}>, #Vivid.Point<{10, 15}>]>
   """
   @spec to_path(Arc.t) :: Path.t
-  def to_path(%Arc{center: center, radius: radius, start_angle: start_angle, range: range, steps: steps}) do
+  def to_path(%Arc{center: center, radius: radius, start_angle: start_angle, range: range, steps: steps} = _arc) do
     h = center |> Point.x
     k = center |> Point.y
 

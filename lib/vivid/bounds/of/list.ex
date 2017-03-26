@@ -1,6 +1,11 @@
 defimpl Vivid.Bounds.Of, for: List do
   alias Vivid.Point
 
+  @doc """
+  Find the bounds of a List of `points`.
+
+  Returns a two-element tuple of the bottom-left and top-right points.
+  """
   @spec bounds([Point.t, ...]) :: {Point.t, Point.t}
   def bounds(points) do
     Enum.reduce(points, nil, fn

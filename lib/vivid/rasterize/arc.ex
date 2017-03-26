@@ -6,7 +6,7 @@ defimpl Vivid.Rasterize, for: Vivid.Arc do
   """
 
   @doc ~S"""
-  Convert an Arc into a rasterized points.
+  Rasterize all points of `arc` within `bounds` into a `MapSet`.
 
   ## Example
 

@@ -5,10 +5,29 @@ defmodule Vivid.Math do
   `degrees_to_radians/1` which got pretty annoying after a while.
   """
 
+  @doc """
+  Delegates to `:math.pi/0`.
+  """
   defdelegate pi(), to: :math
+
+  @doc """
+  Delegates to `:math.cos/1`.
+  """
   defdelegate cos(x), to: :math
+
+  @doc """
+  Delegates to `:math.sin/1`.
+  """
   defdelegate sin(x), to: :math
+
+  @doc """
+  Delegates to `:math.pow/2`.
+  """
   defdelegate pow(x,y), to: :math
+
+  @doc """
+  Delegates to `:math.sqrt/1`.
+  """
   defdelegate sqrt(x), to: :math
 
   @doc """

@@ -12,7 +12,7 @@ defimpl Vivid.Rasterize, for: Vivid.Polygon do
   """
 
   @doc """
-  Convert polygon into a set of points for display.
+  Rasterize all points of `polygon` within `bounds` into a `MapSet`.
 
   ## Example
 

@@ -7,7 +7,7 @@ defimpl Vivid.Rasterize, for: Vivid.Line do
   """
 
   @doc ~S"""
-  Generate points along a line and return them as an enumerable.
+  Rasterize all points of `line` within `bounds` into a `MapSet`.
 
   ## Examples
 

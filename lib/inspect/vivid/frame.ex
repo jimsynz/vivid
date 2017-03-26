@@ -2,6 +2,9 @@ defimpl Inspect, for: Vivid.Frame do
   alias Vivid.Frame
   import Inspect.Algebra
 
+  @doc """
+  Defines the inspect protocol for `Frame`.
+  """
   @spec inspect(Frame.t, any) :: String.t
   def inspect(frame, opts) do
     width  = Frame.width(frame)

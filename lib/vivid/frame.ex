@@ -64,6 +64,10 @@ defmodule Vivid.Frame do
   @doc ~S"""
   Add a shape to the frame buffer.
 
+  * `frame` is the frame to modify.
+  * `shape` is the shape to add.
+  * `colour` is the colour of the shape being added.
+
   ## Examples
 
       iex> Vivid.Frame.init(5,5)
@@ -138,7 +142,7 @@ defmodule Vivid.Frame do
   end
 
   @doc """
-  Clear the frame of any shapes.
+  Clear the `frame` of any shapes.
   """
   @spec clear(Frame.t) :: Frame.t
   def clear(%Frame{} = frame) do
@@ -146,7 +150,7 @@ defmodule Vivid.Frame do
   end
 
   @doc """
-  Return the width of the frame.
+  Return the width of the `frame`.
 
   ## Example
 
@@ -157,7 +161,7 @@ defmodule Vivid.Frame do
   def width(%Frame{width: w}), do: w
 
   @doc """
-  Return the height of the frame.
+  Return the height of the `frame`.
 
   ## Example
 
@@ -168,7 +172,7 @@ defmodule Vivid.Frame do
   def height(%Frame{height: h}), do: h
 
   @doc """
-  Return the background colour of the frame.
+  Return the background colour of the `frame`.
 
   ## Example
 
@@ -179,7 +183,7 @@ defmodule Vivid.Frame do
   def background_colour(%Frame{background_colour: c}), do: c
 
   @doc """
-  Change the background colour of the frame.
+  Change the background `colour` of the `frame`.
 
   ## Example
 
@@ -189,10 +193,19 @@ defmodule Vivid.Frame do
       #Vivid.RGBA<{1, 1, 1, 1}>
   """
   @spec background_colour(Frame.t, RGBA.t) :: Frame.t
-  def background_colour(%Frame{} = frame, %RGBA{} = c), do: %{frame | background_colour: c}
+  def background_colour(%Frame{} = frame, %RGBA{} = colour), do: %{frame | background_colour: colour}
 
   @doc """
-  Render a frame into a buffer for display.
+  Render a `frame` into a buffer for display horizontally.
+
+  Returns a one-dimensional List of `RGBA` colours with alpha-compositing
+  completed.
+  """
+  @spec buffer(Frame.t) :: [RGBA.t]
+  def buffer(%Frame{} = frame), do: Buffer.horizontal(frame)
+
+  @doc """
+  Render a `frame` into a buffer for display.
 
   You can specify either `:horizontal` or `:vertical` mode, where in
   `:horizontal` mode the buffer is rendered row-by-row then column-by-column
@@ -202,9 +215,6 @@ defmodule Vivid.Frame do
   Returns a one-dimensional List of `RGBA` colours with alpha-compositing
   completed.
   """
-  @spec buffer(Frame.t) :: [RGBA.t]
-  def buffer(%Frame{} = frame), do: Buffer.horizontal(frame)
-
   @spec buffer(Frame.t, :horizontal | :vertical) :: [RGBA.t]
   def buffer(%Frame{} = frame, :horizontal), do: Buffer.horizontal(frame)
   def buffer(%Frame{} = frame, :vertical),   do: Buffer.vertical(frame)

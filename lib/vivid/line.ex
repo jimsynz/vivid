@@ -10,7 +10,7 @@ defmodule Vivid.Line do
   @opaque t :: %Line{origin: Point.t, termination: Point.t}
 
   @doc ~S"""
-  Creates a Line.
+  Create a Line given an `origin` and `termination` point.
 
   ## Examples
 
@@ -19,10 +19,13 @@ defmodule Vivid.Line do
 
   """
   @spec init(Point.t, Point.t) :: Line.t
-  def init(%Point{} = o, %Point{} = t) do
-    %Line{origin: o, termination: t}
+  def init(%Point{} = origin, %Point{} = termination) do
+    %Line{origin: origin, termination: termination}
   end
 
+  @doc """
+  Create a `Line` from a two-element list of points.
+  """
   @spec init([Point.t]) :: Line.t
   def init([o,t]) do
     init(o,t)

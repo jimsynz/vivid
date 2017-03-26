@@ -2,6 +2,11 @@ defimpl Vivid.Transformable, for: Vivid.Circle do
   alias Vivid.{Circle, Transformable, Polygon}
 
   @doc """
+  Apply an arbitrary transformation function to a circle.
+
+  * `circle` - the circle to modify.
+  * `fun` - the transformation function to apply.
+
   Many of the transformations can't be applied to a Circle, but we
   can convert it to a polygon and then use that to apply transformations.
   """

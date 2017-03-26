@@ -6,7 +6,7 @@ defimpl Vivid.Rasterize, for: Vivid.Point do
   """
 
   @doc """
-  Rasterize an individual point.
+  Return a `MapSet` containing `point` if it is within `bounds`.
 
   ## Example
 

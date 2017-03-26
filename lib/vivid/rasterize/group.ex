@@ -6,7 +6,7 @@ defimpl Vivid.Rasterize, for: Vivid.Group do
   """
 
   @doc """
-  Convert Group into a set of points for display.
+  Rasterize all points of `group` within `bounds` into a `MapSet`.
 
   ## Example
 
@@ -15,7 +15,7 @@ defimpl Vivid.Rasterize, for: Vivid.Group do
       #MapSet<[#Vivid.Point<{1, 1}>, #Vivid.Point<{1, 2}>, #Vivid.Point<{1, 3}>, #Vivid.Point<{2, 3}>, #Vivid.Point<{3, 1}>, #Vivid.Point<{3, 2}>, #Vivid.Point<{3, 3}>]>
   """
   @spec rasterize(Group.t, Bounds.t) :: MapSet.t
-  def rasterize(%Group{shapes: shapes}, bounds) do
+  def rasterize(%Group{shapes: shapes} = _group, bounds) do
     Enum.reduce(shapes, MapSet.new, fn(shape, acc) ->
       MapSet.union(acc, Rasterize.rasterize(shape, bounds))
     end)

@@ -6,7 +6,7 @@ defimpl Vivid.Rasterize, for: Vivid.Circle do
   """
 
   @doc ~S"""
-  Rasterizes a circle
+  Rasterize all points of `circle` within `bounds` into a `MapSet`.
 
   ## Example
 

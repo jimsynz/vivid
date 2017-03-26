@@ -96,7 +96,7 @@ defmodule Vivid.Transform do
   end
 
   @doc """
-  Uniformly scale a shape around it's center point.
+  Uniformly scale a `shape` around it's center point.
 
   ## Examples
 
@@ -116,7 +116,7 @@ defmodule Vivid.Transform do
   end
 
   @doc """
-  Scale a shape around it's center point using the given `x` and `y` multipliers.
+  Scale a `shape` around it's center point using the given `x` and `y` multipliers.
 
   ## Examples
 

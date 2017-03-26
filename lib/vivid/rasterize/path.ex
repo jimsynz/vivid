@@ -6,7 +6,7 @@ defimpl Vivid.Rasterize, for: Vivid.Path do
   """
 
   @doc """
-  Convert path into a set of points for display.
+  Rasterize all points of `path` within `bounds` into a `MapSet`.
 
   ## Example
 

@@ -2,6 +2,7 @@ defimpl Inspect, for: Vivid.Arc do
   alias Vivid.Arc
   import Inspect.Algebra
 
+  @doc false
   @spec inspect(Art.t, any) :: String.t
   def inspect(arc, opts) do
     center      = arc |> Arc.center
