@@ -17,7 +17,7 @@ defimpl Enumerable, for: Vivid.Polygon do
   def count(%Polygon{vertices: points}), do: {:ok, Enum.count(points)}
 
   @doc """
-  Returns whether a point is one of this Polygon's vertices.
+  Returns whether `point` is one of this `polygon`'s vertices.
   *note* not whether the point is *on or inside* the Polygon.
 
   ## Examples

@@ -29,6 +29,14 @@ defmodule Vivid.RGBA do
   @doc """
   Create a colour. Like magic.
 
+  * `red` the red component of the colour.
+  * `green` the green component of the colour.
+  * `blue` the blue component of the colour.
+
+  All values are between zero and one.
+
+  When the alpha argument is omitted it is assumed to be `1`.
+
   ## Example
 
       iex> Vivid.RGBA.init(0.1, 0.2, 0.3, 0.4)
@@ -37,6 +45,21 @@ defmodule Vivid.RGBA do
   @spec init(zero_to_one, zero_to_one, zero_to_one) :: RGBA.t
   def init(red, green, blue), do: init(red, green, blue, 1)
 
+  @doc """
+  Create a colour. Like magic.
+
+  * `red` the red component of the colour.
+  * `green` the green component of the colour.
+  * `blue` the blue component of the colour.
+  * `alpha` the opacity of the colour.
+
+  All values are between zero and one.
+
+  ## Example
+
+      iex> Vivid.RGBA.init(0.1, 0.2, 0.3, 0.4)
+      #Vivid.RGBA<{0.1, 0.2, 0.3, 0.4}>
+  """
   @spec init(zero_to_one, zero_to_one, zero_to_one, zero_to_one) :: RGBA.t
   def init(red, green, blue, 1)
   when zero_to_one?(red) and zero_to_one?(green) and zero_to_one?(blue)

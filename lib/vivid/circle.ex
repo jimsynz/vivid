@@ -69,13 +69,13 @@ defmodule Vivid.Circle do
   def circumference(%Circle{radius: radius}), do: 2 * :math.pi * radius
 
   @doc ~S"""
-  Convert the circle into a Polygon.
+  Convert the `circle` into a Polygon.
 
   We convert a circle into a Polygon whenever we Transform or render it, so
   sometimes it might be worth doing it yourself and specifying how many vertices
   the polygon should have.
 
-  If unspecified then `steps` is set to the diameter of the circle rounded to
+  When unspecified `steps` is set to the diameter of the circle rounded to
   the nearest integer.
 
   ## Examples
@@ -97,6 +97,18 @@ defmodule Vivid.Circle do
       "@@@ @@@@@ @@@\n" <>
       "@@@@     @@@@\n" <>
       "@@@@@@@@@@@@@\n"
+  """
+  @spec to_polygon(Circle.t) :: Polygon.t
+  def to_polygon(%Circle{radius: radius} = circle), do: to_polygon(circle, round(radius * 2))
+
+  @doc ~S"""
+  Convert the `circle` into a Polygon with a specific number of vertices.
+
+  We convert a circle into a Polygon whenever we Transform or render it, so
+  sometimes it might be worth doing it yourself and specifying how many vertices
+  the polygon should have.
+
+  ## Examples
 
       iex> use Vivid
       ...> Circle.init(Point.init(5,5), 5)
@@ -115,8 +127,6 @@ defmodule Vivid.Circle do
       "@ @@@@@@@@@\n" <>
       "@@@@@@@@@@@\n"
   """
-  @spec to_polygon(Circle.t) :: Polygon.t
-  def to_polygon(%Circle{radius: radius} = circle), do: to_polygon(circle, round(radius * 2))
   @spec to_polygon(Circle.t, number) :: Polygon.t
   def to_polygon(%Circle{center: center, radius: radius, fill: fill}, steps) do
     h = center |> Point.x

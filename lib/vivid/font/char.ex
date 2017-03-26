@@ -17,9 +17,15 @@ defmodule Vivid.Font.Char do
   @spec width(Char.t, number) :: number
   def width(%Char{left_pos: l, right_pos: r}, scale \\ 1.0), do: round((abs(l) + abs(r)) * scale)
 
+  @doc """
+  Returns the left padding specified for this character.
+  """
   @spec left_pad(Char.t, number) :: number
   def left_pad(%Char{left_pos: l}, scale \\ 1.0), do: round(abs(l) * scale)
 
+  @doc """
+  Returns the right padding specified for this character.
+  """
   @spec right_pad(Char.t, number) :: number
   def right_pad(%Char{right_pos: r}, scale \\ 1.0), do: round(abs(r) * scale)
 
