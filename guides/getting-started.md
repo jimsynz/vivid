@@ -42,6 +42,8 @@ The most basic type is the [`Point`](https://hexdocs.pm/vivid/Vivid.Point.html#c
 
 A [Line](https://hexdocs.pm/vivid/Vivid.Line.html#content) represents a straight line between to points, called `origin` and `termination` in Vivid parlance.
 
+`Line` implements the `Enumerable` protocol.
+
     iex> use Vivid
     ...> Line.init(Point.init(13,27), Point.init(2,3))
     #Vivid.Line<[origin: #Vivid.Point<{13, 27}>, termination: #Vivid.Point<{2, 3}>]>
@@ -53,6 +55,8 @@ A [Path](https://hexdocs.pm/vivid/Vivid.Path.html#content) represents an aribitr
 
 A Path must consist of at least two vertices.
 
+`Path` implements the `Enumerable` and `Collectable` protocols so that you can use `Enum` and `Stream` to manipulate it.
+
     iex> use Vivid
     ...> Path.init([Point.init(13,27), Point.init(2,3), Point.init(27,13)])
     #Vivid.Path<[#Vivid.Point<{13, 27}>, #Vivid.Point<{2, 3}>, #Vivid.Point<{27, 13}>]>
@@ -62,6 +66,8 @@ A Path must consist of at least two vertices.
 ### Polygon
 
 A [Polygon](https://hexdocs.pm/vivid/Vivid.Polygon.html#content) also represents an arbitrary number of vertices (points) with lines connecting them, however a Polygon is a closed shape.  As such, polygon's must have at least three vertices.
+
+`Path` implements the `Enumerable` and `Collectable` protocols so that you can use `Enum` and `Stream` to manipulate it.
 
     iex> use Vivid
     ...> Polygon.init([Point.init(13,27), Point.init(2,3), Point.init(27,13)])
@@ -113,6 +119,8 @@ You can optionally also specify the number of steps used during path generation 
 
 A [Group](https://hexdocs.pm/vivid/Vivid.Group.html#content) allows for arbitrary composition of shapes into a single data structure.  It's not so much a shape itself, as a collection of other shapes.
 
+`Group` also implements the `Enumerable` and `Collectable` protocols so that you can use `Enum` and `Stream` to create them.
+
     iex> use Vivid
     ...> box = Box.init(Point.init(2,3), Point.init(13,27))
     ...> circle = Circle.init(Point.init(15,15), 10)
@@ -120,3 +128,37 @@ A [Group](https://hexdocs.pm/vivid/Vivid.Group.html#content) allows for arbitrar
     #Vivid.Group<[#Vivid.Box<[bottom_left: #Vivid.Point<{2, 3}>, top_right: #Vivid.Point<{13, 27}>]>, #Vivid.Circle<[center: #Vivid.Point<{15, 15}>, radius: 10]>]>
 
 ![group example](https://raw.githubusercontent.com/jamesotron/vivid.ex/add-extra-docs/guides/images/group_example.png)
+
+## Colours
+
+Vivid (currently) defines all colours in terms of the RGBA colourspace.  Create a new colour by passing red, green, blue and opacity values as integers or floats between `0` and `1`.
+
+    iex> use Vivid
+    ...> RGBA.init(0.75, 0.25, 0.5, 0.8)
+    #Vivid.RGBA<{0.75, 0.25, 0.5, 0.8}>
+
+![rgba example](https://raw.githubusercontent.com/jamesotron/vivid.ex/add-extra-docs/guides/images/rgba_example.png)
+
+## Compositing
+
+
+### Frame
+
+A [Frame](https://hexdocs.pm/vivid/Vivid.Frame.html#content) stores a stack of shapes and corresponding colours and is the only type that can truly be rendered into a buffer.
+
+Shapes and colours are pushed onto the frame in pairs, and composited during the render pass.  `Frame` also implements the `Enumerable` and `Collectable` procotols meaning that you can use the `Enum` and `Stream` module to build frames.
+
+Frames can be converted to buffers, which are the fully-rendered bitmap output, which is what you'll likely want to use for display.
+
+    iex> use Vivid
+    ...> Frame.init(30, 30, RGBA.init(1,0,0,1))
+    #Vivid.Frame<[width: 30, height: 30, background_colour: #Vivid.RGBA<{1, 0, 0, 1}>]>
+
+### Buffer
+
+A [Buffer](https://hexdocs.pm/vivid/Vivid.Buffer.html#content) is used to render the contents of a `Frame` into a bitmap which can be displayed. `Buffer` implements the `Enumerable` protocol and emits a list of `RGBA` colours.
+
+    iex> use Vivid
+    ...> Frame.init(30, 30, RGBA.init(1,0,0,1))
+    ...> |> Buffer.horizontal()
+    #Vivid.Buffer<[rows: 30, columns: 30, size: 900]>

@@ -62,6 +62,18 @@ defmodule Vivid.Buffer do
     %Buffer{buffer: buffer, rows: w, columns: h}
   end
 
+  @doc """
+  Returns the number of rows in the buffer.
+  """
+  @spec rows(t) :: pos_integer
+  def rows(%Buffer{rows: r}), do: r
+
+  @doc """
+  Returns the number of columns in the buffer.
+  """
+  @spec columns(t) :: pos_integer
+  def columns(%Buffer{columns: c}), do: c
+
   defp horizontal_reducer({shape, colour}, buffer, bounds, width) do
     points = Rasterize.rasterize(shape, bounds)
     Enum.reduce(points, buffer, fn(%Point{x: x, y: y}, buf) ->
