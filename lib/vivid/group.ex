@@ -2,10 +2,41 @@ defmodule Vivid.Group do
   alias Vivid.{Group, Shape}
   defstruct ~w(shapes)a
 
-  @moduledoc """
+  @moduledoc ~S"""
   Represents a collection of shapes which can be Rasterized in a single pass.
 
   Group implements both the `Enumerable` and `Collectable` protocols.
+
+  ## Example
+
+    iex> use Vivid
+    ...> circle = Circle.init(Point.init(10, 10), 10)
+    ...> line   = Line.init(Point.init(0,0), Point.init(20,20))
+    ...> Group.init([circle, line])
+    ...> |> to_string()
+    "@@@@@@@@@@@@@@@@@@@@@@@\n" <>
+    "@@@@@@@@       @@@@@@ @\n" <>
+    "@@@@@@  @@@@@@@  @@@ @@\n" <>
+    "@@@@@ @@@@@@@@@@@ @ @@@\n" <>
+    "@@@@ @@@@@@@@@@@@@ @@@@\n" <>
+    "@@@ @@@@@@@@@@@@@ @ @@@\n" <>
+    "@@ @@@@@@@@@@@@@ @@@ @@\n" <>
+    "@@ @@@@@@@@@@@@ @@@@ @@\n" <>
+    "@ @@@@@@@@@@@@ @@@@@@ @\n" <>
+    "@ @@@@@@@@@@@ @@@@@@@ @\n" <>
+    "@ @@@@@@@@@@ @@@@@@@@ @\n" <>
+    "@ @@@@@@@@@ @@@@@@@@@ @\n" <>
+    "@ @@@@@@@@ @@@@@@@@@@ @\n" <>
+    "@ @@@@@@@ @@@@@@@@@@@ @\n" <>
+    "@ @@@@@@ @@@@@@@@@@@@ @\n" <>
+    "@@ @@@@ @@@@@@@@@@@@ @@\n" <>
+    "@@ @@@ @@@@@@@@@@@@@ @@\n" <>
+    "@@@ @ @@@@@@@@@@@@@ @@@\n" <>
+    "@@@@ @@@@@@@@@@@@@ @@@@\n" <>
+    "@@@ @ @@@@@@@@@@@ @@@@@\n" <>
+    "@@ @@@  @@@@@@@  @@@@@@\n" <>
+    "@ @@@@@@       @@@@@@@@\n" <>
+    "@@@@@@@@@@@@@@@@@@@@@@@\n"
   """
 
   @opaque t :: %Group{shapes: [Shape.t]}

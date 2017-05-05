@@ -3,10 +3,32 @@ defmodule Vivid.Polygon do
   defstruct vertices: [], fill: false
   require Integer
 
-  @moduledoc """
+  @moduledoc ~S"""
   Describes a Polygon as a series of vertices.
 
   Polygon implements both the `Enumerable` and `Collectable` protocols.
+
+  ## Example
+
+      iex> use Vivid
+      ...> 0..3
+      ...> |> Stream.map(fn
+      ...> i when rem(i, 2) == 0 -> Point.init(i * 3, i * 4)
+      ...> i -> Point.init(i * 3, i * 2)
+      ...> end)
+      ...> |> Enum.into(Polygon.init())
+      ...> |> to_string()
+      "@@@@@@@@@@@@\n" <>
+      "@@@@@@@ @@@@\n" <>
+      "@@@@@@@   @@\n" <>
+      "@@@@@@ @@@ @\n" <>
+      "@@@@@@ @  @@\n" <>
+      "@@@@@ @ @@@@\n" <>
+      "@@@@@  @@@@@\n" <>
+      "@@@@ @@@@@@@\n" <>
+      "@@  @@@@@@@@\n" <>
+      "@ @@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@\n"
   """
 
   @opaque t :: %Polygon{vertices: [Point.t], fill: boolean}

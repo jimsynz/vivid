@@ -2,10 +2,32 @@ defmodule Vivid.Path do
   alias Vivid.{Path, Point, Line, Shape}
   defstruct vertices: []
 
-  @moduledoc """
+  @moduledoc ~S"""
   Describes a path as a series of vertices.
 
   Path implements both the `Enumerable` and `Collectable` protocols.
+
+  ## Example
+
+      iex> use Vivid
+      ...> 0..3
+      ...> |> Stream.map(fn
+      ...> i when rem(i, 2) == 0 -> Point.init(i * 3, i * 4)
+      ...> i -> Point.init(i * 3, i * 2)
+      ...> end)
+      ...> |> Enum.into(Path.init())
+      ...> |> to_string()
+      "@@@@@@@@@@@@\n" <>
+      "@@@@@@@ @@@@\n" <>
+      "@@@@@@@   @@\n" <>
+      "@@@@@@ @@@ @\n" <>
+      "@@@@@@ @@@@@\n" <>
+      "@@@@@ @@@@@@\n" <>
+      "@@@@@ @@@@@@\n" <>
+      "@@@@ @@@@@@@\n" <>
+      "@@  @@@@@@@@\n" <>
+      "@ @@@@@@@@@@\n" <>
+      "@@@@@@@@@@@@\n"
   """
 
   @opaque t :: %Path{vertices: [Shape.t]}

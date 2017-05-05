@@ -3,8 +3,25 @@ defmodule Vivid.Arc do
   import Vivid.Math
   defstruct ~w(center radius start_angle range steps)a
 
-  @moduledoc """
+  @moduledoc ~S"""
   This module represents an Arc, otherwise known as a circle segment.
+
+  ## Example
+
+      iex> use Vivid
+      ...> Arc.init(Point.init(10,10), 10, 0, 45)
+      ...> |> to_string()
+      "@@@@@@\n" <>
+      "@@@  @\n" <>
+      "@@@ @@\n" <>
+      "@@ @@@\n" <>
+      "@@ @@@\n" <>
+      "@  @@@\n" <>
+      "@ @@@@\n" <>
+      "@ @@@@\n" <>
+      "@ @@@@\n" <>
+      "@@@@@@\n"
+
   """
 
   @opaque t :: %Arc{center: Point.t, radius: number, start_angle: number, steps: integer}
