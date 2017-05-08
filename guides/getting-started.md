@@ -141,6 +141,7 @@ Vivid (currently) defines all colours in terms of the RGBA colourspace.  Create 
 
 ## Compositing
 
+When you place two shapes on a buffer which overlap and where transparency is involved Vivid will use the "over" colour compositing algorithm.  See [Wikipedia's article on alpha compositing](https://en.wikipedia.org/wiki/Alpha_compositing) for more information.
 
 ### Frame
 

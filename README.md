@@ -17,8 +17,8 @@ Vivid is a simple 2D rendering library.
 ## Demo
 
 I implemented a simple ASCII renderer for debugging and testing purposes, so at
-any time you can pipe a `Frame` to `IO.puts` and the contents of the buffer will
-be rendered and printed onto the screen.
+any time you can pipe almost any Vivid struct to `IO.puts` and the contents of
+the buffer will be rendered and printed onto the screen.
 
 ### Basic drawing
 
@@ -122,4 +122,11 @@ Font use restrictions:
 
 ## Status
 
-This library is still experimental, but what few features it has work well.
+This library is now in use in several projects and seems to work well.
+
+Future improvements include:
+
+  - Improve `Vivid.SLPFA`.
+  - Add transformations which can apply rotation matrices directly.
+  - Add ability to composit multiple frames together.
+  - Support bitmaps as a shape.
