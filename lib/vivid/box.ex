@@ -2,11 +2,30 @@ defmodule Vivid.Box do
   alias Vivid.{Box, Point, Polygon, Bounds, Shape}
   defstruct ~w(bottom_left top_right fill)a
 
-  @moduledoc """
+  @moduledoc ~S"""
   Short-hand for creating rectangle polygons.
 
   This module doesn't have very much logic other than knowing how to
   turn itself into a Polygon.
+
+  ## Example
+
+      iex> use Vivid
+      ...> Box.init(Point.init(5,10), Point.init(15,20))
+      ...> |> to_string()
+      "@@@@@@@@@@@@@\n" <>
+      "@           @\n" <>
+      "@ @@@@@@@@@ @\n" <>
+      "@ @@@@@@@@@ @\n" <>
+      "@ @@@@@@@@@ @\n" <>
+      "@ @@@@@@@@@ @\n" <>
+      "@ @@@@@@@@@ @\n" <>
+      "@ @@@@@@@@@ @\n" <>
+      "@ @@@@@@@@@ @\n" <>
+      "@ @@@@@@@@@ @\n" <>
+      "@ @@@@@@@@@ @\n" <>
+      "@           @\n" <>
+      "@@@@@@@@@@@@@\n"
   """
 
   @opaque t :: Box.t

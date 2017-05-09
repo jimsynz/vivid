@@ -5,6 +5,20 @@ defmodule Vivid.Line do
 
   @moduledoc ~S"""
   Represents a line segment between two Points in 2D space.
+
+  ## Example
+
+    iex> use Vivid
+    ...> Line.init(Point.init(0,0), Point.init(5,5))
+    ...> |> to_string()
+    "@@@@@@@@\n" <>
+    "@@@@@@ @\n" <>
+    "@@@@@ @@\n" <>
+    "@@@@ @@@\n" <>
+    "@@@ @@@@\n" <>
+    "@@ @@@@@\n" <>
+    "@ @@@@@@\n" <>
+    "@@@@@@@@\n"
   """
 
   @opaque t :: %Line{origin: Point.t, termination: Point.t}

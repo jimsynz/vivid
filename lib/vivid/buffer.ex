@@ -2,13 +2,37 @@ defmodule Vivid.Buffer do
   alias Vivid.{Buffer, Frame, Rasterize, Bounds, Point, RGBA}
   defstruct ~w(buffer rows columns)a
 
-  @moduledoc """
+  @moduledoc ~S"""
   Used to convert a Frame into a buffer for display.
 
   You're unlikely to need to use this module directly, instead you will
   likely want to use `Frame.buffer/2` instead.
 
   Buffer implements the `Enumerable` protocol.
+
+  ## Example
+
+      iex> use Vivid
+      ...> box = Box.init(Point.init(1,1), Point.init(18,8))
+      ...> Frame.init(20, 10, RGBA.white())
+      ...> |> Frame.push(box, RGBA.black())
+      ...> |> Buffer.horizontal()
+      ...> |> Stream.chunk(20)
+      ...> |> Stream.map(fn line ->
+      ...>   Stream.map(line, fn colour -> RGBA.to_ascii(colour) end)
+      ...>   |> Enum.join()
+      ...> end)
+      ...> |> Enum.join("\n")
+      "@@@@@@@@@@@@@@@@@@@@\n" <>
+      "@                  @\n" <>
+      "@ @@@@@@@@@@@@@@@@ @\n" <>
+      "@ @@@@@@@@@@@@@@@@ @\n" <>
+      "@ @@@@@@@@@@@@@@@@ @\n" <>
+      "@ @@@@@@@@@@@@@@@@ @\n" <>
+      "@ @@@@@@@@@@@@@@@@ @\n" <>
+      "@ @@@@@@@@@@@@@@@@ @\n" <>
+      "@                  @\n" <>
+      "@@@@@@@@@@@@@@@@@@@@"
   """
 
   @opaque t :: %Buffer{buffer: [RGBA.t], rows: integer, columns: integer}
@@ -61,6 +85,18 @@ defmodule Vivid.Buffer do
 
     %Buffer{buffer: buffer, rows: w, columns: h}
   end
+
+  @doc """
+  Returns the number of rows in the buffer.
+  """
+  @spec rows(t) :: pos_integer
+  def rows(%Buffer{rows: r}), do: r
+
+  @doc """
+  Returns the number of columns in the buffer.
+  """
+  @spec columns(t) :: pos_integer
+  def columns(%Buffer{columns: c}), do: c
 
   defp horizontal_reducer({shape, colour}, buffer, bounds, width) do
     points = Rasterize.rasterize(shape, bounds)

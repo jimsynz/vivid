@@ -4,6 +4,13 @@ defmodule Vivid.Bounds do
 
   @moduledoc """
   Provides information about the bounds of a box and pixel positions within it.
+
+  ## Example
+
+    iex> use Vivid
+    ...> Box.init(Point.init(5,10),Point.init(15,20))
+    ...> |> Bounds.bounds()
+    #Vivid.Bounds<[min: #Vivid.Point<{5, 10}>, max: #Vivid.Point<{15, 20}>]>
   """
 
   @opaque t :: %Bounds{min: Point.t, max: Point.t}

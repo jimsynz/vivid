@@ -8,7 +8,18 @@ defmodule Vivid.RGBA do
   @moduledoc """
   Defines a colour in RGBA colour space.
 
-  Colour and alpha values are defined as `0 >= n >= 1`.
+  The three colour channels and the alpha channels are stored as numeric
+  values between 0 and 1.
+
+  ## Example
+
+      iex> use Vivid
+      ...> RGBA.black()
+      #Vivid.RGBA<{0, 0, 0, 1}>
+      iex> RGBA.white()
+      #Vivid.RGBA<{1, 1, 1, 1}>
+      iex> RGBA.init(1, 0, 0, 0.5)
+      #Vivid.RGBA<{1, 0, 0, 0.5}>
   """
 
   @type zero_to_one :: number
@@ -35,7 +46,8 @@ defmodule Vivid.RGBA do
 
   All values are between zero and one.
 
-  When the alpha argument is omitted it is assumed to be `1`.
+  When the alpha argument is omitted it is assumed to be `1` (ie completely
+  opaque).
 
   ## Example
 

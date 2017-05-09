@@ -4,6 +4,19 @@ defmodule Vivid.Point do
 
   @moduledoc ~S"""
   Represents an individual point in (2D) space.
+
+  ## Example
+
+    iex> use Vivid
+    ...> point = Point.init(2,2)
+    ...> Frame.init(5,5, RGBA.white())
+    ...> |> Frame.push(point, RGBA.black())
+    ...> |> to_string()
+    "@@@@@\n" <>
+    "@@@@@\n" <>
+    "@@ @@\n" <>
+    "@@@@@\n" <>
+    "@@@@@\n"
   """
 
   @opaque t :: %Point{x: number, y: number}

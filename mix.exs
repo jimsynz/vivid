@@ -15,7 +15,8 @@ defmodule Vivid.Mixfile do
    docs: [source_ref: "v#{@version}",
           main: "Vivid",
           canonical: "http://hexdocs.pm/vivid",
-          source_url: "https://github.com/jamesotron/vivid.ex"]]
+          source_url: "https://github.com/jamesotron/vivid.ex",
+          extras: ["guides/getting-started.md"]]]
   end
 
   # Configuration for the OTP application

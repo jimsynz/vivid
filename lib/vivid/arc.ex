@@ -3,8 +3,25 @@ defmodule Vivid.Arc do
   import Vivid.Math
   defstruct ~w(center radius start_angle range steps)a
 
-  @moduledoc """
+  @moduledoc ~S"""
   This module represents an Arc, otherwise known as a circle segment.
+
+  ## Example
+
+      iex> use Vivid
+      ...> Arc.init(Point.init(10,10), 10, 0, 45)
+      ...> |> to_string()
+      "@@@@@@\n" <>
+      "@@@  @\n" <>
+      "@@@ @@\n" <>
+      "@@ @@@\n" <>
+      "@@ @@@\n" <>
+      "@  @@@\n" <>
+      "@ @@@@\n" <>
+      "@ @@@@\n" <>
+      "@ @@@@\n" <>
+      "@@@@@@\n"
+
   """
 
   @opaque t :: %Arc{center: Point.t, radius: number, start_angle: number, steps: integer}
@@ -14,7 +31,7 @@ defmodule Vivid.Arc do
 
   * `center` is a Point definining the center point of the arc's parent circle.
   * `radius` is the radius of the parent circle.
-  * `start_angle` is the angle at which to start drawing the arc, `0` is vertical.
+  * `start_angle` is the angle at which to start drawing the arc, `0` is the parallel to the X axis, to the left.
   * `range` is the number of degrees to draw the arc.
   * `steps` the arc is drawn by dividing it into a number of lines. Defaults to 12.
 
