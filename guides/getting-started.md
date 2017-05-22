@@ -67,7 +67,7 @@ A Path must consist of at least two vertices.
 
 A [Polygon](https://hexdocs.pm/vivid/Vivid.Polygon.html#content) also represents an arbitrary number of vertices (points) with lines connecting them, however a Polygon is a closed shape.  As such, polygon's must have at least three vertices.
 
-`Path` implements the `Enumerable` and `Collectable` protocols so that you can use `Enum` and `Stream` to manipulate it.
+`Polygon` implements the `Enumerable` and `Collectable` protocols so that you can use `Enum` and `Stream` to manipulate it.
 
     iex> use Vivid
     ...> Polygon.init([Point.init(13,27), Point.init(2,3), Point.init(27,13)])
