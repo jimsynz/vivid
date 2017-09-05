@@ -124,7 +124,7 @@ defmodule Vivid.RGBA do
       #Vivid.RGBA<{1, 1, 1, 1}>
   """
   @spec white() :: RGBA.t
-  def white, do: RGBA.init(1,1,1)
+  def white, do: RGBA.init(1, 1, 1)
 
   @doc """
   Shorthand for black.
@@ -135,7 +135,7 @@ defmodule Vivid.RGBA do
       #Vivid.RGBA<{0, 0, 0, 1}>
   """
   @spec black() :: RGBA.t
-  def black, do: RGBA.init(0,0,0)
+  def black, do: RGBA.init(0, 0, 0)
 
   @doc """
   Return the red component of the colour.

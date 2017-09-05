@@ -50,7 +50,7 @@ defmodule Vivid.Hershey do
   defp parse_coords(parsed, ""), do: parsed |> Enum.reverse
   defp parse_coords(parsed, " R" <> rest), do: parse_coords([:pen_up | parsed], rest)
   defp parse_coords(parsed, << xy::binary-size(2), rest::binary >>) do
-    [y,x] = xy |> String.to_charlist
+    [y, x] = xy |> String.to_charlist
     normalized_x = @mid_point - x
     normalized_y = y - @mid_point
     parse_coords([{normalized_y, normalized_x} | parsed], rest)

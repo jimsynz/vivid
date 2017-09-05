@@ -23,7 +23,7 @@ defmodule Vivid.Transform.Point do
   Scale `point` (ie move it) by multiplying it's distance from the `0`, `0` point by `x_factor` and `y_factor`.
   """
   @spec scale(Point, number, number) :: Point.t
-  def scale(%Point{} = point, x_factor, y_factor), do: scale(point, x_factor, y_factor, Point.init(0,0))
+  def scale(%Point{} = point, x_factor, y_factor), do: scale(point, x_factor, y_factor, Point.init(0, 0))
 
   @doc """
   Scale `point` (ie move it) by multiplying it's distance from the origin point by `x_factor` and `y_factor`.
@@ -48,6 +48,6 @@ defmodule Vivid.Transform.Point do
   def rotate_radians(%Point{x: x0, y: y0} = _point, %Point{x: x1, y: y1} = _origin, radians) do
     x = cos(radians) * (x0 - x1) - sin(radians) * (y0 - y1) + x1
     y = sin(radians) * (x0 - x1) + cos(radians) * (y0 - y1) + y1
-    Point.init(x,y)
+    Point.init(x, y)
   end
 end

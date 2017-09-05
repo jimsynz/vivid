@@ -41,8 +41,8 @@ defmodule Vivid.Line do
   Create a `Line` from a two-element list of points.
   """
   @spec init([Point.t]) :: Line.t
-  def init([o,t]) do
-    init(o,t)
+  def init([o, t]) do
+    init(o, t)
   end
 
   @doc ~S"""

@@ -9,6 +9,6 @@ defimpl Inspect, for: Vivid.Point do
   def inspect(point, opts) do
     x = point |> Point.x
     y = point |> Point.y
-    concat ["#Vivid.Point<", to_doc({x,y}, opts), ">"]
+    concat ["#Vivid.Point<", to_doc({x, y}, opts), ">"]
   end
 end

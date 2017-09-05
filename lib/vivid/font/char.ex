@@ -55,10 +55,10 @@ defmodule Vivid.Font.Char do
     coords
     |> Enum.reduce([[]], fn
       :pen_up, acc -> [[] | acc]
-      {x,y}, [last | rest] ->
+      {x, y}, [last | rest] ->
         x = round(x_center + (x * scale))
         y = round(y_center + (y * scale))
-        [[Point.init(x,y) | last] | rest]
+        [[Point.init(x, y) | last] | rest]
       end)
     |> Enum.map(&Path.init(&1))
     |> Group.init

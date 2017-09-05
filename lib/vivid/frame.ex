@@ -55,7 +55,7 @@ defmodule Vivid.Frame do
       #Vivid.Frame<[width: 4, height: 4, background_colour: #Vivid.RGBA<{0, 0, 0, 0}>]>
   """
   @spec init(integer(), integer(), Range.t) :: Frame.t
-  def init(width \\ 128, height \\ 64, %RGBA{} = colour \\ RGBA.init(0,0,0,0))
+  def init(width \\ 128, height \\ 64, %RGBA{} = colour \\ RGBA.init(0, 0, 0, 0))
   when is_integer(width) and is_integer(height) and width > 0 and height > 0
   do
     %Frame{width: width, height: height, background_colour: colour, shapes: []}

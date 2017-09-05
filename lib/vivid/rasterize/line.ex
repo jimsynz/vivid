@@ -62,7 +62,7 @@ defimpl Vivid.Rasterize, for: Vivid.Line do
 
     points
     |> Stream.map(&Point.round(&1))
-    |> Stream.filter(&Bounds.contains?(bounds,&1))
+    |> Stream.filter(&Bounds.contains?(bounds, &1))
     |> Enum.into(MapSet.new)
   end
 

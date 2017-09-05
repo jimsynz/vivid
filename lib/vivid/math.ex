@@ -23,7 +23,7 @@ defmodule Vivid.Math do
   @doc """
   Delegates to `:math.pow/2`.
   """
-  defdelegate pow(x,y), to: :math
+  defdelegate pow(x, y), to: :math
 
   @doc """
   Delegates to `:math.sqrt/1`.
