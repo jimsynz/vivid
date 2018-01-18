@@ -34,7 +34,7 @@ defimpl Enumerable, for: Vivid.Group do
   def member?(%Group{shapes: shapes}, shape), do: {:ok, Enum.member?(shapes, shape)}
 
   @doc """
-  Reduce's the Path's shapes into an accumulator
+  Reduce's the group's shapes into an accumulator
 
   ## Examples
 
@@ -43,4 +43,10 @@ defimpl Enumerable, for: Vivid.Group do
   """
   @spec reduce(Group.t, Collectable.t, (Shape.t, Collectable.t -> Collectable.t)) :: Collectable.t
   def reduce(%Group{shapes: shapes}, acc, fun), do: Enumerable.MapSet.reduce(shapes, acc, fun)
+
+  @doc """
+  Slice the group.
+  """
+  @spec slice(Group.t) :: {:ok, size :: non_neg_integer(), Enumerable.slicing_fun()} | {:error, module()}
+  def slice(%Group{shapes: shapes}), do: Enumerable.MapSet.slice(shapes)
 end

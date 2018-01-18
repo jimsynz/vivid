@@ -41,4 +41,10 @@ defimpl Enumerable, for: Vivid.Polygon do
   """
   @spec reduce(Polygon.t, Collectable.t, (Point.t, Collectable.t -> Collectable.t)) :: Collectable.t
   def reduce(%Polygon{vertices: points}, acc, fun), do: Enumerable.List.reduce(points, acc, fun)
+
+  @doc """
+  Slices the Polygon.
+  """
+  @spec slice(Polygon.t) :: {:ok, size :: non_neg_integer(), Enumerable.slicing_fun()} | {:error, module()}
+  def slice(%Polygon{vertices: points}), do: Enumerable.List.slice(points)
 end

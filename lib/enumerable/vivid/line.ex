@@ -51,4 +51,10 @@ defimpl Enumerable, for: Vivid.Line do
   """
   @spec reduce(Line.t, Collectable.t, (Point.t, Collectable.t -> Collectable.t)) :: Collectable.t
   def reduce(%Line{origin: p0, termination: p1}, acc, fun), do: Enumerable.List.reduce([p0, p1], acc, fun)
+
+  @doc """
+  Slices the line.
+  """
+  @spec slice(Line.t) :: {:ok, size :: non_neg_integer(), Enumerable.slicing_fun()} | {:error, module()}
+  def slice(%Line{origin: p0, termination: p1}), do: Enumerable.List.slice([p0, p1])
 end

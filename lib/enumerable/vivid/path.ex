@@ -41,4 +41,10 @@ defimpl Enumerable, for: Vivid.Path do
   """
   @spec reduce(Path.t, Collectable.t, (Point.t, Collectable.t -> Collectable.t)) :: Collectable.t
   def reduce(%Path{vertices: points}, acc, fun), do: Enumerable.List.reduce(points, acc, fun)
+
+  @doc """
+  Slices the Path.
+  """
+  @spec slice(Path.t) :: {:ok, size :: non_neg_integer(), Enumerable.slicing_fun()} | {:error, module()}
+  def slice(%Path{vertices: points}), do: Enumerable.List.slice(points)
 end

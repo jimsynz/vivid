@@ -42,5 +42,11 @@ defimpl Enumerable, for: Vivid.Frame do
       %{1 => 2, 2 => 4}
   """
   @spec reduce(Frame.t, Collectable.t, (any, Collectable.t -> Collectable.t)) :: Collectable.t
-  def reduce(%Frame{shapes: shapes}, acc, fun), do: Enumerable.MapSet.reduce(shapes, acc, fun)
+  def reduce(%Frame{shapes: shapes}, acc, fun), do: Enumerable.List.reduce(shapes, acc, fun)
+
+  @doc """
+  Slice the frame.
+  """
+  @spec slice(Frame.t) :: {:ok, size :: non_neg_integer(), Enumerable.slicing_fun()} | {:error, module()}
+  def slice(%Frame{shapes: shapes}), do: Enumerable.List.slice(shapes)
 end

@@ -196,17 +196,17 @@ defmodule Vivid.RGBA do
   """
   @spec to_hex(RGBA.t) :: String.t
   def to_hex(%RGBA{red: r, green: g, blue: b, alpha: 1}) do
-    r = r |> f2h
-    g = g |> f2h
-    b = b |> f2h
+    r = r |> int_to_hex
+    g = g |> int_to_hex
+    b = b |> int_to_hex
     "#" <> r <> g <> b
   end
 
   def to_hex(%RGBA{red: r, green: g, blue: b, alpha: a}) do
-    r = r |> f2h
-    g = g |> f2h
-    b = b |> f2h
-    a = a |> f2h
+    r = r |> int_to_hex
+    g = g |> int_to_hex
+    b = b |> int_to_hex
+    a = a |> int_to_hex
     "#" <> r <> g <> b <> a
   end
 
@@ -268,8 +268,8 @@ defmodule Vivid.RGBA do
     elem(@ascii_luminance_map, c)
   end
 
-  defp f2h(f) when f >= 0 and f <= 1 and is_float(f) do
-    h = Integer.to_string(round(f * 0xff), 16)
+  defp int_to_hex(n) when zero_to_one?(n) do
+    h = Integer.to_string(round(n * 0xff), 16)
 
     case h |> String.length do
       1 -> "0" <> h

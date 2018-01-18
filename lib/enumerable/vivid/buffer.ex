@@ -23,4 +23,10 @@ defimpl Enumerable, for: Vivid.Buffer do
   """
   @spec reduce(Buffer.t, Collectable.t, (any, Collectable.t -> Collectable.t)) :: Collectable.t
   def reduce(%Buffer{buffer: buffer}, acc, fun), do: Enumerable.List.reduce(buffer, acc, fun)
+
+  @doc """
+  Slice the buffer.
+  """
+  @spec slice(Buffer.t) :: {:ok, size :: non_neg_integer(), Enumerable.slicing_fun()} | {:error, module()}
+  def slice(%Buffer{buffer: buffer}), do: Enumerable.List.slice(buffer)
 end

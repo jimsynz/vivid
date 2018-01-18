@@ -28,7 +28,7 @@ defmodule Vivid.Transform.Point do
   @doc """
   Scale `point` (ie move it) by multiplying it's distance from the origin point by `x_factor` and `y_factor`.
   """
-  @spec scale(Point, number, number, Point.t) :: Point.t
+  @spec scale(Point.t, number, number, Point.t) :: Point.t
   def scale(%Point{x: x, y: y} = _point, x_factor, y_factor, %Point{x: xo, y: yo} = _origin) do
     x = (x - xo) * x_factor + xo
     y = (y - yo) * y_factor + yo

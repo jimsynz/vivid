@@ -3,7 +3,7 @@ defimpl Inspect, for: Vivid.Arc do
   import Inspect.Algebra
 
   @doc false
-  @spec inspect(Art.t, any) :: String.t
+  @spec inspect(Arc.t, any) :: String.t
   def inspect(arc, opts) do
     center      = arc |> Arc.center
     radius      = arc |> Arc.radius
