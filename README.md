@@ -7,7 +7,7 @@ Vivid is a simple 2D rendering library.
 
 ## Features
 
-  * Supports drawing and manipulating a number of basic 2D primimives.
+  * Supports drawing and manipulating a number of basic 2D primitives.
   * Supports filling arbitrary polygons.
   * Supports arbitrary transformations shape transformations.
   * Renders shapes onto a buffer.
