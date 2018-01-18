@@ -2,7 +2,7 @@ defmodule Vivid.Transform do
   alias Vivid.{Point, Transform, Bounds, Shape}
   alias Vivid.Transformable
   import Vivid.Math
-  defstruct [operations: [], shape: nil]
+  defstruct operations: [], shape: nil
 
   defmodule Operation do
     alias __MODULE__
@@ -10,7 +10,7 @@ defmodule Vivid.Transform do
 
     @moduledoc false
 
-    @opaque t :: %Operation{function: function, name: String.t}
+    @opaque t :: %Operation{function: function, name: String.t()}
   end
 
   @moduledoc ~S"""
@@ -72,8 +72,8 @@ defmodule Vivid.Transform do
       "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n"
   """
 
-  @opaque t :: %Transform{shape: Shape.t, operations: [Operation.t]}
-  @type shape_or_transform :: Transform.t | Shape.t
+  @opaque t :: %Transform{shape: Shape.t(), operations: [Operation.t()]}
+  @type shape_or_transform :: Transform.t() | Shape.t()
   @type degrees :: number
 
   @doc """
@@ -86,7 +86,7 @@ defmodule Vivid.Transform do
       ...> |> Vivid.Transform.apply
       #Vivid.Polygon<[#Vivid.Point<{15, 10}>, #Vivid.Point<{15, 15}>, #Vivid.Point<{10, 15}>, #Vivid.Point<{10, 10}>]>
   """
-  @spec translate(shape_or_transform, number, number) :: Transform.t
+  @spec translate(shape_or_transform, number, number) :: Transform.t()
   def translate(shape, x, y) do
     fun = fn _shape ->
       &Transform.Point.translate(&1, x, y)
@@ -105,7 +105,7 @@ defmodule Vivid.Transform do
       ...> |> Vivid.Transform.apply
       #Vivid.Polygon<[#Vivid.Point<{12.5, 2.5}>, #Vivid.Point<{12.5, 12.5}>, #Vivid.Point<{2.5, 12.5}>, #Vivid.Point<{2.5, 2.5}>]>
   """
-  @spec scale(shape_or_transform, number) :: Transform.t
+  @spec scale(shape_or_transform, number) :: Transform.t()
   def scale(shape, uniform) do
     fun = fn shape ->
       origin = Bounds.center_of(shape)
@@ -126,7 +126,7 @@ defmodule Vivid.Transform do
       #Vivid.Polygon<[#Vivid.Point<{12.5, -2.5}>, #Vivid.Point<{12.5, 17.5}>, #Vivid.Point<{2.5, 17.5}>, #Vivid.Point<{2.5, -2.5}>]>
 
   """
-  @spec scale(shape_or_transform, number, number) :: Transform.t
+  @spec scale(shape_or_transform, number, number) :: Transform.t()
   def scale(shape, x, y) do
     fun = fn shape ->
       origin = Bounds.center_of(shape)
@@ -163,9 +163,10 @@ defmodule Vivid.Transform do
       "@@@@@@@@ @@@@@@@@\n" <>
       "@@@@@@@@@@@@@@@@@\n"
   """
-  @spec rotate(shape_or_transform, degrees) :: Transform.t
+  @spec rotate(shape_or_transform, degrees) :: Transform.t()
   def rotate(shape, degrees) do
     radians = degrees_to_radians(degrees)
+
     fun = fn shape ->
       origin = Bounds.center_of(shape)
       &Transform.Point.rotate_radians(&1, origin, radians)
@@ -201,9 +202,10 @@ defmodule Vivid.Transform do
       "@@@@@@@@ @@@@@@@@\n" <>
       "@@@@@@@@@@@@@@@@@\n"
   """
-  @spec rotate(shape_or_transform, degrees, Point.t) :: Transform.t
+  @spec rotate(shape_or_transform, degrees, Point.t()) :: Transform.t()
   def rotate(shape, degrees, %Point{x: x, y: y} = origin) do
     radians = degrees_to_radians(degrees)
+
     fun = fn _shape ->
       &Transform.Point.rotate_radians(&1, origin, radians)
     end
@@ -237,18 +239,20 @@ defmodule Vivid.Transform do
       "@           @\n" <>
       "@@@@@@@@@@@@@\n"
   """
-  @spec center(shape_or_transform, Shape.t) :: Transform.t
+  @spec center(shape_or_transform, Shape.t()) :: Transform.t()
   def center(shape, bounds) do
-    bounds        = Bounds.bounds(bounds)
-    bounds_width  = Bounds.width(bounds)
+    bounds = Bounds.bounds(bounds)
+    bounds_width = Bounds.width(bounds)
     bounds_height = Bounds.height(bounds)
     bounds_center = Bounds.center_of(bounds)
+
     fun = fn shape ->
       shape_center = Bounds.center_of(shape)
       {tr_x, tr_y} = Point.vector(shape_center, bounds_center)
 
       &Transform.Point.translate(&1, tr_x, tr_y)
     end
+
     apply_transform(shape, fun, "center-within-#{bounds_width}-#{bounds_height}")
   end
 
@@ -262,22 +266,23 @@ defmodule Vivid.Transform do
       ...> |> Vivid.Transform.apply
       #Vivid.Polygon<[#Vivid.Point<{40.0, 0.0}>, #Vivid.Point<{40.0, 80.0}>, #Vivid.Point<{0.0, 80.0}>, #Vivid.Point<{0.0, 0.0}>]>
   """
-  @spec stretch(shape_or_transform, Shape.t) :: Transform.t
+  @spec stretch(shape_or_transform, Shape.t()) :: Transform.t()
   def stretch(shape, bounds) do
-    bounds        = Bounds.bounds(bounds)
-    bounds_min    = Bounds.min(bounds)
-    bounds_width  = Bounds.width(bounds)
+    bounds = Bounds.bounds(bounds)
+    bounds_min = Bounds.min(bounds)
+    bounds_width = Bounds.width(bounds)
     bounds_height = Bounds.height(bounds)
+
     fun = fn shape ->
-      shape_bounds  = Bounds.bounds(shape)
-      shape_width   = Bounds.width(shape_bounds)
-      shape_height  = Bounds.height(shape_bounds)
-      shape_min     = Bounds.min(shape_bounds)
+      shape_bounds = Bounds.bounds(shape)
+      shape_width = Bounds.width(shape_bounds)
+      shape_height = Bounds.height(shape_bounds)
+      shape_min = Bounds.min(shape_bounds)
 
-      {tr_x, tr_y}  = Point.vector(shape_min, bounds_min)
+      {tr_x, tr_y} = Point.vector(shape_min, bounds_min)
 
-      scale_x       = bounds_width / shape_width
-      scale_y       = bounds_height / shape_height
+      scale_x = bounds_width / shape_width
+      scale_y = bounds_height / shape_height
 
       fn point ->
         point
@@ -285,6 +290,7 @@ defmodule Vivid.Transform do
         |> Transform.Point.scale(scale_x, scale_y)
       end
     end
+
     apply_transform(shape, fun, "stretch-to-#{bounds_width}-#{bounds_height}")
   end
 
@@ -298,23 +304,24 @@ defmodule Vivid.Transform do
       ...> |> Vivid.Transform.apply
       #Vivid.Polygon<[#Vivid.Point<{40.0, 0.0}>, #Vivid.Point<{40.0, 40.0}>, #Vivid.Point<{0.0, 40.0}>, #Vivid.Point<{0.0, 0.0}>]>
   """
-  @spec fill(shape_or_transform, Shape.t) :: Transform.t
+  @spec fill(shape_or_transform, Shape.t()) :: Transform.t()
   def fill(shape, bounds) do
-    bounds        = Bounds.bounds(bounds)
-    bounds_min    = Bounds.min(bounds)
-    bounds_width  = Bounds.width(bounds)
+    bounds = Bounds.bounds(bounds)
+    bounds_min = Bounds.min(bounds)
+    bounds_width = Bounds.width(bounds)
     bounds_height = Bounds.height(bounds)
+
     fun = fn shape ->
-      shape_bounds  = Bounds.bounds(shape)
-      shape_width   = Bounds.width(shape_bounds)
-      shape_height  = Bounds.height(shape_bounds)
-      shape_min     = Bounds.min(shape_bounds)
+      shape_bounds = Bounds.bounds(shape)
+      shape_width = Bounds.width(shape_bounds)
+      shape_height = Bounds.height(shape_bounds)
+      shape_min = Bounds.min(shape_bounds)
 
-      {tr_x, tr_y}  = Point.vector(shape_min, bounds_min)
+      {tr_x, tr_y} = Point.vector(shape_min, bounds_min)
 
-      scale_x       = bounds_width / shape_width
-      scale_y       = bounds_height / shape_height
-      scale         = if scale_x < scale_y, do: scale_x, else: scale_y
+      scale_x = bounds_width / shape_width
+      scale_y = bounds_height / shape_height
+      scale = if scale_x < scale_y, do: scale_x, else: scale_y
 
       fn point ->
         point
@@ -322,6 +329,7 @@ defmodule Vivid.Transform do
         |> Transform.Point.scale(scale, scale)
       end
     end
+
     apply_transform(shape, fun, "fill-to-#{bounds_width}-#{bounds_height}")
   end
 
@@ -336,23 +344,24 @@ defmodule Vivid.Transform do
       ...> |> Vivid.Transform.apply
       #Vivid.Polygon<[#Vivid.Point<{80.0, 0.0}>, #Vivid.Point<{80.0, 80.0}>, #Vivid.Point<{0.0, 80.0}>, #Vivid.Point<{0.0, 0.0}>]>
   """
-  @spec overflow(shape_or_transform, Shape.t) :: Transform.t
+  @spec overflow(shape_or_transform, Shape.t()) :: Transform.t()
   def overflow(shape, bounds) do
-    bounds        = Bounds.bounds(bounds)
-    bounds_min    = Bounds.min(bounds)
-    bounds_width  = Bounds.width(bounds)
+    bounds = Bounds.bounds(bounds)
+    bounds_min = Bounds.min(bounds)
+    bounds_width = Bounds.width(bounds)
     bounds_height = Bounds.height(bounds)
+
     fun = fn shape ->
-      shape_bounds  = Bounds.bounds(shape)
-      shape_width   = Bounds.width(shape_bounds)
-      shape_height  = Bounds.height(shape_bounds)
-      shape_min     = Bounds.min(shape_bounds)
+      shape_bounds = Bounds.bounds(shape)
+      shape_width = Bounds.width(shape_bounds)
+      shape_height = Bounds.height(shape_bounds)
+      shape_min = Bounds.min(shape_bounds)
 
-      {tr_x, tr_y}  = Point.vector(shape_min, bounds_min)
+      {tr_x, tr_y} = Point.vector(shape_min, bounds_min)
 
-      scale_x       = bounds_width / shape_width
-      scale_y       = bounds_height / shape_height
-      scale         = if scale_x > scale_y, do: scale_x, else: scale_y
+      scale_x = bounds_width / shape_width
+      scale_y = bounds_height / shape_height
+      scale = if scale_x > scale_y, do: scale_x, else: scale_y
 
       fn point ->
         point
@@ -360,6 +369,7 @@ defmodule Vivid.Transform do
         |> Transform.Point.scale(scale, scale)
       end
     end
+
     apply_transform(shape, fun, "overflow-#{bounds_width}-#{bounds_height}")
   end
 
@@ -388,16 +398,16 @@ defmodule Vivid.Transform do
       ...> |> Vivid.Transform.apply
       #Vivid.Polygon<[#Vivid.Point<{25, 10}>, #Vivid.Point<{25, 20}>, #Vivid.Point<{15, 20}>, #Vivid.Point<{15, 10}>]>
   """
-  @spec transform(shape_or_transform, function) :: Transform.t
+  @spec transform(shape_or_transform, function) :: Transform.t()
   def transform(shape, fun), do: apply_transform(shape, fun, inspect(fun))
 
   @doc """
   Apply a transformation pipeline returning the modified shape.
   """
-  @spec apply(Transform.t) :: Shape.t
+  @spec apply(Transform.t()) :: Shape.t()
   def apply(%Transform{operations: operations, shape: shape}) do
     operations
-    |> Enum.reverse
+    |> Enum.reverse()
     |> Enum.reduce(shape, fn %Operation{function: fun}, shape ->
       transform = fun.(shape)
       Transformable.transform(shape, transform)
@@ -408,6 +418,7 @@ defmodule Vivid.Transform do
     operations = [%Operation{function: fun, name: name} | operations]
     %{transform | operations: operations}
   end
+
   defp apply_transform(shape, fun, name) do
     %Transform{operations: [%Operation{function: fun, name: name}], shape: shape}
   end

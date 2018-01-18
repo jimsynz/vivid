@@ -31,7 +31,7 @@ defmodule Vivid.Polygon do
       "@@@@@@@@@@@@\n"
   """
 
-  @opaque t :: %Polygon{vertices: [Point.t], fill: boolean}
+  @opaque t :: %Polygon{vertices: [Point.t()], fill: boolean}
 
   @doc """
   Initialize an empty Polygon.
@@ -41,7 +41,7 @@ defmodule Vivid.Polygon do
       iex> Vivid.Polygon.init
       %Vivid.Polygon{vertices: []}
   """
-  @spec init() :: Polygon.t
+  @spec init() :: Polygon.t()
   def init, do: %Polygon{vertices: [], fill: false}
 
   @doc """
@@ -57,12 +57,13 @@ defmodule Vivid.Polygon do
         %Vivid.Point{x: 2, y: 1}
       ]}
   """
-  @spec init([Point.t]) :: Polygon.t
+  @spec init([Point.t()]) :: Polygon.t()
   def init(points) when is_list(points), do: %Polygon{vertices: points, fill: false}
 
   @doc false
-  @spec init([Point.t], boolean) :: Polygon.t
-  def init(points, fill) when is_list(points) and is_boolean(fill), do: %Polygon{vertices: points, fill: fill}
+  @spec init([Point.t()], boolean) :: Polygon.t()
+  def init(points, fill) when is_list(points) and is_boolean(fill),
+    do: %Polygon{vertices: points, fill: fill}
 
   @doc """
   Convert a Polygon into a list of lines joined by the vertices.
@@ -79,7 +80,7 @@ defmodule Vivid.Polygon do
        %Vivid.Line{origin: %Vivid.Point{x: 2, y: 1},
          termination: %Vivid.Point{x: 1, y: 1}}]
   """
-  @spec to_lines(Polygon.t) :: [Line.t]
+  @spec to_lines(Polygon.t()) :: [Line.t()]
   def to_lines(%Polygon{vertices: points}) do
     points_to_lines([], points)
   end
@@ -92,7 +93,7 @@ defmodule Vivid.Polygon do
       iex> Vivid.Polygon.init([Vivid.Point.init(1,1), Vivid.Point.init(2,2)]) |> Vivid.Polygon.delete(Vivid.Point.init(2,2))
       %Vivid.Polygon{vertices: [%Vivid.Point{x: 1, y: 1}]}
   """
-  @spec delete(Polygon.t, Point.t) :: Polygon.t
+  @spec delete(Polygon.t(), Point.t()) :: Polygon.t()
   def delete(%Polygon{vertices: points}, %Point{} = point) do
     points
     |> List.delete(point)
@@ -107,7 +108,7 @@ defmodule Vivid.Polygon do
       iex> Vivid.Polygon.init([Vivid.Point.init(1,1), Vivid.Point.init(2,2)]) |> Vivid.Polygon.delete_at(1)
       %Vivid.Polygon{vertices: [%Vivid.Point{x: 1, y: 1}]}
   """
-  @spec delete_at(Polygon.t, integer) :: Polygon.t
+  @spec delete_at(Polygon.t(), integer) :: Polygon.t()
   def delete_at(%Polygon{vertices: points}, index) do
     points
     |> List.delete_at(index)
@@ -122,10 +123,10 @@ defmodule Vivid.Polygon do
       iex> Vivid.Polygon.init([Vivid.Point.init(1,1), Vivid.Point.init(2,2)]) |> Vivid.Polygon.first
       %Vivid.Point{x: 1, y: 1}
   """
-  @spec first(Polygon.t) :: Point.t
+  @spec first(Polygon.t()) :: Point.t()
   def first(%Polygon{vertices: points}) do
     points
-    |> List.first
+    |> List.first()
   end
 
   @doc """
@@ -140,7 +141,7 @@ defmodule Vivid.Polygon do
         %Vivid.Point{x: 2, y: 2}
       ]}
   """
-  @spec insert_at(Polygon.t, integer, Point.t) :: Polygon.t
+  @spec insert_at(Polygon.t(), integer, Point.t()) :: Polygon.t()
   def insert_at(%Polygon{vertices: points}, index, %Point{} = point) do
     points
     |> List.insert_at(index, point)
@@ -155,10 +156,10 @@ defmodule Vivid.Polygon do
       iex> Vivid.Polygon.init([Vivid.Point.init(1,1), Vivid.Point.init(2,2)]) |> Vivid.Polygon.last
       %Vivid.Point{x: 2, y: 2}
   """
-  @spec last(Polygon.t) :: Point.t
+  @spec last(Polygon.t()) :: Point.t()
   def last(%Polygon{vertices: points}) do
     points
-    |> List.last
+    |> List.last()
   end
 
   @doc """
@@ -173,7 +174,7 @@ defmodule Vivid.Polygon do
         %Vivid.Point{x: 3, y: 3}
       ]}
   """
-  @spec replace_at(Polygon.t, integer, Point.t) :: Polygon.t
+  @spec replace_at(Polygon.t(), integer, Point.t()) :: Polygon.t()
   def replace_at(%Polygon{vertices: points}, index, %Point{} = point) do
     points
     |> List.replace_at(index, point)
@@ -200,7 +201,7 @@ defmodule Vivid.Polygon do
       ...> |> Polygon.filled?
       false
   """
-  @spec filled?(Polygon.t) :: boolean
+  @spec filled?(Polygon.t()) :: boolean
   def filled?(%Polygon{fill: fill}), do: fill
 
   @doc """
@@ -214,12 +215,12 @@ defmodule Vivid.Polygon do
       ...> |> Polygon.filled?
       true
   """
-  @spec fill(Polygon.t, boolean) :: Polygon.t
+  @spec fill(Polygon.t(), boolean) :: Polygon.t()
   def fill(%Polygon{} = polygon, fill) when is_boolean(fill), do: %{polygon | fill: fill}
 
   defp points_to_lines(lines, []) do
-    origin = lines |> List.last |> Line.termination
-    term   = lines |> List.first |> Line.origin
+    origin = lines |> List.last() |> Line.termination()
+    term = lines |> List.first() |> Line.origin()
     lines ++ [Line.init(origin, term)]
   end
 
@@ -229,9 +230,9 @@ defmodule Vivid.Polygon do
   end
 
   defp points_to_lines(lines, [point | rest]) do
-    origin = lines |> List.last |> Line.termination
-    term   = point
-    lines  = lines ++ [Line.init(origin, term)]
+    origin = lines |> List.last() |> Line.termination()
+    term = point
+    lines = lines ++ [Line.init(origin, term)]
     points_to_lines(lines, rest)
   end
 end

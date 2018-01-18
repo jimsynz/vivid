@@ -7,10 +7,10 @@ defimpl Vivid.Transformable, for: Vivid.Box do
   * `box` - the box to modify.
   * `fun` - the transformation function to apply.
   """
-  @spec transform(Box.t, (Point.t -> Point.t)) :: Box.t
+  @spec transform(Box.t(), (Point.t() -> Point.t())) :: Box.t()
   def transform(box, fun) do
     box
-    |> Box.to_polygon
+    |> Box.to_polygon()
     |> Transformable.transform(fun)
   end
 end

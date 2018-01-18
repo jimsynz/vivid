@@ -39,8 +39,7 @@ defmodule Vivid.Frame do
         "@@@@@@@@@@@@@@@@@@@@@@@@\n"
   """
 
-  @opaque t :: %Frame{width: integer, height: integer,
-                      background_colour: RGBA.t, shapes: []}
+  @opaque t :: %Frame{width: integer, height: integer, background_colour: RGBA.t(), shapes: []}
 
   @doc """
   Initialize a frame buffer.
@@ -54,10 +53,9 @@ defmodule Vivid.Frame do
       iex> Vivid.Frame.init(4, 4)
       #Vivid.Frame<[width: 4, height: 4, background_colour: #Vivid.RGBA<{0, 0, 0, 0}>]>
   """
-  @spec init(integer(), integer(), Range.t) :: Frame.t
+  @spec init(integer(), integer(), Range.t()) :: Frame.t()
   def init(width \\ 128, height \\ 64, %RGBA{} = colour \\ RGBA.init(0, 0, 0, 0))
-  when is_integer(width) and is_integer(height) and width > 0 and height > 0
-  do
+      when is_integer(width) and is_integer(height) and width > 0 and height > 0 do
     %Frame{width: width, height: height, background_colour: colour, shapes: []}
   end
 
@@ -136,7 +134,7 @@ defmodule Vivid.Frame do
       " @   \n" <>
       "@    \n"
   """
-  @spec push(Frame.t, Shape.t, RGBA.t) :: Frame.t
+  @spec push(Frame.t(), Shape.t(), RGBA.t()) :: Frame.t()
   def push(%Frame{shapes: shapes} = frame, shape, colour) do
     %{frame | shapes: [{shape, colour} | shapes]}
   end
@@ -144,7 +142,7 @@ defmodule Vivid.Frame do
   @doc """
   Clear the `frame` of any shapes.
   """
-  @spec clear(Frame.t) :: Frame.t
+  @spec clear(Frame.t()) :: Frame.t()
   def clear(%Frame{} = frame) do
     %{frame | shapes: []}
   end
@@ -157,7 +155,7 @@ defmodule Vivid.Frame do
       iex> Vivid.Frame.init(80, 25) |> Vivid.Frame.width
       80
   """
-  @spec width(Frame.t) :: integer()
+  @spec width(Frame.t()) :: integer()
   def width(%Frame{width: w}), do: w
 
   @doc """
@@ -168,7 +166,7 @@ defmodule Vivid.Frame do
       iex> Vivid.Frame.init(80, 25) |> Vivid.Frame.height
       25
   """
-  @spec height(Frame.t) :: integer()
+  @spec height(Frame.t()) :: integer()
   def height(%Frame{height: h}), do: h
 
   @doc """
@@ -179,7 +177,7 @@ defmodule Vivid.Frame do
       iex> Vivid.Frame.init(80, 25) |> Vivid.Frame.background_colour
       #Vivid.RGBA<{0, 0, 0, 0}>
   """
-  @spec background_colour(Frame.t) :: RGBA.t
+  @spec background_colour(Frame.t()) :: RGBA.t()
   def background_colour(%Frame{background_colour: c}), do: c
 
   @doc """
@@ -192,8 +190,9 @@ defmodule Vivid.Frame do
       ...> |> Vivid.Frame.background_colour
       #Vivid.RGBA<{1, 1, 1, 1}>
   """
-  @spec background_colour(Frame.t, RGBA.t) :: Frame.t
-  def background_colour(%Frame{} = frame, %RGBA{} = colour), do: %{frame | background_colour: colour}
+  @spec background_colour(Frame.t(), RGBA.t()) :: Frame.t()
+  def background_colour(%Frame{} = frame, %RGBA{} = colour),
+    do: %{frame | background_colour: colour}
 
   @doc """
   Render a `frame` into a buffer for display horizontally.
@@ -201,7 +200,7 @@ defmodule Vivid.Frame do
   Returns a one-dimensional List of `RGBA` colours with alpha-compositing
   completed.
   """
-  @spec buffer(Frame.t) :: [RGBA.t]
+  @spec buffer(Frame.t()) :: [RGBA.t()]
   def buffer(%Frame{} = frame), do: Buffer.horizontal(frame)
 
   @doc """
@@ -215,7 +214,7 @@ defmodule Vivid.Frame do
   Returns a one-dimensional List of `RGBA` colours with alpha-compositing
   completed.
   """
-  @spec buffer(Frame.t, :horizontal | :vertical) :: [RGBA.t]
+  @spec buffer(Frame.t(), :horizontal | :vertical) :: [RGBA.t()]
   def buffer(%Frame{} = frame, :horizontal), do: Buffer.horizontal(frame)
-  def buffer(%Frame{} = frame, :vertical),   do: Buffer.vertical(frame)
+  def buffer(%Frame{} = frame, :vertical), do: Buffer.vertical(frame)
 end

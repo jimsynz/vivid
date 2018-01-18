@@ -1,9 +1,26 @@
 defmodule Vivid do
   defmacro __using__(_opts) do
     quote do
-      alias Vivid.{Arc, Bounds, Buffer, Circle, Font, Frame, Group, Font, Frame,
-                   Group, Line, Path, Point, Polygon, Rasterize, RGBA,
-                   Transform, Box}
+      alias Vivid.{
+        Arc,
+        Bounds,
+        Buffer,
+        Circle,
+        Font,
+        Frame,
+        Group,
+        Font,
+        Frame,
+        Group,
+        Line,
+        Path,
+        Point,
+        Polygon,
+        Rasterize,
+        RGBA,
+        Transform,
+        Box
+      }
     end
   end
 

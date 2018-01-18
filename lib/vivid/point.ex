@@ -29,10 +29,9 @@ defmodule Vivid.Point do
       iex> Vivid.Point.init(13, 27)
       %Vivid.Point{x: 13, y: 27}
   """
-  @spec init(number, number) :: Point.t
+  @spec init(number, number) :: Point.t()
   def init(x, y)
-  when is_number(x) and is_number(y)
-  do
+      when is_number(x) and is_number(y) do
     %Point{x: x, y: y}
   end
 
@@ -44,7 +43,7 @@ defmodule Vivid.Point do
       iex> Vivid.Point.init(13, 27) |> Vivid.Point.x
       13
   """
-  @spec x(Point.t) :: number
+  @spec x(Point.t()) :: number
   def x(%Point{x: x}), do: x
 
   @doc ~S"""
@@ -55,7 +54,7 @@ defmodule Vivid.Point do
       iex> Vivid.Point.init(13, 27) |> Vivid.Point.y
       27
   """
-  @spec y(Point.t) :: number
+  @spec y(Point.t()) :: number
   def y(%Point{y: y}), do: y
 
   @doc """
@@ -68,7 +67,7 @@ defmodule Vivid.Point do
       ...> |> Vivid.Point.swap_xy
       #Vivid.Point<{27, 13}>
   """
-  @spec swap_xy(Point.t) :: Point.t
+  @spec swap_xy(Point.t()) :: Point.t()
   def swap_xy(%Point{x: x, y: y}), do: Point.init(y, x)
 
   @doc """
@@ -82,7 +81,7 @@ defmodule Vivid.Point do
       ...> Point.vector(a, b)
       {10, 10}
   """
-  @spec vector(Point.t, Point.t) :: {number, number}
+  @spec vector(Point.t(), Point.t()) :: {number, number}
   def vector(%Point{x: x0, y: y0} = _a, %Point{x: x1, y: y1} = _b) do
     {x1 - x0, y1 - y0}
   end
@@ -96,6 +95,6 @@ defmodule Vivid.Point do
       ...> |> Vivid.Point.round
       #Vivid.Point<{1, 5}>
   """
-  @spec round(Point.t) :: Point.t
+  @spec round(Point.t()) :: Point.t()
   def round(%Point{x: x, y: y}), do: Point.init(Kernel.round(x), Kernel.round(y))
 end

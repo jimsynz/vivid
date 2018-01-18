@@ -8,25 +8,27 @@ defmodule Vivid.ShapeToString do
   @doc """
   Convert a `shape` into a `string` for `IO.puts`, etc.
   """
-  @spec to_string(Shape.t) :: String.t
+  @spec to_string(Shape.t()) :: String.t()
   def to_string(shape) do
     bounds = Bounds.bounds(shape)
-    width  = round(Bounds.width(bounds) + 3)
+    width = round(Bounds.width(bounds) + 3)
     height = round(Bounds.height(bounds) + 3)
-    frame = Frame.init(width, height, RGBA.white)
+    frame = Frame.init(width, height, RGBA.white())
 
-    shape = shape
+    shape =
+      shape
       |> Transform.center(frame)
-      |> Transform.apply
+      |> Transform.apply()
 
     frame
-    |> Frame.push(shape, RGBA.black)
-    |> Kernel.to_string
+    |> Frame.push(shape, RGBA.black())
+    |> Kernel.to_string()
   end
 end
 
 Enum.each(~w(Arc Box Circle Group Line Path Polygon), fn type ->
   mod = Module.concat(Vivid, type)
+
   defimpl String.Chars, for: mod do
     @moduledoc """
     Convert a shape into a string.
@@ -35,7 +37,7 @@ Enum.each(~w(Arc Box Circle Group Line Path Polygon), fn type ->
     @doc """
     Convert `shape` into a `string` for `IO.puts`, etc.
     """
-    @spec to_string(Shape.t) :: String.t
+    @spec to_string(Shape.t()) :: String.t()
     def to_string(shape), do: Vivid.ShapeToString.to_string(shape)
   end
 end)

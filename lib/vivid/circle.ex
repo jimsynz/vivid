@@ -35,7 +35,7 @@ defmodule Vivid.Circle do
     "@@@@@@@@       @@@@@@@@\n" <>
     "@@@@@@@@@@@@@@@@@@@@@@@\n"
   """
-  @opaque t :: %Circle{center: Point.t, radius: number, fill: boolean}
+  @opaque t :: %Circle{center: Point.t(), radius: number, fill: boolean}
 
   @doc """
   Creates a circle from a point in 2D space and a radius.
@@ -45,20 +45,19 @@ defmodule Vivid.Circle do
       iex> Vivid.Circle.init(Vivid.Point.init(5,5), 4)
       #Vivid.Circle<[center: #Vivid.Point<{5, 5}>, radius: 4]>
   """
-  @spec init(Point.t, number) :: Circle.t
+  @spec init(Point.t(), number) :: Circle.t()
   def init(%Point{} = point, radius)
-  when is_number(radius) and radius > 0,
-  do: init(point, radius, false)
+      when is_number(radius) and radius > 0,
+      do: init(point, radius, false)
 
   @doc false
-  @spec init(Point.t, number, boolean) :: Circle.t
+  @spec init(Point.t(), number, boolean) :: Circle.t()
   def init(%Point{} = point, radius, fill)
-  when is_number(radius) and is_boolean(fill) and radius > 0
-  do
+      when is_number(radius) and is_boolean(fill) and radius > 0 do
     %Circle{
       center: point,
       radius: radius,
-      fill:   fill
+      fill: fill
     }
   end
 
@@ -71,7 +70,7 @@ defmodule Vivid.Circle do
       ...> |> Vivid.Circle.radius
       4
   """
-  @spec radius(Cricle.t) :: number
+  @spec radius(Cricle.t()) :: number
   def radius(%Circle{radius: r}), do: r
 
   @doc """
@@ -82,7 +81,7 @@ defmodule Vivid.Circle do
       ...> |> Vivid.Circle.center
       %Vivid.Point{x: 5, y: 5}
   """
-  @spec center(Circle.t) :: Point.t
+  @spec center(Circle.t()) :: Point.t()
   def center(%Circle{center: point}), do: point
 
   @doc """
@@ -94,8 +93,8 @@ defmodule Vivid.Circle do
       ...> |> Vivid.Circle.circumference
       25.132741228718345
   """
-  @spec circumference(Circle.t) :: number
-  def circumference(%Circle{radius: radius}), do: 2 * :math.pi * radius
+  @spec circumference(Circle.t()) :: number
+  def circumference(%Circle{radius: radius}), do: 2 * :math.pi() * radius
 
   @doc ~S"""
   Convert the `circle` into a Polygon.
@@ -127,7 +126,7 @@ defmodule Vivid.Circle do
       "@@@@     @@@@\n" <>
       "@@@@@@@@@@@@@\n"
   """
-  @spec to_polygon(Circle.t) :: Polygon.t
+  @spec to_polygon(Circle.t()) :: Polygon.t()
   def to_polygon(%Circle{radius: radius} = circle), do: to_polygon(circle, round(radius * 2))
 
   @doc ~S"""
@@ -156,21 +155,22 @@ defmodule Vivid.Circle do
       "@ @@@@@@@@@\n" <>
       "@@@@@@@@@@@\n"
   """
-  @spec to_polygon(Circle.t, number) :: Polygon.t
+  @spec to_polygon(Circle.t(), number) :: Polygon.t()
   def to_polygon(%Circle{center: center, radius: radius, fill: fill}, steps) do
-    h = center |> Point.x
-    k = center |> Point.y
+    h = center |> Point.x()
+    k = center |> Point.y()
     step_degree = 360 / steps
 
-    points = Enum.map(0..steps - 1, fn(step) ->
-      theta = step_degree * step
-      theta = degrees_to_radians(theta)
+    points =
+      Enum.map(0..(steps - 1), fn step ->
+        theta = step_degree * step
+        theta = degrees_to_radians(theta)
 
-      x = h + radius * cos(theta)
-      y = k - radius * sin(theta)
+        x = h + radius * cos(theta)
+        y = k - radius * sin(theta)
 
-      Point.init(x, y)
-    end)
+        Point.init(x, y)
+      end)
 
     points
     |> Polygon.init(fill)

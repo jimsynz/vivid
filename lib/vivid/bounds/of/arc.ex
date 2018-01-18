@@ -6,10 +6,10 @@ defimpl Vivid.Bounds.Of, for: Vivid.Arc do
 
   Returns a two-element tuple of the bottom-left and top-right points.
   """
-  @spec bounds(Arc.t) :: {Point.t, Point.t}
+  @spec bounds(Arc.t()) :: {Point.t(), Point.t()}
   def bounds(arc) do
     arc
-    |> Arc.to_path
-    |> Bounds.Of.bounds
+    |> Arc.to_path()
+    |> Bounds.Of.bounds()
   end
 end

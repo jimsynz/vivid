@@ -22,11 +22,11 @@ defimpl Vivid.Rasterize, for: Vivid.Path do
         %Vivid.Point{x: 3, y: 3}
       ])
   """
-  @spec rasterize(Path.t, Bounds.t) :: MapSet.t
+  @spec rasterize(Path.t(), Bounds.t()) :: MapSet.t()
   def rasterize(%Path{} = path, bounds) do
-    lines = path |> Path.to_lines
+    lines = path |> Path.to_lines()
 
-    Enum.reduce(lines, MapSet.new, fn(line, acc) ->
+    Enum.reduce(lines, MapSet.new(), fn line, acc ->
       MapSet.union(acc, Rasterize.rasterize(line, bounds))
     end)
   end

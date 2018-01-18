@@ -27,10 +27,10 @@ defimpl Vivid.Rasterize, for: Vivid.Circle do
         %Vivid.Point{x: 9, y: 5}, %Vivid.Point{x: 9, y: 6}
       ])
   """
-  @spec rasterize(Circle.t, Bounds.t) :: MapSet.t
+  @spec rasterize(Circle.t(), Bounds.t()) :: MapSet.t()
   def rasterize(circle, bounds) do
     circle
-    |> Circle.to_polygon
+    |> Circle.to_polygon()
     |> Rasterize.rasterize(bounds)
   end
 end

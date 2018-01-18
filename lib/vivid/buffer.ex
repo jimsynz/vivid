@@ -35,7 +35,7 @@ defmodule Vivid.Buffer do
       "@@@@@@@@@@@@@@@@@@@@"
   """
 
-  @opaque t :: %Buffer{buffer: [RGBA.t], rows: integer, columns: integer}
+  @opaque t :: %Buffer{buffer: [RGBA.t()], rows: integer, columns: integer}
 
   @doc ~S"""
   Render the buffer horizontally, ie across rows then up columns.
@@ -53,11 +53,11 @@ defmodule Vivid.Buffer do
       "@@@@@\n" <>
       "@@@@@\n"
   """
-  @spec horizontal(Frame.t) :: [RGBA.t]
+  @spec horizontal(Frame.t()) :: [RGBA.t()]
   def horizontal(%Frame{shapes: shapes, width: w, height: h} = frame) do
     empty_buffer = allocate(frame)
-    bounds       = Bounds.bounds(frame)
-    buffer       = Enum.reduce(shapes, empty_buffer, &horizontal_reducer(&1, &2, bounds, w))
+    bounds = Bounds.bounds(frame)
+    buffer = Enum.reduce(shapes, empty_buffer, &horizontal_reducer(&1, &2, bounds, w))
     %Buffer{buffer: buffer, rows: h, columns: w}
   end
 
@@ -77,11 +77,11 @@ defmodule Vivid.Buffer do
       "@@ @@\n" <>
       "@@ @@\n"
   """
-  @spec vertical(Frame.t) :: [RGBA.t]
+  @spec vertical(Frame.t()) :: [RGBA.t()]
   def vertical(%Frame{shapes: shapes, width: w, height: h} = frame) do
-    bounds       = Bounds.bounds(frame)
+    bounds = Bounds.bounds(frame)
     empty_buffer = allocate(frame)
-    buffer       = Enum.reduce(shapes, empty_buffer, &vertical_reducer(&1, &2, bounds, h))
+    buffer = Enum.reduce(shapes, empty_buffer, &vertical_reducer(&1, &2, bounds, h))
 
     %Buffer{buffer: buffer, rows: w, columns: h}
   end
@@ -100,8 +100,9 @@ defmodule Vivid.Buffer do
 
   defp horizontal_reducer({shape, colour}, buffer, bounds, width) do
     points = Rasterize.rasterize(shape, bounds)
-    Enum.reduce(points, buffer, fn(%Point{x: x, y: y}, buf) ->
-      pos = (y * width) + x
+
+    Enum.reduce(points, buffer, fn %Point{x: x, y: y}, buf ->
+      pos = y * width + x
       existing = Enum.at(buf, pos)
       List.replace_at(buf, pos, RGBA.over(existing, colour))
     end)
@@ -109,15 +110,17 @@ defmodule Vivid.Buffer do
 
   defp vertical_reducer({shape, colour}, buffer, bounds, width) do
     points = Rasterize.rasterize(shape, bounds)
-    Enum.reduce(points, buffer, fn(point, buf) ->
+
+    Enum.reduce(points, buffer, fn point, buf ->
       point = Point.swap_xy(point)
-      pos = (point.y * width) + point.x
+      pos = point.y * width + point.x
       existing = Enum.at(buf, pos)
       List.replace_at(buf, pos, RGBA.over(existing, colour))
     end)
   end
 
-  defp allocate(%Frame{width: w, height: h, background_colour: bg}), do: generate_buffer([], w * h, bg)
+  defp allocate(%Frame{width: w, height: h, background_colour: bg}),
+    do: generate_buffer([], w * h, bg)
 
   defp generate_buffer(buffer, 0, _colour), do: buffer
   defp generate_buffer(buffer, i, colour), do: generate_buffer([colour | buffer], i - 1, colour)

@@ -24,7 +24,7 @@ defmodule Vivid.Arc do
 
   """
 
-  @opaque t :: %Arc{center: Point.t, radius: number, start_angle: number, steps: integer}
+  @opaque t :: %Arc{center: Point.t(), radius: number, start_angle: number, steps: integer}
 
   @doc ~S"""
   Creates an Arc.
@@ -46,19 +46,15 @@ defmodule Vivid.Arc do
         steps:       12
       }
   """
-  @spec init(Point.t, number, number, number, integer) :: Arc.t
+  @spec init(Point.t(), number, number, number, integer) :: Arc.t()
   def init(%Point{} = center, radius, start_angle, range, steps \\ 12)
-    when is_number(radius)
-     and is_number(start_angle)
-     and is_number(range)
-     and is_integer(steps)
-  do
+      when is_number(radius) and is_number(start_angle) and is_number(range) and is_integer(steps) do
     %Arc{
-      center:      center,
-      radius:      radius,
+      center: center,
+      radius: radius,
       start_angle: start_angle,
-      range:       range,
-      steps:       steps
+      range: range,
+      steps: steps
     }
   end
 
@@ -71,7 +67,7 @@ defmodule Vivid.Arc do
       ...> |> Vivid.Arc.center
       #Vivid.Point<{10, 10}>
   """
-  @spec center(Arc.t) :: Point.t
+  @spec center(Arc.t()) :: Point.t()
   def center(%Arc{center: p} = _arc), do: p
 
   @doc """
@@ -84,7 +80,7 @@ defmodule Vivid.Arc do
       ...> |> Vivid.Arc.center
       #Vivid.Point<{15, 15}>
   """
-  @spec center(Arc.t, Point.t) :: Arc.t
+  @spec center(Arc.t(), Point.t()) :: Arc.t()
   def center(%Arc{} = arc, %Point{} = point), do: %{arc | center: point}
 
   @doc """
@@ -96,7 +92,7 @@ defmodule Vivid.Arc do
       ...> |> Vivid.Arc.radius
       5
   """
-  @spec radius(Arc.t) :: number
+  @spec radius(Arc.t()) :: number
   def radius(%Arc{radius: r} = _arc), do: r
 
   @doc """
@@ -109,7 +105,7 @@ defmodule Vivid.Arc do
       ...> |> Vivid.Arc.radius
       10
   """
-  @spec radius(Arc.t, number) :: Arc.t
+  @spec radius(Arc.t(), number) :: Arc.t()
   def radius(%Arc{} = arc, radius) when is_number(radius), do: %{arc | radius: radius}
 
   @doc """
@@ -121,7 +117,7 @@ defmodule Vivid.Arc do
       ...> |> Vivid.Arc.start_angle
       0
   """
-  @spec start_angle(Arc.t) :: number
+  @spec start_angle(Arc.t()) :: number
   def start_angle(%Arc{start_angle: a} = _arc), do: a
 
   @doc """
@@ -134,7 +130,7 @@ defmodule Vivid.Arc do
       ...> |> Vivid.Arc.start_angle
       45
   """
-  @spec start_angle(Arc.t, number) :: Arc.t
+  @spec start_angle(Arc.t(), number) :: Arc.t()
   def start_angle(%Arc{} = arc, theta), do: %{arc | start_angle: theta}
 
   @doc """
@@ -146,7 +142,7 @@ defmodule Vivid.Arc do
       ...> |> Vivid.Arc.range
       90
   """
-  @spec range(Arc.t) :: number
+  @spec range(Arc.t()) :: number
   def range(%Arc{range: r} = _arc), do: r
 
   @doc """
@@ -159,7 +155,7 @@ defmodule Vivid.Arc do
       ...> |> Vivid.Arc.range
       270
   """
-  @spec range(Arc.t, number) :: Arc.t
+  @spec range(Arc.t(), number) :: Arc.t()
   def range(%Arc{} = arc, theta) when is_number(theta), do: %{arc | range: theta}
 
   @doc """
@@ -171,7 +167,7 @@ defmodule Vivid.Arc do
       ...> |> Vivid.Arc.steps
       12
   """
-  @spec steps(Arc.t) :: integer
+  @spec steps(Arc.t()) :: integer
   def steps(%Arc{steps: s} = _arc), do: s
 
   @doc """
@@ -184,7 +180,7 @@ defmodule Vivid.Arc do
       ...> |> Vivid.Arc.steps
       19
   """
-  @spec steps(Arc.t, integer) :: Arc.t
+  @spec steps(Arc.t(), integer) :: Arc.t()
   def steps(%Arc{} = arc, steps) when is_integer(steps), do: %{arc | steps: steps}
 
   @doc """
@@ -197,25 +193,29 @@ defmodule Vivid.Arc do
       ...> |> Vivid.Arc.to_path
       #Vivid.Path<[#Vivid.Point<{5, 10}>, #Vivid.Point<{6, 13}>, #Vivid.Point<{8, 14}>, #Vivid.Point<{10, 15}>]>
   """
-  @spec to_path(Arc.t) :: Path.t
-  def to_path(%Arc{center: center, radius: radius, start_angle: start_angle, range: range, steps: steps} = _arc) do
-    h = center |> Point.x
-    k = center |> Point.y
+  @spec to_path(Arc.t()) :: Path.t()
+  def to_path(
+        %Arc{center: center, radius: radius, start_angle: start_angle, range: range, steps: steps} =
+          _arc
+      ) do
+    h = center |> Point.x()
+    k = center |> Point.y()
 
     step_degree = range / steps
     start_angle = start_angle - 180
 
-    points = Enum.map(0..steps, fn(step) ->
-      theta = (step_degree * step) + start_angle
-      theta = degrees_to_radians(theta)
+    points =
+      Enum.map(0..steps, fn step ->
+        theta = step_degree * step + start_angle
+        theta = degrees_to_radians(theta)
 
-      x = round(h + radius * cos(theta))
-      y = round(k - radius * sin(theta))
+        x = round(h + radius * cos(theta))
+        y = round(k - radius * sin(theta))
 
-      Point.init(x, y)
-    end)
+        Point.init(x, y)
+      end)
 
     points
-    |> Path.init
+    |> Path.init()
   end
 end

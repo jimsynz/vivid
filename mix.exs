@@ -4,19 +4,23 @@ defmodule Vivid.Mixfile do
   @version "0.4.2"
 
   def project do
-    [app: :vivid,
-     version: @version,
-     description: description(),
-     elixir: "~> 1.3",
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     package: package(),
-     deps: deps(),
-   docs: [source_ref: "v#{@version}",
-          main: "Vivid",
-          canonical: "http://hexdocs.pm/vivid",
-          source_url: "https://github.com/jamesotron/vivid.ex",
-          extras: ["guides/getting-started.md"]]]
+    [
+      app: :vivid,
+      version: @version,
+      description: description(),
+      elixir: "~> 1.3",
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      package: package(),
+      deps: deps(),
+      docs: [
+        source_ref: "v#{@version}",
+        main: "Vivid",
+        canonical: "http://hexdocs.pm/vivid",
+        source_url: "https://github.com/jamesotron/vivid.ex",
+        extras: ["guides/getting-started.md"]
+      ]
+    ]
   end
 
   # Configuration for the OTP application
@@ -34,8 +38,8 @@ defmodule Vivid.Mixfile do
 
   def package do
     [
-      maintainers: [ "James Harton <james@messagerocket.co>" ],
-      licenses: [ "MIT" ],
+      maintainers: ["James Harton <james@messagerocket.co>"],
+      licenses: ["MIT"],
       links: %{
         "Source" => "https://github.com/jamesotron/vivid.ex"
       }

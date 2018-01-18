@@ -7,6 +7,6 @@ defimpl Vivid.Transformable, for: Vivid.Point do
   * `point` - the point to modify.
   * `fun` - the transformation function to apply.
   """
-  @spec transform(Point.t, (Point.t -> Point.t)) :: Point.t
+  @spec transform(Point.t(), (Point.t() -> Point.t())) :: Point.t()
   def transform(point, fun), do: fun.(point)
 end

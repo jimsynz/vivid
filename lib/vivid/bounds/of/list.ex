@@ -6,10 +6,12 @@ defimpl Vivid.Bounds.Of, for: List do
 
   Returns a two-element tuple of the bottom-left and top-right points.
   """
-  @spec bounds([Point.t, ...]) :: {Point.t, Point.t}
+  @spec bounds([Point.t(), ...]) :: {Point.t(), Point.t()}
   def bounds(points) do
     Enum.reduce(points, nil, fn
-      point, nil        -> {point, point}
+      point, nil ->
+        {point, point}
+
       point, {min, max} ->
         x = Point.x(point)
         y = Point.y(point)

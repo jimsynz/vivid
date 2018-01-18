@@ -13,7 +13,7 @@ defimpl Enumerable, for: Vivid.Polygon do
       iex> Vivid.Polygon.init([Vivid.Point.init(1,1), Vivid.Point.init(2,2)]) |> Enum.count
       2
   """
-  @spec count(Polygon.t) :: {:ok, non_neg_integer}
+  @spec count(Polygon.t()) :: {:ok, non_neg_integer}
   def count(%Polygon{vertices: points}), do: {:ok, Enum.count(points)}
 
   @doc """
@@ -28,8 +28,9 @@ defimpl Enumerable, for: Vivid.Polygon do
       iex> Vivid.Polygon.init([Vivid.Point.init(1,1)]) |> Enum.member?(Vivid.Point.init(2,2))
       false
   """
-  @spec member?(Polygon.t, Point.t) :: {:ok, boolean}
-  def member?(%Polygon{vertices: points}, %Point{} = point), do: {:ok, Enum.member?(points, point)}
+  @spec member?(Polygon.t(), Point.t()) :: {:ok, boolean}
+  def member?(%Polygon{vertices: points}, %Point{} = point),
+    do: {:ok, Enum.member?(points, point)}
 
   @doc """
   Reduces the Polygon's vertices into an accumulator.
@@ -39,12 +40,14 @@ defimpl Enumerable, for: Vivid.Polygon do
       iex> Vivid.Polygon.init([Vivid.Point.init(1,2), Vivid.Point.init(2,4)]) |> Enum.reduce(%{}, fn (%Vivid.Point{x: x, y: y}, acc) -> Map.put(acc, x, y) end)
       %{1 => 2, 2 => 4}
   """
-  @spec reduce(Polygon.t, Collectable.t, (Point.t, Collectable.t -> Collectable.t)) :: Collectable.t
+  @spec reduce(Polygon.t(), Collectable.t(), (Point.t(), Collectable.t() -> Collectable.t())) ::
+          Collectable.t()
   def reduce(%Polygon{vertices: points}, acc, fun), do: Enumerable.List.reduce(points, acc, fun)
 
   @doc """
   Slices the Polygon.
   """
-  @spec slice(Polygon.t) :: {:ok, size :: non_neg_integer(), Enumerable.slicing_fun()} | {:error, module()}
+  @spec slice(Polygon.t()) ::
+          {:ok, size :: non_neg_integer(), Enumerable.slicing_fun()} | {:error, module()}
   def slice(%Polygon{vertices: points}), do: Enumerable.List.slice(points)
 end

@@ -34,36 +34,36 @@ defimpl Vivid.Rasterize, for: Vivid.Line do
       ])
 
   """
-  @spec rasterize(Line.t, Bounds.t) :: MapSet.t
+  @spec rasterize(Line.t(), Bounds.t()) :: MapSet.t()
   def rasterize(%Line{} = line, bounds) do
     # Convert the line into absolute coordinates.
-    origin = line |> Line.origin |> Point.round
-    term   = line |> Line.termination |> Point.round
-    line   = Line.init(origin, term)
+    origin = line |> Line.origin() |> Point.round()
+    term = line |> Line.termination() |> Point.round()
+    line = Line.init(origin, term)
 
-    dx = line |> Line.x_distance
-    dy = line |> Line.y_distance
+    dx = line |> Line.x_distance()
+    dy = line |> Line.y_distance()
 
     steps = choose_largest_of(abs(dx), abs(dy))
 
-    points = if steps == 0 do
-      MapSet.new([origin])
-    else
-      x_increment = dx / steps
-      y_increment = dy / steps
+    points =
+      if steps == 0 do
+        MapSet.new([origin])
+      else
+        x_increment = dx / steps
+        y_increment = dy / steps
 
-      points = MapSet.new([origin])
-      current_x = origin |> Point.x
-      current_y = origin |> Point.y
+        points = MapSet.new([origin])
+        current_x = origin |> Point.x()
+        current_y = origin |> Point.y()
 
-      reduce_points({points, steps, current_x,
-                     current_y, x_increment, y_increment})
-    end
+        reduce_points({points, steps, current_x, current_y, x_increment, y_increment})
+      end
 
     points
     |> Stream.map(&Point.round(&1))
     |> Stream.filter(&Bounds.contains?(bounds, &1))
-    |> Enum.into(MapSet.new)
+    |> Enum.into(MapSet.new())
   end
 
   defp reduce_points({points, 0, _, _, _, _}), do: points
@@ -71,7 +71,7 @@ defimpl Vivid.Rasterize, for: Vivid.Line do
   defp reduce_points({points, steps, current_x, current_y, x_increment, y_increment}) do
     next_x = current_x + x_increment
     next_y = current_y + y_increment
-    steps  = steps - 1
+    steps = steps - 1
     points = MapSet.put(points, Point.init(next_x, next_y))
     reduce_points({points, steps, next_x, next_y, x_increment, y_increment})
   end

@@ -14,31 +14,31 @@ defmodule Vivid.Font.Char do
   This is not the maximum width of the character, as some go beyond or don't reach their documented bounds.
   I assume this is for kerning. I may be wrong.
   """
-  @spec width(Char.t, number) :: number
+  @spec width(Char.t(), number) :: number
   def width(%Char{left_pos: l, right_pos: r}, scale \\ 1.0), do: round((abs(l) + abs(r)) * scale)
 
   @doc """
   Returns the left padding specified for this character.
   """
-  @spec left_pad(Char.t, number) :: number
+  @spec left_pad(Char.t(), number) :: number
   def left_pad(%Char{left_pos: l}, scale \\ 1.0), do: round(abs(l) * scale)
 
   @doc """
   Returns the right padding specified for this character.
   """
-  @spec right_pad(Char.t, number) :: number
+  @spec right_pad(Char.t(), number) :: number
   def right_pad(%Char{right_pos: r}, scale \\ 1.0), do: round(abs(r) * scale)
 
   @doc """
   Rendered width of a character.
   """
-  @spec rendered_width(Char.t, number) :: number
+  @spec rendered_width(Char.t(), number) :: number
   def rendered_width(%Char{} = char, scale \\ 1.0), do: rendered_dimension(char, scale, 0)
 
   @doc """
   Rendered height of a character.
   """
-  @spec rendered_height(Char.t, number) :: number
+  @spec rendered_height(Char.t(), number) :: number
   def rendered_height(%Char{} = char, scale \\ 1.0), do: rendered_dimension(char, scale, 1)
 
   @doc """
@@ -48,32 +48,36 @@ defmodule Vivid.Font.Char do
   * `center` the center `%Point{}` around which to render the character.
   * `scale` how much to scale the character by.
   """
-  @spec to_shape(Char.t, Point.t, number) :: Shape.t
+  @spec to_shape(Char.t(), Point.t(), number) :: Shape.t()
   def to_shape(%Char{coordinates: coords}, %Point{} = center, scale \\ 1.0) do
-    x_center = center |> Point.x
-    y_center = center |> Point.y
+    x_center = center |> Point.x()
+    y_center = center |> Point.y()
+
     coords
     |> Enum.reduce([[]], fn
-      :pen_up, acc -> [[] | acc]
+      :pen_up, acc ->
+        [[] | acc]
+
       {x, y}, [last | rest] ->
-        x = round(x_center + (x * scale))
-        y = round(y_center + (y * scale))
+        x = round(x_center + x * scale)
+        y = round(y_center + y * scale)
         [[Point.init(x, y) | last] | rest]
-      end)
+    end)
     |> Enum.map(&Path.init(&1))
-    |> Group.init
+    |> Group.init()
   end
 
   defp rendered_dimension(%Char{coordinates: coords}, scale, i) do
-    coords = coords
+    coords =
+      coords
       |> Enum.reject(fn c -> c == :pen_up end)
       |> Enum.map(&elem(&1, i))
 
     if coords == [] do
       0
     else
-      max = coords |> Enum.max
-      min = coords |> Enum.min
+      max = coords |> Enum.max()
+      min = coords |> Enum.min()
       round((max - min) * scale)
     end
   end

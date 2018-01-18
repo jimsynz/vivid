@@ -13,7 +13,7 @@ defimpl Enumerable, for: Vivid.Path do
       iex> Vivid.Path.init([Vivid.Point.init(1,1), Vivid.Point.init(2,2)]) |> Enum.count
       2
   """
-  @spec count(Path.t) :: {:ok, non_neg_integer}
+  @spec count(Path.t()) :: {:ok, non_neg_integer}
   def count(%Path{vertices: points}), do: {:ok, Enum.count(points)}
 
   @doc """
@@ -28,7 +28,7 @@ defimpl Enumerable, for: Vivid.Path do
       iex> Vivid.Path.init([Vivid.Point.init(1,1)]) |> Enum.member?(Vivid.Point.init(2,2))
       false
   """
-  @spec member?(Path.t, Point.t) :: {:ok, boolean}
+  @spec member?(Path.t(), Point.t()) :: {:ok, boolean}
   def member?(%Path{vertices: points}, %Point{} = point), do: {:ok, Enum.member?(points, point)}
 
   @doc """
@@ -39,12 +39,14 @@ defimpl Enumerable, for: Vivid.Path do
       iex> Vivid.Path.init([Vivid.Point.init(1,2), Vivid.Point.init(2,4)]) |> Enum.reduce(%{}, fn (%Vivid.Point{x: x, y: y}, acc) -> Map.put(acc, x, y) end)
       %{1 => 2, 2 => 4}
   """
-  @spec reduce(Path.t, Collectable.t, (Point.t, Collectable.t -> Collectable.t)) :: Collectable.t
+  @spec reduce(Path.t(), Collectable.t(), (Point.t(), Collectable.t() -> Collectable.t())) ::
+          Collectable.t()
   def reduce(%Path{vertices: points}, acc, fun), do: Enumerable.List.reduce(points, acc, fun)
 
   @doc """
   Slices the Path.
   """
-  @spec slice(Path.t) :: {:ok, size :: non_neg_integer(), Enumerable.slicing_fun()} | {:error, module()}
+  @spec slice(Path.t()) ::
+          {:ok, size :: non_neg_integer(), Enumerable.slicing_fun()} | {:error, module()}
   def slice(%Path{vertices: points}), do: Enumerable.List.slice(points)
 end

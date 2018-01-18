@@ -7,6 +7,6 @@ defimpl Vivid.Bounds.Of, for: Vivid.Point do
   Since the bounds of a point are simply the point, it returns the point
   twice.
   """
-  @spec bounds(Point.t) :: {Point.t, Point.t}
+  @spec bounds(Point.t()) :: {Point.t(), Point.t()}
   def bounds(point), do: {point, point}
 end

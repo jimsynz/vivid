@@ -6,6 +6,6 @@ defimpl Vivid.Bounds.Of, for: Vivid.Polygon do
 
   Returns a two-element tuple of the bottom-left and top-right points.
   """
-  @spec bounds(Polygon.t) :: {Point.t, Point.t}
+  @spec bounds(Polygon.t()) :: {Point.t(), Point.t()}
   def bounds(%Polygon{vertices: points} = _polygon), do: Vivid.Bounds.Of.bounds(points)
 end

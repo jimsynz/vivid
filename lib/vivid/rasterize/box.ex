@@ -15,10 +15,10 @@ defimpl Vivid.Rasterize, for: Vivid.Box do
       ...> Rasterize.rasterize(box, Bounds.bounds(box))
       #MapSet<[#Vivid.Point<{2, 2}>, #Vivid.Point<{2, 3}>, #Vivid.Point<{2, 4}>, #Vivid.Point<{3, 2}>, #Vivid.Point<{3, 4}>, #Vivid.Point<{4, 2}>, #Vivid.Point<{4, 3}>, #Vivid.Point<{4, 4}>]>
   """
-  @spec rasterize(Box.t, Bounds.t) :: MapSet.t
+  @spec rasterize(Box.t(), Bounds.t()) :: MapSet.t()
   def rasterize(box, bounds) do
     box
-    |> Box.to_polygon
+    |> Box.to_polygon()
     |> Rasterize.rasterize(bounds)
   end
 end

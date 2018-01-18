@@ -23,13 +23,15 @@ defmodule Vivid.RGBA do
   """
 
   @type zero_to_one :: number
-  @opaque t :: %RGBA{red:     zero_to_one,
-                     green:   zero_to_one,
-                     blue:    zero_to_one,
-                     alpha:   zero_to_one,
-                     a_red:   zero_to_one,
-                     a_green: zero_to_one,
-                     a_blue:  zero_to_one}
+  @opaque t :: %RGBA{
+            red: zero_to_one,
+            green: zero_to_one,
+            blue: zero_to_one,
+            alpha: zero_to_one,
+            a_red: zero_to_one,
+            a_green: zero_to_one,
+            a_blue: zero_to_one
+          }
 
   # I would put this at the bottom, but it has to be defined *before* it's
   # used in the guard.
@@ -54,7 +56,7 @@ defmodule Vivid.RGBA do
       iex> Vivid.RGBA.init(0.1, 0.2, 0.3, 0.4)
       #Vivid.RGBA<{0.1, 0.2, 0.3, 0.4}>
   """
-  @spec init(zero_to_one, zero_to_one, zero_to_one) :: RGBA.t
+  @spec init(zero_to_one, zero_to_one, zero_to_one) :: RGBA.t()
   def init(red, green, blue), do: init(red, green, blue, 1)
 
   @doc """
@@ -72,46 +74,44 @@ defmodule Vivid.RGBA do
       iex> Vivid.RGBA.init(0.1, 0.2, 0.3, 0.4)
       #Vivid.RGBA<{0.1, 0.2, 0.3, 0.4}>
   """
-  @spec init(zero_to_one, zero_to_one, zero_to_one, zero_to_one) :: RGBA.t
+  @spec init(zero_to_one, zero_to_one, zero_to_one, zero_to_one) :: RGBA.t()
   def init(red, green, blue, 1)
-  when zero_to_one?(red) and zero_to_one?(green) and zero_to_one?(blue)
-  do
+      when zero_to_one?(red) and zero_to_one?(green) and zero_to_one?(blue) do
     %RGBA{
-      red:     red,
-      green:   green,
-      blue:    blue,
-      alpha:   1,
-      a_red:   red,
+      red: red,
+      green: green,
+      blue: blue,
+      alpha: 1,
+      a_red: red,
       a_green: green,
-      a_blue:  blue
+      a_blue: blue
     }
   end
 
   def init(red, green, blue, 0)
-  when zero_to_one?(red) and zero_to_one?(green) and zero_to_one?(blue)
-  do
+      when zero_to_one?(red) and zero_to_one?(green) and zero_to_one?(blue) do
     %RGBA{
-      red:     red,
-      green:   green,
-      blue:    blue,
-      alpha:   0,
-      a_red:   0,
+      red: red,
+      green: green,
+      blue: blue,
+      alpha: 0,
+      a_red: 0,
       a_green: 0,
-      a_blue:  0
+      a_blue: 0
     }
   end
 
   def init(red, green, blue, alpha)
-  when zero_to_one?(red) and zero_to_one?(green) and zero_to_one?(blue) and zero_to_one?(alpha)
-  do
+      when zero_to_one?(red) and zero_to_one?(green) and zero_to_one?(blue) and
+             zero_to_one?(alpha) do
     %RGBA{
-      red:     red,
-      green:   green,
-      blue:    blue,
-      alpha:   alpha,
-      a_red:   red   * alpha,
+      red: red,
+      green: green,
+      blue: blue,
+      alpha: alpha,
+      a_red: red * alpha,
       a_green: green * alpha,
-      a_blue:  blue  * alpha
+      a_blue: blue * alpha
     }
   end
 
@@ -123,7 +123,7 @@ defmodule Vivid.RGBA do
       iex> Vivid.RGBA.white
       #Vivid.RGBA<{1, 1, 1, 1}>
   """
-  @spec white() :: RGBA.t
+  @spec white() :: RGBA.t()
   def white, do: RGBA.init(1, 1, 1)
 
   @doc """
@@ -134,7 +134,7 @@ defmodule Vivid.RGBA do
       iex> Vivid.RGBA.black
       #Vivid.RGBA<{0, 0, 0, 1}>
   """
-  @spec black() :: RGBA.t
+  @spec black() :: RGBA.t()
   def black, do: RGBA.init(0, 0, 0)
 
   @doc """
@@ -146,7 +146,7 @@ defmodule Vivid.RGBA do
       ...> |> Vivid.RGBA.red
       0.7
   """
-  @spec red(RGBA.t) :: zero_to_one
+  @spec red(RGBA.t()) :: zero_to_one
   def red(%RGBA{red: r}), do: r
 
   @doc """
@@ -158,7 +158,7 @@ defmodule Vivid.RGBA do
       ...> |> Vivid.RGBA.green
       0.6
   """
-  @spec green(RGBA.t) :: zero_to_one
+  @spec green(RGBA.t()) :: zero_to_one
   def green(%RGBA{green: g}), do: g
 
   @doc """
@@ -170,7 +170,7 @@ defmodule Vivid.RGBA do
       ...> |> Vivid.RGBA.blue
       0.5
   """
-  @spec blue(RGBA.t) :: zero_to_one
+  @spec blue(RGBA.t()) :: zero_to_one
   def blue(%RGBA{blue: b}), do: b
 
   @doc """
@@ -182,7 +182,7 @@ defmodule Vivid.RGBA do
       ...> |> Vivid.RGBA.alpha
       0.4
   """
-  @spec alpha(RGBA.t) :: zero_to_one
+  @spec alpha(RGBA.t()) :: zero_to_one
   def alpha(%RGBA{alpha: a}), do: a
 
   @doc """
@@ -194,7 +194,7 @@ defmodule Vivid.RGBA do
       ...> |> Vivid.RGBA.to_hex
       "#B39980"
   """
-  @spec to_hex(RGBA.t) :: String.t
+  @spec to_hex(RGBA.t()) :: String.t()
   def to_hex(%RGBA{red: r, green: g, blue: b, alpha: 1}) do
     r = r |> int_to_hex
     g = g |> int_to_hex
@@ -218,14 +218,21 @@ defmodule Vivid.RGBA do
       iex> Vivid.RGBA.over(Vivid.RGBA.black, Vivid.RGBA.init(1,1,1, 0.5))
       #Vivid.RGBA<{0.5, 0.5, 0.5, 1.0}>
   """
-  @spec over(RGBA.t, RGBA.t) :: RGBA.t
+  @spec over(RGBA.t(), RGBA.t()) :: RGBA.t()
   def over(nil, %RGBA{} = colour), do: colour
   def over(%RGBA{}, %RGBA{alpha: 1} = visible), do: visible
   def over(%RGBA{} = visible, %RGBA{alpha: 0}), do: visible
-  def over(%RGBA{a_red: r0, a_green: g0, a_blue: b0, alpha: a0}, %RGBA{a_red: r1, a_green: g1, a_blue: b1, alpha: a1}) do
+
+  def over(%RGBA{a_red: r0, a_green: g0, a_blue: b0, alpha: a0}, %RGBA{
+        a_red: r1,
+        a_green: g1,
+        a_blue: b1,
+        alpha: a1
+      }) do
     a = a0 + a1 * (1 - a0)
 
-    [r, g, b] = [{r0, r1}, {g0, g1}, {b0, b1}]
+    [r, g, b] =
+      [{r0, r1}, {g0, g1}, {b0, b1}]
       |> Enum.map(fn {c0, c1} -> c1 + c0 * (1 - a1) end)
 
     RGBA.init(r, g, b, a)
@@ -246,7 +253,7 @@ defmodule Vivid.RGBA do
       iex> Vivid.RGBA.black |> Vivid.RGBA.luminance
       0.0
   """
-  @spec luminance(RGBA.t) :: zero_to_one
+  @spec luminance(RGBA.t()) :: zero_to_one
   def luminance(%RGBA{a_red: r, a_green: g, a_blue: b}) do
     [rl, gl, bl] = [r, g, b] |> Enum.map(&pow(&1, 2.2))
     0.2128 * rl + 0.7150 * gl + 0.0722 * bl
@@ -261,7 +268,7 @@ defmodule Vivid.RGBA do
   The chacaters used (from black to white) are `" .:-=+*#%@"`. These are
   chosen based on the `luminance/1` value of the colour.
   """
-  @spec to_ascii(RGBA.t) :: String.t
+  @spec to_ascii(RGBA.t()) :: String.t()
   def to_ascii(%RGBA{} = colour) do
     l = luminance(colour)
     c = round(l * (@ascii_luminance_map_length - 1))
@@ -269,9 +276,9 @@ defmodule Vivid.RGBA do
   end
 
   defp int_to_hex(n) when zero_to_one?(n) do
-    h = Integer.to_string(round(n * 0xff), 16)
+    h = Integer.to_string(round(n * 0xFF), 16)
 
-    case h |> String.length do
+    case h |> String.length() do
       1 -> "0" <> h
       2 -> h
     end

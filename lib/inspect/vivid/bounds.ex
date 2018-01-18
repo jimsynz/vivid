@@ -5,8 +5,8 @@ defimpl Inspect, for: Vivid.Bounds do
   @doc """
   Defines the inspect protocol for `Bounds`.
   """
-  @spec inspect(Bounds.t, any) :: String.t
+  @spec inspect(Bounds.t(), any) :: String.t()
   def inspect(%Bounds{min: min, max: max}, opts) do
-    concat ["#Vivid.Bounds<", to_doc([min: min, max: max], opts), ">"]
+    concat(["#Vivid.Bounds<", to_doc([min: min, max: max], opts), ">"])
   end
 end

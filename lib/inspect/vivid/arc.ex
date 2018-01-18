@@ -3,20 +3,22 @@ defimpl Inspect, for: Vivid.Arc do
   import Inspect.Algebra
 
   @doc false
-  @spec inspect(Arc.t, any) :: String.t
+  @spec inspect(Arc.t(), any) :: String.t()
   def inspect(arc, opts) do
-    center      = arc |> Arc.center
-    radius      = arc |> Arc.radius
-    start_angle = arc |> Arc.start_angle
-    range       = arc |> Arc.range
-    steps       = arc |> Arc.steps
+    center = arc |> Arc.center()
+    radius = arc |> Arc.radius()
+    start_angle = arc |> Arc.start_angle()
+    range = arc |> Arc.range()
+    steps = arc |> Arc.steps()
+
     details = [
-      center:      center,
-      radius:      radius,
+      center: center,
+      radius: radius,
       start_angle: start_angle,
-      range:       range,
-      steps:       steps
+      range: range,
+      steps: steps
     ]
-    concat ["#Vivid.Arc<", to_doc(details, opts), ">"]
+
+    concat(["#Vivid.Arc<", to_doc(details, opts), ">"])
   end
 end
