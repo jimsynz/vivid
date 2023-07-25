@@ -19,7 +19,7 @@ defmodule Vivid.Point do
     "@@@@@\n"
   """
 
-  @opaque t :: %Point{x: number, y: number}
+  @type t :: %Point{x: number, y: number}
 
   @doc ~S"""
   Creates a Point using `x` and `y` coordinates.
@@ -65,7 +65,7 @@ defmodule Vivid.Point do
 
       iex> Vivid.Point.init(13, 27)
       ...> |> Vivid.Point.swap_xy
-      #Vivid.Point<{27, 13}>
+      Vivid.Point.init(27, 13)
   """
   @spec swap_xy(Point.t()) :: Point.t()
   def swap_xy(%Point{x: x, y: y}), do: Point.init(y, x)
@@ -93,7 +93,7 @@ defmodule Vivid.Point do
 
       iex> Vivid.Point.init(1.23, 4.56)
       ...> |> Vivid.Point.round
-      #Vivid.Point<{1, 5}>
+      Vivid.Point.init(1, 5)
   """
   @spec round(Point.t()) :: Point.t()
   def round(%Point{x: x, y: y}), do: Point.init(Kernel.round(x), Kernel.round(y))

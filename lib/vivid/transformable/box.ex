@@ -1,5 +1,5 @@
 defimpl Vivid.Transformable, for: Vivid.Box do
-  alias Vivid.{Box, Transformable, Point}
+  alias Vivid.{Box, Transformable}
 
   @doc """
   Apply an arbitrary transformation function to a box.
@@ -7,7 +7,7 @@ defimpl Vivid.Transformable, for: Vivid.Box do
   * `box` - the box to modify.
   * `fun` - the transformation function to apply.
   """
-  @spec transform(Box.t(), (Point.t() -> Point.t())) :: Box.t()
+  @impl true
   def transform(box, fun) do
     box
     |> Box.to_polygon()

@@ -1,5 +1,5 @@
 defmodule Vivid.Arc do
-  alias Vivid.{Arc, Point, Path}
+  alias Vivid.{Arc, Path, Point}
   import Vivid.Math
   defstruct ~w(center radius start_angle range steps)a
 
@@ -24,7 +24,7 @@ defmodule Vivid.Arc do
 
   """
 
-  @opaque t :: %Arc{center: Point.t(), radius: number, start_angle: number, steps: integer}
+  @type t :: %Arc{center: Point.t(), radius: number, start_angle: number, steps: integer}
 
   @doc ~S"""
   Creates an Arc.
@@ -65,7 +65,7 @@ defmodule Vivid.Arc do
 
       iex> Vivid.Arc.init(Vivid.Point.init(10,10), 5, 0, 90, 12)
       ...> |> Vivid.Arc.center
-      #Vivid.Point<{10, 10}>
+      Vivid.Point.init(10, 10)
   """
   @spec center(Arc.t()) :: Point.t()
   def center(%Arc{center: p} = _arc), do: p
@@ -78,7 +78,7 @@ defmodule Vivid.Arc do
       iex> Vivid.Arc.init(Vivid.Point.init(10,10), 5, 0, 90, 12)
       ...> |> Vivid.Arc.center(Vivid.Point.init(15,15))
       ...> |> Vivid.Arc.center
-      #Vivid.Point<{15, 15}>
+      Vivid.Point.init(15, 15)
   """
   @spec center(Arc.t(), Point.t()) :: Arc.t()
   def center(%Arc{} = arc, %Point{} = point), do: %{arc | center: point}
@@ -191,7 +191,7 @@ defmodule Vivid.Arc do
 
       iex> Vivid.Arc.init(Vivid.Point.init(10,10), 5, 0, 90, 3)
       ...> |> Vivid.Arc.to_path
-      #Vivid.Path<[#Vivid.Point<{5, 10}>, #Vivid.Point<{6, 13}>, #Vivid.Point<{8, 14}>, #Vivid.Point<{10, 15}>]>
+      Vivid.Path.init([Vivid.Point.init(5, 10), Vivid.Point.init(6, 13), Vivid.Point.init(8, 14), Vivid.Point.init(10, 15)])
   """
   @spec to_path(Arc.t()) :: Path.t()
   def to_path(

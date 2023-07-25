@@ -1,5 +1,5 @@
 defmodule Vivid.Transform do
-  alias Vivid.{Point, Transform, Bounds, Shape}
+  alias Vivid.{Bounds, Point, Shape, Transform}
   alias Vivid.Transformable
   import Vivid.Math
   defstruct operations: [], shape: nil
@@ -8,9 +8,11 @@ defmodule Vivid.Transform do
     alias __MODULE__
     defstruct ~w(function name)a
 
-    @moduledoc false
+    @moduledoc """
+    An operation that can be applied to a shape.
+    """
 
-    @opaque t :: %Operation{function: function, name: String.t()}
+    @type t :: %Operation{function: function, name: String.t()}
   end
 
   @moduledoc ~S"""
@@ -72,7 +74,7 @@ defmodule Vivid.Transform do
       "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n"
   """
 
-  @opaque t :: %Transform{shape: Shape.t(), operations: [Operation.t()]}
+  @type t :: %Transform{shape: Shape.t(), operations: [Operation.t()]}
   @type shape_or_transform :: Transform.t() | Shape.t()
   @type degrees :: number
 
@@ -84,7 +86,7 @@ defmodule Vivid.Transform do
       iex> Vivid.Box.init(Vivid.Point.init(5,5), Vivid.Point.init(10,10))
       ...> |> Vivid.Transform.translate(5, 5)
       ...> |> Vivid.Transform.apply
-      #Vivid.Polygon<[#Vivid.Point<{15, 10}>, #Vivid.Point<{15, 15}>, #Vivid.Point<{10, 15}>, #Vivid.Point<{10, 10}>]>
+      Vivid.Polygon.init([Vivid.Point.init(15, 10), Vivid.Point.init(15, 15), Vivid.Point.init(10, 15), Vivid.Point.init(10, 10)])
   """
   @spec translate(shape_or_transform, number, number) :: Transform.t()
   def translate(shape, x, y) do
@@ -103,7 +105,7 @@ defmodule Vivid.Transform do
       iex> Vivid.Box.init(Vivid.Point.init(5,5), Vivid.Point.init(10,10))
       ...> |> Vivid.Transform.scale(2)
       ...> |> Vivid.Transform.apply
-      #Vivid.Polygon<[#Vivid.Point<{12.5, 2.5}>, #Vivid.Point<{12.5, 12.5}>, #Vivid.Point<{2.5, 12.5}>, #Vivid.Point<{2.5, 2.5}>]>
+      Vivid.Polygon.init([Vivid.Point.init(12.5, 2.5), Vivid.Point.init(12.5, 12.5), Vivid.Point.init(2.5, 12.5), Vivid.Point.init(2.5, 2.5)])
   """
   @spec scale(shape_or_transform, number) :: Transform.t()
   def scale(shape, uniform) do
@@ -123,7 +125,7 @@ defmodule Vivid.Transform do
       iex> Vivid.Box.init(Vivid.Point.init(5,5), Vivid.Point.init(10,10))
       ...> |> Vivid.Transform.scale(2, 4)
       ...> |> Vivid.Transform.apply
-      #Vivid.Polygon<[#Vivid.Point<{12.5, -2.5}>, #Vivid.Point<{12.5, 17.5}>, #Vivid.Point<{2.5, 17.5}>, #Vivid.Point<{2.5, -2.5}>]>
+      Vivid.Polygon.init([Vivid.Point.init(12.5, -2.5), Vivid.Point.init(12.5, 17.5), Vivid.Point.init(2.5, 17.5), Vivid.Point.init(2.5, -2.5)])
 
   """
   @spec scale(shape_or_transform, number, number) :: Transform.t()
@@ -264,7 +266,7 @@ defmodule Vivid.Transform do
       iex> Vivid.Box.init(Vivid.Point.init(10,10), Vivid.Point.init(20,20))
       ...> |> Vivid.Transform.stretch(Vivid.Bounds.init(0, 0, 40, 80))
       ...> |> Vivid.Transform.apply
-      #Vivid.Polygon<[#Vivid.Point<{40.0, 0.0}>, #Vivid.Point<{40.0, 80.0}>, #Vivid.Point<{0.0, 80.0}>, #Vivid.Point<{0.0, 0.0}>]>
+      Vivid.Polygon.init([Vivid.Point.init(40.0, 0.0), Vivid.Point.init(40.0, 80.0), Vivid.Point.init(0.0, 80.0), Vivid.Point.init(0.0, 0.0)])
   """
   @spec stretch(shape_or_transform, Shape.t()) :: Transform.t()
   def stretch(shape, bounds) do
@@ -302,7 +304,7 @@ defmodule Vivid.Transform do
       iex> Vivid.Box.init(Vivid.Point.init(10,10), Vivid.Point.init(20,20))
       ...> |> Vivid.Transform.fill(Vivid.Bounds.init(0, 0, 40, 80))
       ...> |> Vivid.Transform.apply
-      #Vivid.Polygon<[#Vivid.Point<{40.0, 0.0}>, #Vivid.Point<{40.0, 40.0}>, #Vivid.Point<{0.0, 40.0}>, #Vivid.Point<{0.0, 0.0}>]>
+      Vivid.Polygon.init([Vivid.Point.init(40.0, 0.0), Vivid.Point.init(40.0, 40.0), Vivid.Point.init(0.0, 40.0), Vivid.Point.init(0.0, 0.0)])
   """
   @spec fill(shape_or_transform, Shape.t()) :: Transform.t()
   def fill(shape, bounds) do
@@ -342,7 +344,7 @@ defmodule Vivid.Transform do
       iex> Vivid.Box.init(Vivid.Point.init(10,10), Vivid.Point.init(20,20))
       ...> |> Vivid.Transform.overflow(Vivid.Bounds.init(0, 0, 40, 80))
       ...> |> Vivid.Transform.apply
-      #Vivid.Polygon<[#Vivid.Point<{80.0, 0.0}>, #Vivid.Point<{80.0, 80.0}>, #Vivid.Point<{0.0, 80.0}>, #Vivid.Point<{0.0, 0.0}>]>
+      Vivid.Polygon.init([Vivid.Point.init(80.0, 0.0), Vivid.Point.init(80.0, 80.0), Vivid.Point.init(0.0, 80.0), Vivid.Point.init(0.0, 0.0)])
   """
   @spec overflow(shape_or_transform, Shape.t()) :: Transform.t()
   def overflow(shape, bounds) do
@@ -396,7 +398,7 @@ defmodule Vivid.Transform do
       ...>   end
       ...> end)
       ...> |> Vivid.Transform.apply
-      #Vivid.Polygon<[#Vivid.Point<{25, 10}>, #Vivid.Point<{25, 20}>, #Vivid.Point<{15, 20}>, #Vivid.Point<{15, 10}>]>
+      Vivid.Polygon.init([Vivid.Point.init(25, 10), Vivid.Point.init(25, 20), Vivid.Point.init(15, 20), Vivid.Point.init(15, 10)])
   """
   @spec transform(shape_or_transform, function) :: Transform.t()
   def transform(shape, fun), do: apply_transform(shape, fun, inspect(fun))

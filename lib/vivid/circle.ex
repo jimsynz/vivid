@@ -1,6 +1,6 @@
 defmodule Vivid.Circle do
   alias Vivid.{Circle, Point, Polygon}
-  defstruct ~w(center radius fill)a
+  defstruct center: nil, radius: nil, fill: false
   import Vivid.Math
 
   @moduledoc ~S"""
@@ -35,7 +35,7 @@ defmodule Vivid.Circle do
     "@@@@@@@@       @@@@@@@@\n" <>
     "@@@@@@@@@@@@@@@@@@@@@@@\n"
   """
-  @opaque t :: %Circle{center: Point.t(), radius: number, fill: boolean}
+  @type t :: %Circle{center: Point.t(), radius: number, fill: boolean}
 
   @doc """
   Creates a circle from a point in 2D space and a radius.
@@ -43,7 +43,7 @@ defmodule Vivid.Circle do
   ## Example
 
       iex> Vivid.Circle.init(Vivid.Point.init(5,5), 4)
-      #Vivid.Circle<[center: #Vivid.Point<{5, 5}>, radius: 4]>
+      %Vivid.Circle{center: Vivid.Point.init(5, 5), radius: 4}
   """
   @spec init(Point.t(), number) :: Circle.t()
   def init(%Point{} = point, radius)
@@ -70,7 +70,7 @@ defmodule Vivid.Circle do
       ...> |> Vivid.Circle.radius
       4
   """
-  @spec radius(Cricle.t()) :: number
+  @spec radius(Circle.t()) :: number
   def radius(%Circle{radius: r}), do: r
 
   @doc """

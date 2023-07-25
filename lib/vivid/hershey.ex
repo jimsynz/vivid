@@ -1,7 +1,7 @@
 defmodule Vivid.Hershey do
   require Logger
   alias Vivid.Font.Char
-  @mid_point 'R' |> List.first()
+  @mid_point ~c"R" |> List.first()
 
   @moduledoc """
   Supports reading the Hershey Vector Font format and converting them into paths.

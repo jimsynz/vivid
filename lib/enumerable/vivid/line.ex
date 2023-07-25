@@ -1,5 +1,5 @@
 defimpl Enumerable, for: Vivid.Line do
-  alias Vivid.{Line, Point}
+  alias Vivid.Line
 
   @moduledoc """
   Implements the Enumerable protocol for %Line{}
@@ -15,7 +15,7 @@ defimpl Enumerable, for: Vivid.Line do
       ...> |> Enum.count
       2
   """
-  @spec count(Line.t()) :: non_neg_integer
+  @impl true
   def count(%Line{}), do: {:ok, 2}
 
   @doc """
@@ -34,7 +34,7 @@ defimpl Enumerable, for: Vivid.Line do
       ...> |> Enum.member?(Point.init(2,2))
       true
   """
-  @spec member?(Line.t(), Point.t()) :: boolean
+  @impl true
   def member?(%Line{origin: p0}, point) when p0 == point, do: {:ok, true}
   def member?(%Line{termination: p0}, point) when p0 == point, do: {:ok, true}
   def member?(_line, _point), do: {:ok, false}
@@ -49,15 +49,13 @@ defimpl Enumerable, for: Vivid.Line do
       ...> |> Enum.reduce(%{}, fn point, points -> Map.put(points, Point.x(point), Point.y(point)) end)
       %{1 => 2, 2 => 4}
   """
-  @spec reduce(Line.t(), Collectable.t(), (Point.t(), Collectable.t() -> Collectable.t())) ::
-          Collectable.t()
+  @impl true
   def reduce(%Line{origin: p0, termination: p1}, acc, fun),
     do: Enumerable.List.reduce([p0, p1], acc, fun)
 
   @doc """
   Slices the line.
   """
-  @spec slice(Line.t()) ::
-          {:ok, size :: non_neg_integer(), Enumerable.slicing_fun()} | {:error, module()}
+  @impl true
   def slice(%Line{origin: p0, termination: p1}), do: Enumerable.List.slice([p0, p1])
 end

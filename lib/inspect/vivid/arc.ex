@@ -3,7 +3,7 @@ defimpl Inspect, for: Vivid.Arc do
   import Inspect.Algebra
 
   @doc false
-  @spec inspect(Arc.t(), any) :: String.t()
+  @impl true
   def inspect(arc, opts) do
     center = arc |> Arc.center()
     radius = arc |> Arc.radius()
@@ -19,6 +19,6 @@ defimpl Inspect, for: Vivid.Arc do
       steps: steps
     ]
 
-    concat(["#Vivid.Arc<", to_doc(details, opts), ">"])
+    concat(["Vivid.Arc.new(", to_doc(details, opts), ")"])
   end
 end

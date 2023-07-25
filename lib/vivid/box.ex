@@ -1,6 +1,6 @@
 defmodule Vivid.Box do
-  alias Vivid.{Box, Point, Polygon, Bounds, Shape}
-  defstruct ~w(bottom_left top_right fill)a
+  alias Vivid.{Bounds, Box, Point, Polygon, Shape}
+  defstruct bottom_left: nil, top_right: nil, fill: false
 
   @moduledoc ~S"""
   Short-hand for creating rectangle polygons.
@@ -28,7 +28,7 @@ defmodule Vivid.Box do
       "@@@@@@@@@@@@@\n"
   """
 
-  @opaque t :: Box.t()
+  @type t :: Box.t()
 
   @doc """
   Initialize an unfilled Box from it's bottom left and top right points.
@@ -40,7 +40,7 @@ defmodule Vivid.Box do
 
       iex> use Vivid
       ...> Box.init(Point.init(1,1), Point.init(4,4))
-      #Vivid.Box<[bottom_left: #Vivid.Point<{1, 1}>, top_right: #Vivid.Point<{4, 4}>]>
+      %Box{bottom_left: Point.init(1, 1), top_right: Point.init(4, 4)}
   """
   @spec init(Point.t(), Point.t()) :: Box.t()
   def init(%Point{} = bottom_left, %Point{} = top_right), do: init(bottom_left, top_right, false)
@@ -56,7 +56,7 @@ defmodule Vivid.Box do
 
       iex> use Vivid
       ...> Box.init(Point.init(1,1), Point.init(4,4))
-      #Vivid.Box<[bottom_left: #Vivid.Point<{1, 1}>, top_right: #Vivid.Point<{4, 4}>]>
+      %Box{bottom_left: Point.init(1, 1), top_right: Point.init(4, 4)}
   """
   @spec init(Point.t(), Point.t(), boolean) :: Box.t()
   def init(%Point{} = bottom_left, %Point{} = top_right, fill) when is_boolean(fill),
@@ -70,7 +70,7 @@ defmodule Vivid.Box do
       iex> use Vivid
       ...> Circle.init(Point.init(5,5), 5)
       ...> |> Box.init_from_bounds
-      #Vivid.Box<[bottom_left: #Vivid.Point<{0.0, 0.2447174185242318}>, top_right: #Vivid.Point<{10.0, 9.755282581475768}>]>
+      Box.init(Point.init(0.0, 0.2447174185242318), Point.init(10.0, 9.755282581475768))
   """
   @spec init_from_bounds(Shape.t(), boolean) :: Box.t()
   def init_from_bounds(shape, fill \\ false) do
@@ -88,7 +88,7 @@ defmodule Vivid.Box do
       iex> use Vivid
       ...> Box.init(Point.init(1,1), Point.init(4,4))
       ...> |> Box.bottom_left
-      #Vivid.Point<{1, 1}>
+      Point.init(1, 1)
   """
   @spec bottom_left(Box.t()) :: Point.t()
   def bottom_left(%Box{bottom_left: bl}), do: bl
@@ -101,7 +101,7 @@ defmodule Vivid.Box do
       iex> use Vivid
       ...> Box.init(Point.init(1,1), Point.init(4,4))
       ...> |> Box.top_left
-      #Vivid.Point<{1, 4}>
+      Point.init(1, 4)
   """
   @spec top_left(Box.t()) :: Point.t()
   def top_left(%Box{bottom_left: bl, top_right: tr}), do: Point.init(bl.x, tr.y)
@@ -114,7 +114,7 @@ defmodule Vivid.Box do
       iex> use Vivid
       ...> Box.init(Point.init(1,1), Point.init(4,4))
       ...> |> Box.top_right
-      #Vivid.Point<{4, 4}>
+      Point.init(4, 4)
   """
   @spec top_right(Box.t()) :: Point.t()
   def top_right(%Box{top_right: tr}), do: tr
@@ -127,7 +127,7 @@ defmodule Vivid.Box do
       iex> use Vivid
       ...> Box.init(Point.init(1,1), Point.init(4,4))
       ...> |> Box.bottom_right
-      #Vivid.Point<{4, 1}>
+      Point.init(4, 1)
   """
   @spec bottom_right(Box.t()) :: Point.t()
   def bottom_right(%Box{bottom_left: bl, top_right: tr}), do: Point.init(tr.x, bl.y)
@@ -140,7 +140,7 @@ defmodule Vivid.Box do
       iex> use Vivid
       ...> Box.init(Point.init(1,1), Point.init(4,4))
       ...> |> Box.to_polygon
-      #Vivid.Polygon<[#Vivid.Point<{1, 1}>, #Vivid.Point<{1, 4}>, #Vivid.Point<{4, 4}>, #Vivid.Point<{4, 1}>]>
+      Polygon.init([Point.init(1, 1), Point.init(1, 4), Point.init(4, 4), Point.init(4, 1)])
   """
   @spec to_polygon(Box.t()) :: Polygon.t()
   def to_polygon(%Box{fill: fill} = box) do

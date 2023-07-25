@@ -6,7 +6,7 @@ defimpl Vivid.Bounds.Of, for: List do
 
   Returns a two-element tuple of the bottom-left and top-right points.
   """
-  @spec bounds([Point.t(), ...]) :: {Point.t(), Point.t()}
+  @impl true
   def bounds(points) do
     Enum.reduce(points, nil, fn
       point, nil ->

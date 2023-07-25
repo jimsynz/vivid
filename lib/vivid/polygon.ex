@@ -1,5 +1,5 @@
 defmodule Vivid.Polygon do
-  alias Vivid.{Polygon, Point, Line}
+  alias Vivid.{Line, Point, Polygon}
   defstruct vertices: [], fill: false
   require Integer
 
@@ -31,7 +31,7 @@ defmodule Vivid.Polygon do
       "@@@@@@@@@@@@\n"
   """
 
-  @opaque t :: %Polygon{vertices: [Point.t()], fill: boolean}
+  @type t :: %Polygon{vertices: [Point.t()], fill: boolean}
 
   @doc """
   Initialize an empty Polygon.

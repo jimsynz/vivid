@@ -1,5 +1,5 @@
 defmodule Vivid.Frame do
-  alias Vivid.{Frame, RGBA, Buffer, Shape}
+  alias Vivid.{Buffer, Frame, RGBA, Shape}
   defstruct ~w(width height background_colour shapes)a
 
   @moduledoc ~S"""
@@ -39,7 +39,12 @@ defmodule Vivid.Frame do
         "@@@@@@@@@@@@@@@@@@@@@@@@\n"
   """
 
-  @opaque t :: %Frame{width: integer, height: integer, background_colour: RGBA.t(), shapes: []}
+  @type t :: %Frame{
+          width: pos_integer(),
+          height: pos_integer(),
+          background_colour: RGBA.t(),
+          shapes: [{Shape.t(), RGBA.t()}]
+        }
 
   @doc """
   Initialize a frame buffer.
@@ -51,9 +56,9 @@ defmodule Vivid.Frame do
   ## Example
 
       iex> Vivid.Frame.init(4, 4)
-      #Vivid.Frame<[width: 4, height: 4, background_colour: #Vivid.RGBA<{0, 0, 0, 0}>]>
+      Vivid.Frame.init(4, 4, Vivid.RGBA.init(0, 0, 0, 0))
   """
-  @spec init(integer(), integer(), Range.t()) :: Frame.t()
+  @spec init(pos_integer(), pos_integer(), RGBA.t()) :: Frame.t()
   def init(width \\ 128, height \\ 64, %RGBA{} = colour \\ RGBA.init(0, 0, 0, 0))
       when is_integer(width) and is_integer(height) and width > 0 and height > 0 do
     %Frame{width: width, height: height, background_colour: colour, shapes: []}
@@ -175,7 +180,7 @@ defmodule Vivid.Frame do
   ## Example
 
       iex> Vivid.Frame.init(80, 25) |> Vivid.Frame.background_colour
-      #Vivid.RGBA<{0, 0, 0, 0}>
+      Vivid.RGBA.init(0, 0, 0, 0)
   """
   @spec background_colour(Frame.t()) :: RGBA.t()
   def background_colour(%Frame{background_colour: c}), do: c
@@ -188,7 +193,7 @@ defmodule Vivid.Frame do
       iex> Vivid.Frame.init(80,25)
       ...> |> Vivid.Frame.background_colour(Vivid.RGBA.white)
       ...> |> Vivid.Frame.background_colour
-      #Vivid.RGBA<{1, 1, 1, 1}>
+      Vivid.RGBA.init(1, 1, 1, 1)
   """
   @spec background_colour(Frame.t(), RGBA.t()) :: Frame.t()
   def background_colour(%Frame{} = frame, %RGBA{} = colour),
@@ -200,7 +205,7 @@ defmodule Vivid.Frame do
   Returns a one-dimensional List of `RGBA` colours with alpha-compositing
   completed.
   """
-  @spec buffer(Frame.t()) :: [RGBA.t()]
+  @spec buffer(Frame.t()) :: Buffer.t()
   def buffer(%Frame{} = frame), do: Buffer.horizontal(frame)
 
   @doc """
@@ -214,7 +219,7 @@ defmodule Vivid.Frame do
   Returns a one-dimensional List of `RGBA` colours with alpha-compositing
   completed.
   """
-  @spec buffer(Frame.t(), :horizontal | :vertical) :: [RGBA.t()]
+  @spec buffer(Frame.t(), :horizontal | :vertical) :: Buffer.t()
   def buffer(%Frame{} = frame, :horizontal), do: Buffer.horizontal(frame)
   def buffer(%Frame{} = frame, :vertical), do: Buffer.vertical(frame)
 end

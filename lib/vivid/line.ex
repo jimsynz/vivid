@@ -21,7 +21,7 @@ defmodule Vivid.Line do
     "@@@@@@@@\n"
   """
 
-  @opaque t :: %Line{origin: Point.t(), termination: Point.t()}
+  @type t :: %Line{origin: Point.t(), termination: Point.t()}
 
   @doc ~S"""
   Create a Line given an `origin` and `termination` point.
@@ -64,7 +64,7 @@ defmodule Vivid.Line do
       iex> use Vivid
       ...> Line.init(Point.init(1,1), Point.init(4,4))
       ...> |> Line.termination
-      #Vivid.Point<{4, 4}>
+      Vivid.Point.init(4, 4)
   """
   @spec termination(Line.t()) :: Point.t()
   def termination(%Line{termination: t}), do: t
@@ -163,7 +163,7 @@ defmodule Vivid.Line do
       iex> use Vivid
       ...> Line.init(Point.init(25, 15), Point.init(5, 2))
       ...> |> Line.x_intersect(10)
-      #Vivid.Point<{10, 5.25}>
+      Vivid.Point.init(10, 5.25)
   """
   @spec x_intersect(Line.t(), integer) :: Point.t() | nil
   def x_intersect(%Line{origin: %Point{x: x0} = p, termination: %Point{x: x1}}, x)
@@ -195,7 +195,7 @@ defmodule Vivid.Line do
       iex> use Vivid
       ...> Line.init(Point.init(25, 15), Point.init(5, 2))
       ...> |> Line.y_intersect(10)
-      #Vivid.Point<{17.307692307692307, 10}>
+      Vivid.Point.init(17.307692307692307, 10)
   """
   @spec y_intersect(Line.t(), integer) :: Point.t() | nil
   def y_intersect(%Line{origin: %Point{y: y0} = p, termination: %Point{y: y1}}, y)

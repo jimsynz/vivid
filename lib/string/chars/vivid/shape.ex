@@ -1,5 +1,5 @@
 defmodule Vivid.ShapeToString do
-  alias Vivid.{Bounds, Frame, Transform, RGBA, Shape}
+  alias Vivid.{Bounds, Frame, RGBA, Shape, Transform}
 
   @moduledoc """
   Handle conversions of arbitrary shapes into strings.
@@ -30,6 +30,8 @@ Enum.each(~w(Arc Box Circle Group Line Path Polygon), fn type ->
   mod = Module.concat(Vivid, type)
 
   defimpl String.Chars, for: mod do
+    alias Vivid.ShapeToString
+
     @moduledoc """
     Convert a shape into a string.
     """
@@ -37,7 +39,7 @@ Enum.each(~w(Arc Box Circle Group Line Path Polygon), fn type ->
     @doc """
     Convert `shape` into a `string` for `IO.puts`, etc.
     """
-    @spec to_string(Shape.t()) :: String.t()
-    def to_string(shape), do: Vivid.ShapeToString.to_string(shape)
+    @impl true
+    def to_string(shape), do: ShapeToString.to_string(shape)
   end
 end)

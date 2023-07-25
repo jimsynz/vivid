@@ -5,14 +5,14 @@ defimpl Inspect, for: Vivid.Circle do
   @doc """
   Defines the inspect protocol for `Circle`.
   """
-  @spec inspect(Cirlcle.t(), any) :: String.t()
+  @impl true
   def inspect(%Circle{center: c, radius: r, fill: true}, opts) do
     details = [center: c, radius: r, fill: true]
-    concat(["#Vivid.Circle<", to_doc(details, opts), ">"])
+    concat(["Vivid.Circle.new(", to_doc(details, opts), ")"])
   end
 
   def inspect(%Circle{center: c, radius: r}, opts) do
     details = [center: c, radius: r]
-    concat(["#Vivid.Circle<", to_doc(details, opts), ">"])
+    concat(["Vivid.Circle.new(", to_doc(details, opts), ")"])
   end
 end

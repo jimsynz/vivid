@@ -1,0 +1,504 @@
+kind: pipeline
+type: docker
+name: build
+
+steps:
+- name: restore ASDF cache
+  image: meltwater/drone-cache
+  pull: "always"
+  environment:
+    AWS_ACCESS_KEY_ID:
+      from_secret: ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY:
+      from_secret: SECRET_ACCESS_KEY
+    AWS_PLUGIN_PATH_STYLE: true
+  settings:
+    restore: true
+    endpoint:
+      from_secret: S3_ENDPOINT
+    bucket:
+      from_secret: CACHE_BUCKET
+    region: us-east-1
+    path-style: true
+    cache_key: 'asdf-{{ os }}-{{ arch }}-{{ checksum ".tool-versions" }}'
+    mount:
+    - .asdf
+
+- name: restore build cache
+  image: meltwater/drone-cache
+  pull: "always"
+  environment:
+    AWS_ACCESS_KEY_ID:
+      from_secret: ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY:
+      from_secret: SECRET_ACCESS_KEY
+    AWS_PLUGIN_PATH_STYLE: true
+  settings:
+    restore: true
+    endpoint:
+      from_secret: S3_ENDPOINT
+    bucket:
+      from_secret: CACHE_BUCKET
+    region: us-east-1
+    path-style: true
+    cache_key: 'elixir-{{ checksum "mix.lock" }}-{{ checksum ".tool-versions" }}'
+    mount:
+    - deps
+    - _build
+    - .hex
+    - .mix
+    - .rebar3
+
+- name: install dependencies
+  image: code.harton.nz/james/asdf_container:latest
+  pull: "always"
+  environment:
+    MIX_ENV: test
+    HEX_HOME: /drone/src/.hex
+    MIX_HOME: /drone/src/.mix
+    REBAR_BASE_DIR: /drone/src/.rebar3
+    ASDF_DATA_DIR: /drone/src/.asdf
+    ASDF_DIR: /root/.asdf
+  depends_on:
+  - restore ASDF cache
+  - restore build cache
+  commands:
+  - asdf_install
+  - rm -rf .asdf/downloads
+  - . $ASDF_DIR/asdf.sh
+  - mix local.hex --if-missing --force
+  - mix local.rebar --if-missing --force
+  - mix deps.get
+  - mix deps.compile
+
+- name: store ASDF cache
+  image: meltwater/drone-cache
+  pull: "always"
+  environment:
+    AWS_ACCESS_KEY_ID:
+      from_secret: ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY:
+      from_secret: SECRET_ACCESS_KEY
+    AWS_PLUGIN_PATH_STYLE: true
+  depends_on:
+  - install dependencies
+  settings:
+    rebuild: true
+    override: false
+    endpoint:
+      from_secret: S3_ENDPOINT
+    bucket:
+      from_secret: CACHE_BUCKET
+    region: us-east-1
+    path-style: true
+    cache_key: 'asdf-{{ os }}-{{ arch }}-{{ checksum ".tool-versions" }}'
+    mount:
+    - .asdf
+
+- name: store build cache
+  image: meltwater/drone-cache
+  pull: "always"
+  environment:
+    AWS_ACCESS_KEY_ID:
+      from_secret: ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY:
+      from_secret: SECRET_ACCESS_KEY
+    AWS_PLUGIN_PATH_STYLE: true
+  depends_on:
+  - install dependencies
+  settings:
+    rebuild: true
+    override: false
+    endpoint:
+      from_secret: S3_ENDPOINT
+    bucket:
+      from_secret: CACHE_BUCKET
+    region: us-east-1
+    path-style: true
+    cache_key: 'elixir-{{ checksum "mix.lock" }}-{{ checksum ".tool-versions" }}'
+    mount:
+    - deps
+    - _build
+    - .hex
+    - .mix
+    - .rebar3
+
+---
+
+kind: pipeline
+type: docker
+name: test
+
+depends_on:
+  - build
+
+steps:
+- name: restore ASDF cache
+  image: meltwater/drone-cache
+  pull: "always"
+  environment:
+    AWS_ACCESS_KEY_ID:
+      from_secret: ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY:
+      from_secret: SECRET_ACCESS_KEY
+    AWS_PLUGIN_PATH_STYLE: true
+  settings:
+    restore: true
+    endpoint:
+      from_secret: S3_ENDPOINT
+    bucket:
+      from_secret: CACHE_BUCKET
+    region: us-east-1
+    path-style: true
+    cache_key: 'asdf-{{ os }}-{{ arch }}-{{ checksum ".tool-versions" }}'
+    mount:
+    - .asdf
+
+- name: restore build cache
+  image: meltwater/drone-cache
+  pull: "always"
+  environment:
+    AWS_ACCESS_KEY_ID:
+      from_secret: ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY:
+      from_secret: SECRET_ACCESS_KEY
+    AWS_PLUGIN_PATH_STYLE: true
+  settings:
+    restore: true
+    endpoint:
+      from_secret: S3_ENDPOINT
+    bucket:
+      from_secret: CACHE_BUCKET
+    region: us-east-1
+    path-style: true
+    cache_key: 'elixir-{{ checksum "mix.lock" }}-{{ checksum ".tool-versions" }}'
+    mount:
+    - deps
+    - _build
+    - .hex
+    - .mix
+    - .rebar3
+
+- name: mix compile
+  image: code.harton.nz/james/asdf_container:latest
+  pull: "always"
+  environment:
+    MIX_ENV: test
+    HEX_HOME: /drone/src/.hex
+    MIX_HOME: /drone/src/.mix
+    REBAR_BASE_DIR: /drone/src/.rebar3
+    ASDF_DATA_DIR: /drone/src/.asdf
+  depends_on:
+  - restore ASDF cache
+  - restore build cache
+  commands:
+  - asdf mix compile --warnings-as-errors
+
+- name: mix test
+  image: code.harton.nz/james/asdf_container:latest
+  pull: "always"
+  environment:
+    MIX_ENV: test
+    HEX_HOME: /drone/src/.hex
+    MIX_HOME: /drone/src/.mix
+    REBAR_BASE_DIR: /drone/src/.rebar3
+    ASDF_DATA_DIR: /drone/src/.asdf
+  depends_on:
+  - mix compile
+  commands:
+  - asdf mix test
+
+- name: mix credo
+  image: code.harton.nz/james/asdf_container:latest
+  pull: "always"
+  environment:
+    MIX_ENV: test
+    HEX_HOME: /drone/src/.hex
+    MIX_HOME: /drone/src/.mix
+    REBAR_BASE_DIR: /drone/src/.rebar3
+    ASDF_DATA_DIR: /drone/src/.asdf
+  depends_on:
+  - mix compile
+  commands:
+  - asdf mix credo --strict
+
+- name: mix hex.audit
+  image: code.harton.nz/james/asdf_container:latest
+  pull: "always"
+  environment:
+    MIX_ENV: test
+    HEX_HOME: /drone/src/.hex
+    MIX_HOME: /drone/src/.mix
+    REBAR_BASE_DIR: /drone/src/.rebar3
+    ASDF_DATA_DIR: /drone/src/.asdf
+  depends_on:
+  - mix compile
+  commands:
+  - asdf mix hex.audit
+
+- name: mix format
+  image: code.harton.nz/james/asdf_container:latest
+  pull: "always"
+  environment:
+    MIX_ENV: test
+    HEX_HOME: /drone/src/.hex
+    MIX_HOME: /drone/src/.mix
+    REBAR_BASE_DIR: /drone/src/.rebar3
+    ASDF_DATA_DIR: /drone/src/.asdf
+  depends_on:
+  - mix compile
+  commands:
+  - asdf mix format --check-formatted
+
+- name: mix deps.unlock
+  image: code.harton.nz/james/asdf_container:latest
+  pull: "always"
+  environment:
+    MIX_ENV: test
+    HEX_HOME: /drone/src/.hex
+    MIX_HOME: /drone/src/.mix
+    REBAR_BASE_DIR: /drone/src/.rebar3
+    ASDF_DATA_DIR: /drone/src/.asdf
+  depends_on:
+  - mix compile
+  commands:
+  - asdf mix deps.unlock --check-unused
+
+- name: mix doctor
+  image: code.harton.nz/james/asdf_container:latest
+  pull: "always"
+  environment:
+    MIX_ENV: test
+    HEX_HOME: /drone/src/.hex
+    MIX_HOME: /drone/src/.mix
+    REBAR_BASE_DIR: /drone/src/.rebar3
+    ASDF_DATA_DIR: /drone/src/.asdf
+  depends_on:
+  - mix compile
+  commands:
+  - asdf mix doctor --full
+
+- name: mix git_ops.check_message
+  image: code.harton.nz/james/asdf_container:latest
+  pull: "always"
+  environment:
+    MIX_ENV: test
+    HEX_HOME: /drone/src/.hex
+    MIX_HOME: /drone/src/.mix
+    REBAR_BASE_DIR: /drone/src/.rebar3
+    ASDF_DATA_DIR: /drone/src/.asdf
+  depends_on:
+  - mix compile
+  commands:
+  - git log -1 --format=%s > .last_commit_message
+  - asdf mix git_ops.check_message .last_commit_message
+
+---
+kind: pipeline
+type: docker
+name: git ops
+
+trigger:
+  branch:
+  - main
+  event:
+  - push
+
+depends_on:
+  - test
+
+steps:
+- name: restore ASDF cache
+  image: meltwater/drone-cache
+  pull: "always"
+  environment:
+    AWS_ACCESS_KEY_ID:
+      from_secret: ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY:
+      from_secret: SECRET_ACCESS_KEY
+    AWS_PLUGIN_PATH_STYLE: true
+  settings:
+    restore: true
+    endpoint:
+      from_secret: S3_ENDPOINT
+    bucket:
+      from_secret: CACHE_BUCKET
+    region: us-east-1
+    path-style: true
+    cache_key: 'asdf-{{ os }}-{{ arch }}-{{ checksum ".tool-versions" }}'
+    mount:
+    - .asdf
+
+- name: restore build cache
+  image: meltwater/drone-cache
+  pull: "always"
+  environment:
+    AWS_ACCESS_KEY_ID:
+      from_secret: ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY:
+      from_secret: SECRET_ACCESS_KEY
+    AWS_PLUGIN_PATH_STYLE: true
+  settings:
+    restore: true
+    endpoint:
+      from_secret: S3_ENDPOINT
+    bucket:
+      from_secret: CACHE_BUCKET
+    region: us-east-1
+    path-style: true
+    cache_key: 'elixir-{{ checksum "mix.lock" }}-{{ checksum ".tool-versions" }}'
+    mount:
+    - deps
+    - _build
+    - .hex
+    - .mix
+    - .rebar3
+
+- name: mix git_ops.release
+  image: code.harton.nz/james/asdf_container:latest
+  pull: "always"
+  depends_on:
+  - restore ASDF cache
+  - restore build cache
+  environment:
+    MIX_ENV: test
+    HEX_HOME: /drone/src/.hex
+    MIX_HOME: /drone/src/.mix
+    REBAR_BASE_DIR: /drone/src/.rebar3
+    ASDF_DATA_DIR: /drone/src/.asdf
+    ASDF_DIR: /root/.asdf
+    DRONE_TOKEN:
+      from_secret: DRONE_TOKEN
+  commands:
+    - git fetch --tags
+    - . $ASDF_DIR/asdf.sh
+    - mix git_ops.project_info --format=shell > before.env
+    - mix git_ops.release --yes --no-major || true
+    - mix git_ops.project_info --format=shell > after.env
+    - . ./before.env
+    - export OLD_APP_VERSION=$${APP_VERSION}
+    - . ./after.env
+    - export NEW_APP_VERSION=$${APP_VERSION}
+    - if [ "v$${OLD_APP_VERSION}" != "v$${NEW_APP_VERSION}" ]; then
+    -   export GIT_URL=$(echo $DRONE_GIT_HTTP_URL | sed -e "s/:\\/\\//:\\/\\/$DRONE_REPO_OWNER:$DRONE_TOKEN@/")
+    -   git push $${GIT_URL} "HEAD:${DRONE_COMMIT_REF}" "refs/tags/v$${NEW_APP_VERSION}"
+    - fi
+
+---
+
+kind: pipeline
+type: docker
+name: release
+
+trigger:
+  ref:
+    include:
+    - refs/tags/v**
+
+depends_on:
+  - test
+
+steps:
+- name: restore ASDF cache
+  image: meltwater/drone-cache
+  pull: "always"
+  environment:
+    AWS_ACCESS_KEY_ID:
+      from_secret: ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY:
+      from_secret: SECRET_ACCESS_KEY
+    AWS_PLUGIN_PATH_STYLE: true
+  settings:
+    restore: true
+    endpoint:
+      from_secret: S3_ENDPOINT
+    bucket:
+      from_secret: CACHE_BUCKET
+    region: us-east-1
+    path-style: true
+    cache_key: 'asdf-{{ os }}-{{ arch }}-{{ checksum ".tool-versions" }}'
+    mount:
+    - .asdf
+
+- name: restore build cache
+  image: meltwater/drone-cache
+  pull: "always"
+  environment:
+    AWS_ACCESS_KEY_ID:
+      from_secret: ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY:
+      from_secret: SECRET_ACCESS_KEY
+    AWS_PLUGIN_PATH_STYLE: true
+  settings:
+    restore: true
+    endpoint:
+      from_secret: S3_ENDPOINT
+    bucket:
+      from_secret: CACHE_BUCKET
+    region: us-east-1
+    path-style: true
+    cache_key: 'elixir-{{ checksum "mix.lock" }}-{{ checksum ".tool-versions" }}'
+    mount:
+    - deps
+    - _build
+    - .hex
+    - .mix
+    - .rebar3
+
+- name: build artifacts
+  image: code.harton.nz/james/asdf_container:latest
+  pull: "always"
+  depends_on:
+  - restore ASDF cache
+  - restore build cache
+  environment:
+    MIX_ENV: test
+    HEX_HOME: /drone/src/.hex
+    MIX_HOME: /drone/src/.mix
+    REBAR_BASE_DIR: /drone/src/.rebar3
+    ASDF_DATA_DIR: /drone/src/.asdf
+    ASDF_DIR: /root/.asdf
+  commands:
+    - . $ASDF_DIR/asdf.sh
+    - mix git_ops.project_info --format=shell > app.env
+    - . ./app.env
+    - mkdir artifacts
+    - mix esbuild prod
+    - mix hex.build -o "artifacts/$${APP_NAME}-$${APP_VERSION}-pkg.tar"
+    - gzip "artifacts/$${APP_NAME}-$${APP_VERSION}-pkg.tar"
+    - mix docs
+    - tar zcvf "artifacts/$${APP_NAME}-$${APP_VERSION}-docs.tar.gz" doc/
+    - git tag -l --format='%(contents:subject)' v$${APP_VERSION} > tag_subject
+    - git tag -l --format='%(contents:body)' v$${APP_VERSION} > tag_body
+
+- name: gitea release
+  image: plugins/gitea-release
+  depends_on:
+  - build artifacts
+  settings:
+    api_key:
+      from_secret: DRONE_TOKEN
+    base_url: https://code.harton.nz
+    files: artifacts/*.tar.gz
+    checksum: sha256
+    title: tag_subject
+    note: tag_body
+
+- name: hex release
+  image: code.harton.nz/james/asdf_container:latest
+  pull: "always"
+  depends_on:
+  - restore ASDF cache
+  - restore build cache
+  environment:
+    MIX_ENV: test
+    HEX_HOME: /drone/src/.hex
+    MIX_HOME: /drone/src/.mix
+    REBAR_BASE_DIR: /drone/src/.rebar3
+    ASDF_DATA_DIR: /drone/src/.asdf
+    ASDF_DIR: /root/.asdf
+    HEX_API_KEY:
+      from_secret: HEX_API_KEY
+  commands:
+    - . $ASDF_DIR/asdf.sh
+    - mix hex.publish --yes

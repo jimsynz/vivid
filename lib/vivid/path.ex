@@ -1,5 +1,5 @@
 defmodule Vivid.Path do
-  alias Vivid.{Path, Point, Line, Shape}
+  alias Vivid.{Line, Path, Point, Shape}
   defstruct vertices: []
 
   @moduledoc ~S"""
@@ -30,7 +30,7 @@ defmodule Vivid.Path do
       "@@@@@@@@@@@@\n"
   """
 
-  @opaque t :: %Path{vertices: [Shape.t()]}
+  @type t :: %Path{vertices: [Shape.t()]}
 
   @doc """
   Initialize an empty path.

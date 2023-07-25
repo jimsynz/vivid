@@ -5,8 +5,8 @@ defimpl Inspect, for: Vivid.Path do
   @doc """
   Defines the inspect protocol for `Path`.
   """
-  @spec inspect(Path.t(), any) :: String.t()
+  @impl true
   def inspect(%Path{vertices: points}, opts) do
-    concat(["#Vivid.Path<", to_doc(points, opts), ">"])
+    concat(["Vivid.Path.new(", to_doc(points, opts), ")"])
   end
 end

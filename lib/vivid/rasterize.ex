@@ -1,5 +1,5 @@
 defprotocol Vivid.Rasterize do
-  alias Vivid.Shape
+  alias Vivid.{Bounds, Shape}
 
   @moduledoc ~S"""
   The Rasterize protocol is responsible for converting shapes into bitmaps.
@@ -19,6 +19,6 @@ defprotocol Vivid.Rasterize do
 
   Takes a `shape` and returns a `MapSet` of points within `bounds`.
   """
-  @spec rasterize(Shape.t(), Bounds.t()) :: MapSet
+  @spec rasterize(Shape.t(), Bounds.t()) :: MapSet.t()
   def rasterize(shape, bounds)
 end

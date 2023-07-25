@@ -1,5 +1,5 @@
 defmodule Vivid.Font do
-  alias Vivid.{Hershey, Point, Group, Shape, Font.Char}
+  alias Vivid.{Font.Char, Group, Hershey, Point, Shape}
 
   @font_vertical_offset 10
 

@@ -13,7 +13,7 @@ defimpl Vivid.Rasterize, for: Vivid.Line do
 
       iex> Vivid.Line.init(Vivid.Point.init(1,1), Vivid.Point.init(3,3))
       ...> |> Vivid.Rasterize.rasterize(Vivid.Bounds.init(0, 0, 3, 3))
-      #MapSet<[#Vivid.Point<{1, 1}>, #Vivid.Point<{2, 2}>, #Vivid.Point<{3, 3}>]>
+      MapSet.new([Vivid.Point.init(1, 1), Vivid.Point.init(2, 2), Vivid.Point.init(3, 3)])
 
       iex> Vivid.Line.init(Vivid.Point.init(1,1), Vivid.Point.init(4,2))
       ...> |> Vivid.Rasterize.rasterize(Vivid.Bounds.init(0, 0, 4, 4))
@@ -34,7 +34,7 @@ defimpl Vivid.Rasterize, for: Vivid.Line do
       ])
 
   """
-  @spec rasterize(Line.t(), Bounds.t()) :: MapSet.t()
+  @impl true
   def rasterize(%Line{} = line, bounds) do
     # Convert the line into absolute coordinates.
     origin = line |> Line.origin() |> Point.round()

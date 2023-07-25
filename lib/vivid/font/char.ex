@@ -1,13 +1,13 @@
 defmodule Vivid.Font.Char do
   alias __MODULE__
-  alias Vivid.{Group, Path, Point}
+  alias Vivid.{Group, Path, Point, Shape}
   defstruct ~w(character vertices left_pos right_pos coordinates)a
 
   @moduledoc """
   Describes an individual character defined by a Hershey font file.
   """
 
-  @opaque t :: %Char{}
+  @type t :: %Char{}
 
   @doc """
   Returns the (documented) width of a specific character.

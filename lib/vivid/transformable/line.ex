@@ -1,5 +1,5 @@
 defimpl Vivid.Transformable, for: Vivid.Line do
-  alias Vivid.{Line, Transformable, Point}
+  alias Vivid.{Line, Transformable}
 
   @doc """
   Apply an arbitrary transformation function to a line.
@@ -7,7 +7,7 @@ defimpl Vivid.Transformable, for: Vivid.Line do
   * `line` - the line to modify.
   * `fun` - the transformation function to apply.
   """
-  @spec transform(Line.t(), (Point.t() -> Point.t())) :: Line.t()
+  @impl true
   def transform(line, fun) do
     origin = line |> Line.origin() |> Transformable.transform(fun)
     term = line |> Line.termination() |> Transformable.transform(fun)

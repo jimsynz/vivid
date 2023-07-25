@@ -1,18 +1,17 @@
 # Vivid
 
-[![Build Status](https://travis-ci.org/jamesotron/vivid.ex.svg?branch=master)](https://travis-ci.org/jamesotron/vivid.ex)
-[![Inline docs](https://inch-ci.org/github/jamesotron/vivid.ex.svg)](https://inch-ci.org/github/jamesotron/vivid.ex)
+[![Build Status](https://drone.harton.nz/api/badges/james/vivid/status.svg?ref=refs/heads/main)](https://drone.harton.nz/james/vivid)
 
 Vivid is a simple 2D rendering library.
 
 ## Features
 
-  * Supports drawing and manipulating a number of basic 2D primitives.
-  * Supports filling arbitrary polygons.
-  * Supports arbitrary transformations shape transformations.
-  * Renders shapes onto a buffer.
-  * 100% pure Elixir with no dependencies.
-  * Render to PNG using [vivid_png](https://github.com/jamesotron/vivid_png.ex).
+- Supports drawing and manipulating a number of basic 2D primitives.
+- Supports filling arbitrary polygons.
+- Supports arbitrary transformations shape transformations.
+- Renders shapes onto a buffer.
+- 100% pure Elixir with no dependencies.
+- Render to PNG using [vivid_png](https://code.harton.nz/james/vivid_png).
 
 ## Demo
 
@@ -126,7 +125,7 @@ This library is now in use in several projects and seems to work well.
 
 Future improvements include:
 
-  - Improve `Vivid.SLPFA`.
-  - Add transformations which can apply rotation matrices directly.
-  - Add ability to composit multiple frames together.
-  - Support bitmaps as a shape.
+- Improve `Vivid.SLPFA`.
+- Add transformations which can apply rotation matrices directly.
+- Add ability to composit multiple frames together.
+- Support bitmaps as a shape.

@@ -1,5 +1,5 @@
 defimpl Vivid.Rasterize, for: Vivid.Box do
-  alias Vivid.{Box, Rasterize, Bounds}
+  alias Vivid.{Box, Rasterize}
 
   @moduledoc """
   Rasterizes a box into points.
@@ -13,9 +13,9 @@ defimpl Vivid.Rasterize, for: Vivid.Box do
       iex> use Vivid
       ...> box = Box.init(Point.init(2,2), Point.init(4,4))
       ...> Rasterize.rasterize(box, Bounds.bounds(box))
-      #MapSet<[#Vivid.Point<{2, 2}>, #Vivid.Point<{2, 3}>, #Vivid.Point<{2, 4}>, #Vivid.Point<{3, 2}>, #Vivid.Point<{3, 4}>, #Vivid.Point<{4, 2}>, #Vivid.Point<{4, 3}>, #Vivid.Point<{4, 4}>]>
+      MapSet.new([Vivid.Point.init(2, 2), Vivid.Point.init(2, 3), Vivid.Point.init(2, 4), Vivid.Point.init(3, 2), Vivid.Point.init(3, 4), Vivid.Point.init(4, 2), Vivid.Point.init(4, 3), Vivid.Point.init(4, 4)])
   """
-  @spec rasterize(Box.t(), Bounds.t()) :: MapSet.t()
+  @impl true
   def rasterize(box, bounds) do
     box
     |> Box.to_polygon()

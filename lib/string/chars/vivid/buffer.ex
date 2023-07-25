@@ -4,19 +4,17 @@ defimpl String.Chars, for: Vivid.Buffer do
   @doc """
   Convert a `buffer` into a `string` for `IO.puts`, etc.
   """
-  @spec to_string(Buffer.t()) :: String.t()
+  @impl true
   def to_string(%Buffer{buffer: buffer, columns: columns} = _buffer) do
     s =
       buffer
       |> Enum.reverse()
-      |> Enum.chunk(columns)
-      |> Enum.map(fn row ->
+      |> Enum.chunk_every(columns)
+      |> Enum.map_join("\n", fn row ->
         row
         |> Enum.reverse()
-        |> Enum.map(&RGBA.to_ascii(&1))
-        |> Enum.join()
+        |> Enum.map_join(&RGBA.to_ascii(&1))
       end)
-      |> Enum.join("\n")
 
     s <> "\n"
   end

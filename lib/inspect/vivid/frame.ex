@@ -5,16 +5,16 @@ defimpl Inspect, for: Vivid.Frame do
   @doc """
   Defines the inspect protocol for `Frame`.
   """
-  @spec inspect(Frame.t(), any) :: String.t()
+  @impl true
   def inspect(frame, opts) do
     width = Frame.width(frame)
     height = Frame.height(frame)
     colour = Frame.background_colour(frame)
 
     concat([
-      "#Vivid.Frame<",
+      "Vivid.Frame.new(",
       to_doc([width: width, height: height, background_colour: colour], opts),
-      ">"
+      ")"
     ])
   end
 end

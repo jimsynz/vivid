@@ -1,5 +1,5 @@
 defmodule Vivid.Buffer do
-  alias Vivid.{Buffer, Frame, Rasterize, Bounds, Point, RGBA}
+  alias Vivid.{Bounds, Buffer, Frame, Point, Rasterize, RGBA}
   defstruct ~w(buffer rows columns)a
 
   @moduledoc ~S"""
@@ -17,7 +17,7 @@ defmodule Vivid.Buffer do
       ...> Frame.init(20, 10, RGBA.white())
       ...> |> Frame.push(box, RGBA.black())
       ...> |> Buffer.horizontal()
-      ...> |> Stream.chunk(20)
+      ...> |> Stream.chunk_every(20)
       ...> |> Stream.map(fn line ->
       ...>   Stream.map(line, fn colour -> RGBA.to_ascii(colour) end)
       ...>   |> Enum.join()
@@ -35,7 +35,7 @@ defmodule Vivid.Buffer do
       "@@@@@@@@@@@@@@@@@@@@"
   """
 
-  @opaque t :: %Buffer{buffer: [RGBA.t()], rows: integer, columns: integer}
+  @type t :: %Buffer{buffer: [RGBA.t()], rows: integer, columns: integer}
 
   @doc ~S"""
   Render the buffer horizontally, ie across rows then up columns.
@@ -53,7 +53,7 @@ defmodule Vivid.Buffer do
       "@@@@@\n" <>
       "@@@@@\n"
   """
-  @spec horizontal(Frame.t()) :: [RGBA.t()]
+  @spec horizontal(Frame.t()) :: Buffer.t()
   def horizontal(%Frame{shapes: shapes, width: w, height: h} = frame) do
     empty_buffer = allocate(frame)
     bounds = Bounds.bounds(frame)
@@ -77,7 +77,7 @@ defmodule Vivid.Buffer do
       "@@ @@\n" <>
       "@@ @@\n"
   """
-  @spec vertical(Frame.t()) :: [RGBA.t()]
+  @spec vertical(Frame.t()) :: Buffer.t()
   def vertical(%Frame{shapes: shapes, width: w, height: h} = frame) do
     bounds = Bounds.bounds(frame)
     empty_buffer = allocate(frame)

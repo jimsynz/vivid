@@ -7,7 +7,7 @@ defimpl Vivid.Transformable, for: Vivid.Polygon do
   * `polygon` - the polygon to modify.
   * `fun` - the transformation function to apply.
   """
-  @spec transform(Polygon.t(), (Point.t() -> Point.t())) :: Polygon.t()
+  @impl true
   def transform(%Polygon{fill: fill} = polygon, fun) do
     polygon
     |> Stream.map(&Transformable.transform(&1, fun))

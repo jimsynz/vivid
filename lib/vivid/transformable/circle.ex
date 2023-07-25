@@ -10,7 +10,7 @@ defimpl Vivid.Transformable, for: Vivid.Circle do
   Many of the transformations can't be applied to a Circle, but we
   can convert it to a polygon and then use that to apply transformations.
   """
-  @spec transform(Circle.t(), (Point.t() -> Point.t())) :: Polygon.t()
+  @impl true
   def transform(%Circle{fill: f} = circle, fun) do
     circle
     |> Circle.to_polygon()

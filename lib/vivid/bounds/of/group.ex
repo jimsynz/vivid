@@ -1,15 +1,15 @@
 defimpl Vivid.Bounds.Of, for: Vivid.Group do
-  alias Vivid.Point
+  alias Vivid.{Bounds, Group, Point}
 
   @doc """
   Find the bounds of a `group`.
 
   Returns a two-element tuple of the bottom-left and top-right points.
   """
-  @spec bounds(Group.t()) :: {Point.t(), Point.t()}
-  def bounds(%Vivid.Group{shapes: shapes} = _group) do
+  @impl true
+  def bounds(%Group{shapes: shapes} = _group) do
     shapes
-    |> Enum.map(&Vivid.Bounds.Of.bounds(&1))
+    |> Enum.map(&Bounds.Of.bounds(&1))
     |> Enum.reduce(fn
       {min, max}, nil ->
         {min, max}

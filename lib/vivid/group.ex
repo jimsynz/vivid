@@ -39,7 +39,7 @@ defmodule Vivid.Group do
     "@@@@@@@@@@@@@@@@@@@@@@@\n"
   """
 
-  @opaque t :: %Group{shapes: [Shape.t()]}
+  @type t :: %Group{shapes: MapSet.t(Shape.t())}
 
   @doc """
   Initialize an empty group.
@@ -47,7 +47,7 @@ defmodule Vivid.Group do
   ## Examples
 
       iex> Vivid.Group.init
-      #Vivid.Group<[]>
+      %Vivid.Group{shapes: MapSet.new([])}
   """
   @spec init() :: Group.t()
   def init, do: %Group{shapes: MapSet.new()}
@@ -60,11 +60,11 @@ defmodule Vivid.Group do
       iex> circle = Vivid.Circle.init(Vivid.Point.init(5,5), 5)
       ...> line   = Vivid.Line.init(Vivid.Point.init(1,1), Vivid.Point.init(10,10))
       ...> Vivid.Group.init([circle, line])
-      #Vivid.Group<[#Vivid.Line<[origin: #Vivid.Point<{1, 1}>, termination: #Vivid.Point<{10, 10}>]>, #Vivid.Circle<[center: #Vivid.Point<{5, 5}>, radius: 5]>]>
+      Vivid.Group.init([Vivid.Line.init(Vivid.Point.init(1, 1), Vivid.Point.init(10, 10)), Vivid.Circle.init(Vivid.Point.init(5, 5), 5)])
   """
-  @spec init([Shape.t()]) :: Group.t()
+  @spec init(Enumerable.t(Shape.t())) :: Group.t()
   def init(shapes) do
-    %Group{shapes: Enum.into(shapes, MapSet.new())}
+    %Group{shapes: MapSet.new(shapes)}
   end
 
   @doc """
@@ -78,7 +78,7 @@ defmodule Vivid.Group do
       %Vivid.Group{shapes: MapSet.new()}
   """
   @spec delete(Group.t(), Shape.t()) :: Group.t()
-  def delete(%Group{shapes: shapes}, shape), do: shapes |> MapSet.delete(shape) |> init
+  def delete(%Group{shapes: shapes}, shape), do: shapes |> MapSet.delete(shape) |> init()
 
   @doc """
   Add a shape to a Group
@@ -93,5 +93,5 @@ defmodule Vivid.Group do
       ])}
   """
   @spec put(Group.t(), Shape.t()) :: Group.t()
-  def put(%Group{shapes: shapes}, shape), do: shapes |> MapSet.put(shape) |> init
+  def put(%Group{shapes: shapes}, shape), do: shapes |> MapSet.put(shape) |> init()
 end

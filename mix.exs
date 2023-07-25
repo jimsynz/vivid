@@ -1,7 +1,8 @@
 defmodule Vivid.Mixfile do
+  @moduledoc false
   use Mix.Project
 
-  @version "0.4.3"
+  @version "0.4.4"
 
   def project do
     [
@@ -17,7 +18,7 @@ defmodule Vivid.Mixfile do
         source_ref: "v#{@version}",
         main: "Vivid",
         canonical: "http://hexdocs.pm/vivid",
-        source_url: "https://github.com/jamesotron/vivid.ex",
+        source_url: "https://code.harton.nz/james/vivid",
         extras: ["guides/getting-started.md"]
       ]
     ]
@@ -27,7 +28,7 @@ defmodule Vivid.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger]]
+    [extra_applications: [:logger]]
   end
 
   def description do
@@ -38,10 +39,10 @@ defmodule Vivid.Mixfile do
 
   def package do
     [
-      maintainers: ["James Harton <james@messagerocket.co>"],
+      maintainers: ["James Harton <james@harton.nz>"],
       licenses: ["MIT"],
       links: %{
-        "Source" => "https://github.com/jamesotron/vivid.ex"
+        "Source" => "https://code.harton.nz/james/vivid"
       }
     ]
   end
@@ -56,11 +57,17 @@ defmodule Vivid.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
+    opts = [only: ~w[dev test]a, runtime: false]
+
     [
-      {:ex_doc, ">= 0.0.0", only: :dev},
-      {:earmark, ">= 0.0.0", only: :dev},
-      {:credo, "~> 0.6", only: ~w(dev test)a},
-      {:inch_ex, "~> 0.5", only: :docs}
+      {:credo, "~> 1.7", opts},
+      {:dialyxir, "~> 1.3", opts},
+      {:doctor, "~> 0.21", opts},
+      {:earmark, ">= 0.0.0", opts},
+      {:ex_check, "~> 0.15", opts},
+      {:ex_doc, ">= 0.0.0", opts},
+      {:git_ops, "~> 2.6", opts},
+      {:mix_audit, "~> 2.1", opts}
     ]
   end
 end

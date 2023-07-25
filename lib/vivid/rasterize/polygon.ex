@@ -29,7 +29,7 @@ defimpl Vivid.Rasterize, for: Vivid.Polygon do
         %Vivid.Point{x: 3, y: 3}
       ])
   """
-  @spec rasterize(Polygon.t(), Bounds.t()) :: MapSet.t()
+  @impl true
   def rasterize(%Polygon{vertices: v}, _bounds) when length(v) < 3 do
     raise InvalidPolygonError, "Polygon does not contain enough edges."
   end
@@ -52,10 +52,9 @@ defimpl Vivid.Rasterize, for: Vivid.Polygon do
   end
 
   defp polygon_border(polygon, bounds) do
-    lines = polygon |> Polygon.to_lines()
-
-    Enum.reduce(lines, MapSet.new(), fn line, acc ->
-      MapSet.union(acc, Rasterize.rasterize(line, bounds))
-    end)
+    polygon
+    |> Polygon.to_lines()
+    |> Enum.map(&Rasterize.rasterize(&1, bounds))
+    |> Enum.reduce(MapSet.new(), &MapSet.union(&1, &2))
   end
 end

@@ -1,12 +1,12 @@
 defimpl Vivid.Bounds.Of, for: Vivid.Arc do
-  alias Vivid.{Arc, Bounds, Point}
+  alias Vivid.{Arc, Bounds}
 
   @doc """
   Find the bounds of a `arc`.
 
   Returns a two-element tuple of the bottom-left and top-right points.
   """
-  @spec bounds(Arc.t()) :: {Point.t(), Point.t()}
+  @impl true
   def bounds(arc) do
     arc
     |> Arc.to_path()

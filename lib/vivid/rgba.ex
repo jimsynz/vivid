@@ -15,23 +15,23 @@ defmodule Vivid.RGBA do
 
       iex> use Vivid
       ...> RGBA.black()
-      #Vivid.RGBA<{0, 0, 0, 1}>
+      Vivid.RGBA.init(0, 0, 0, 1)
       iex> RGBA.white()
-      #Vivid.RGBA<{1, 1, 1, 1}>
+      Vivid.RGBA.init(1, 1, 1, 1)
       iex> RGBA.init(1, 0, 0, 0.5)
-      #Vivid.RGBA<{1, 0, 0, 0.5}>
+      Vivid.RGBA.init(1, 0, 0, 0.5)
   """
 
   @type zero_to_one :: number
-  @opaque t :: %RGBA{
-            red: zero_to_one,
-            green: zero_to_one,
-            blue: zero_to_one,
-            alpha: zero_to_one,
-            a_red: zero_to_one,
-            a_green: zero_to_one,
-            a_blue: zero_to_one
-          }
+  @type t :: %RGBA{
+          red: zero_to_one,
+          green: zero_to_one,
+          blue: zero_to_one,
+          alpha: zero_to_one,
+          a_red: zero_to_one,
+          a_green: zero_to_one,
+          a_blue: zero_to_one
+        }
 
   # I would put this at the bottom, but it has to be defined *before* it's
   # used in the guard.
@@ -54,7 +54,7 @@ defmodule Vivid.RGBA do
   ## Example
 
       iex> Vivid.RGBA.init(0.1, 0.2, 0.3, 0.4)
-      #Vivid.RGBA<{0.1, 0.2, 0.3, 0.4}>
+      Vivid.RGBA.init(0.1, 0.2, 0.3, 0.4)
   """
   @spec init(zero_to_one, zero_to_one, zero_to_one) :: RGBA.t()
   def init(red, green, blue), do: init(red, green, blue, 1)
@@ -72,7 +72,7 @@ defmodule Vivid.RGBA do
   ## Example
 
       iex> Vivid.RGBA.init(0.1, 0.2, 0.3, 0.4)
-      #Vivid.RGBA<{0.1, 0.2, 0.3, 0.4}>
+      Vivid.RGBA.init(0.1, 0.2, 0.3, 0.4)
   """
   @spec init(zero_to_one, zero_to_one, zero_to_one, zero_to_one) :: RGBA.t()
   def init(red, green, blue, 1)
@@ -121,7 +121,7 @@ defmodule Vivid.RGBA do
   ## Example
 
       iex> Vivid.RGBA.white
-      #Vivid.RGBA<{1, 1, 1, 1}>
+      Vivid.RGBA.init(1, 1, 1, 1)
   """
   @spec white() :: RGBA.t()
   def white, do: RGBA.init(1, 1, 1)
@@ -132,7 +132,7 @@ defmodule Vivid.RGBA do
   ## Example
 
       iex> Vivid.RGBA.black
-      #Vivid.RGBA<{0, 0, 0, 1}>
+      Vivid.RGBA.init(0, 0, 0, 1)
   """
   @spec black() :: RGBA.t()
   def black, do: RGBA.init(0, 0, 0)
@@ -216,7 +216,7 @@ defmodule Vivid.RGBA do
   ## Examples
 
       iex> Vivid.RGBA.over(Vivid.RGBA.black, Vivid.RGBA.init(1,1,1, 0.5))
-      #Vivid.RGBA<{0.5, 0.5, 0.5, 1.0}>
+      Vivid.RGBA.init(0.5, 0.5, 0.5, 1.0)
   """
   @spec over(RGBA.t(), RGBA.t()) :: RGBA.t()
   def over(nil, %RGBA{} = colour), do: colour

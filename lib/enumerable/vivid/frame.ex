@@ -14,7 +14,7 @@ defimpl Enumerable, for: Vivid.Frame do
       ...> |> Enum.count
       2
   """
-  @spec count(Frame.t()) :: {:ok, non_neg_integer}
+  @impl true
   def count(%Frame{shapes: shapes}), do: {:ok, Enum.count(shapes)}
 
   @doc """
@@ -30,7 +30,7 @@ defimpl Enumerable, for: Vivid.Frame do
       ...> |> Enum.member?(Vivid.Point.init(2,2))
       false
   """
-  @spec member?(Frame.t(), Shape.t()) :: {:ok, boolean}
+  @impl true
   def member?(%Frame{shapes: shapes}, shape), do: {:ok, Enum.member?(shapes, shape)}
 
   @doc """
@@ -41,14 +41,12 @@ defimpl Enumerable, for: Vivid.Frame do
       iex> Vivid.Frame.init([Vivid.Point.init(1,2), Vivid.Point.init(2,4)]) |> Enum.reduce(%{}, fn (%Vivid.Point{x: x, y: y}, acc) -> Map.put(acc, x, y) end)
       %{1 => 2, 2 => 4}
   """
-  @spec reduce(Frame.t(), Collectable.t(), (any, Collectable.t() -> Collectable.t())) ::
-          Collectable.t()
+  @impl true
   def reduce(%Frame{shapes: shapes}, acc, fun), do: Enumerable.List.reduce(shapes, acc, fun)
 
   @doc """
   Slice the frame.
   """
-  @spec slice(Frame.t()) ::
-          {:ok, size :: non_neg_integer(), Enumerable.slicing_fun()} | {:error, module()}
+  @impl true
   def slice(%Frame{shapes: shapes}), do: Enumerable.List.slice(shapes)
 end

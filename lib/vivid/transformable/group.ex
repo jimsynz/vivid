@@ -7,7 +7,7 @@ defimpl Vivid.Transformable, for: Vivid.Group do
   * `group` - the group to modify.
   * `fun` - the transformation function to apply.
   """
-  @spec transform(Group.t(), (Point.t() -> Point.t())) :: Group.t()
+  @impl true
   def transform(group, fun) do
     group
     |> Stream.map(&Transformable.transform(&1, fun))

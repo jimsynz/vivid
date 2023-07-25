@@ -1,5 +1,5 @@
 defmodule Vivid.Bounds do
-  alias Vivid.{Bounds, Point, Shape, Bounds.Of}
+  alias Vivid.{Bounds, Bounds.Of, Point, Shape}
   defstruct ~w(min max)a
 
   @moduledoc """
@@ -10,10 +10,10 @@ defmodule Vivid.Bounds do
     iex> use Vivid
     ...> Box.init(Point.init(5,10),Point.init(15,20))
     ...> |> Bounds.bounds()
-    #Vivid.Bounds<[min: #Vivid.Point<{5, 10}>, max: #Vivid.Point<{15, 20}>]>
+    %Vivid.Bounds{min: Vivid.Point.init(5, 10), max: Vivid.Point.init(15, 20)}
   """
 
-  @opaque t :: %Bounds{min: Point.t(), max: Point.t()}
+  @type t :: %Bounds{min: Point.t(), max: Point.t()}
 
   @doc """
   Initialise arbitrary bounds.
@@ -26,7 +26,7 @@ defmodule Vivid.Bounds do
   ## Example
 
       iex> Vivid.Bounds.init(0, 0, 5, 5)
-      #Vivid.Bounds<[min: #Vivid.Point<{0, 0}>, max: #Vivid.Point<{5, 5}>]>
+      %Vivid.Bounds{min: Vivid.Point.init(0, 0), max: Vivid.Point.init(5, 5)}
   """
   @spec init(number, number, number, number) :: Bounds.t()
   def init(x0, y0, x1, y1), do: %Bounds{min: Point.init(x0, y0), max: Point.init(x1, y1)}
@@ -40,7 +40,7 @@ defmodule Vivid.Bounds do
 
       iex> Vivid.Circle.init(Vivid.Point.init(10,10), 10)
       ...> |> Vivid.Bounds.bounds
-      #Vivid.Bounds<[min: #Vivid.Point<{0.0, 0.0}>, max: #Vivid.Point<{20.0, 20.0}>]>
+      %Vivid.Bounds{min: Vivid.Point.init(0.0, 0.0), max: Vivid.Point.init(20.0, 20.0)}
   """
   @spec bounds(Shape.t()) :: Bounds.t()
   def bounds(%Bounds{} = shape), do: shape
@@ -89,7 +89,7 @@ defmodule Vivid.Bounds do
 
       iex> Vivid.Circle.init(Vivid.Point.init(10,10), 10)
       ...> |> Vivid.Bounds.min
-      #Vivid.Point<{0.0, 0.0}>
+      Vivid.Point.init(0.0, 0.0)
   """
   @spec min(Shape.t()) :: Point.t()
   def min(%Bounds{min: min} = _shape), do: min
@@ -104,7 +104,7 @@ defmodule Vivid.Bounds do
 
       iex> Vivid.Circle.init(Vivid.Point.init(10,10), 10)
       ...> |> Vivid.Bounds.max
-      #Vivid.Point<{20.0, 20.0}>
+      Vivid.Point.init(20.0, 20.0)
   """
   @spec max(Shape.t()) :: Point.t()
   def max(%Bounds{max: max}), do: max
@@ -120,7 +120,7 @@ defmodule Vivid.Bounds do
       iex> Vivid.Circle.init(Vivid.Point.init(10,10), 10)
       ...> |> Vivid.Circle.to_polygon
       ...> |> Vivid.Bounds.center_of
-      #Vivid.Point<{10.0, 10.0}>
+      Vivid.Point.init(10.0, 10.0)
   """
   @spec center_of(Shape.t()) :: Point.t()
   def center_of(%Bounds{min: %Point{x: x0, y: y0}, max: %Point{x: x1, y: y1}}) do

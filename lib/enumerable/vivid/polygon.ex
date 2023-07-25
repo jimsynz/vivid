@@ -13,7 +13,7 @@ defimpl Enumerable, for: Vivid.Polygon do
       iex> Vivid.Polygon.init([Vivid.Point.init(1,1), Vivid.Point.init(2,2)]) |> Enum.count
       2
   """
-  @spec count(Polygon.t()) :: {:ok, non_neg_integer}
+  @impl true
   def count(%Polygon{vertices: points}), do: {:ok, Enum.count(points)}
 
   @doc """
@@ -28,7 +28,7 @@ defimpl Enumerable, for: Vivid.Polygon do
       iex> Vivid.Polygon.init([Vivid.Point.init(1,1)]) |> Enum.member?(Vivid.Point.init(2,2))
       false
   """
-  @spec member?(Polygon.t(), Point.t()) :: {:ok, boolean}
+  @impl true
   def member?(%Polygon{vertices: points}, %Point{} = point),
     do: {:ok, Enum.member?(points, point)}
 
@@ -40,14 +40,12 @@ defimpl Enumerable, for: Vivid.Polygon do
       iex> Vivid.Polygon.init([Vivid.Point.init(1,2), Vivid.Point.init(2,4)]) |> Enum.reduce(%{}, fn (%Vivid.Point{x: x, y: y}, acc) -> Map.put(acc, x, y) end)
       %{1 => 2, 2 => 4}
   """
-  @spec reduce(Polygon.t(), Collectable.t(), (Point.t(), Collectable.t() -> Collectable.t())) ::
-          Collectable.t()
+  @impl true
   def reduce(%Polygon{vertices: points}, acc, fun), do: Enumerable.List.reduce(points, acc, fun)
 
   @doc """
   Slices the Polygon.
   """
-  @spec slice(Polygon.t()) ::
-          {:ok, size :: non_neg_integer(), Enumerable.slicing_fun()} | {:error, module()}
+  @impl true
   def slice(%Polygon{vertices: points}), do: Enumerable.List.slice(points)
 end

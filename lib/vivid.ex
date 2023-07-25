@@ -4,13 +4,14 @@ defmodule Vivid do
       alias Vivid.{
         Arc,
         Bounds,
+        Box,
         Buffer,
         Circle,
         Font,
-        Frame,
-        Group,
         Font,
         Frame,
+        Frame,
+        Group,
         Group,
         Line,
         Path,
@@ -18,8 +19,7 @@ defmodule Vivid do
         Polygon,
         Rasterize,
         RGBA,
-        Transform,
-        Box
+        Transform
       }
     end
   end

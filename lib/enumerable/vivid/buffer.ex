@@ -8,27 +8,25 @@ defimpl Enumerable, for: Vivid.Buffer do
   @doc """
   Returns the number of pixels in a buffer.
   """
-  @spec count(Buffer.t()) :: {:ok, non_neg_integer}
+  @impl true
   def count(%Buffer{buffer: buffer}), do: {:ok, Enum.count(buffer)}
 
   @doc """
   Returns whether a colour is a member of a buffer.
   This is mostly useless, but it's part of the Enumerable protocol.
   """
-  @spec member?(Buffer.t(), RGBA.t()) :: {:ok, boolean}
+  @impl true
   def member?(%Buffer{buffer: buffer}, colour), do: {:ok, Enum.member?(buffer, colour)}
 
   @doc """
   Reduce the buffer into an accumulator.
   """
-  @spec reduce(Buffer.t(), Collectable.t(), (any, Collectable.t() -> Collectable.t())) ::
-          Collectable.t()
+  @impl true
   def reduce(%Buffer{buffer: buffer}, acc, fun), do: Enumerable.List.reduce(buffer, acc, fun)
 
   @doc """
   Slice the buffer.
   """
-  @spec slice(Buffer.t()) ::
-          {:ok, size :: non_neg_integer(), Enumerable.slicing_fun()} | {:error, module()}
+  @impl true
   def slice(%Buffer{buffer: buffer}), do: Enumerable.List.slice(buffer)
 end

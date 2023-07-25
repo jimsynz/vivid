@@ -1,5 +1,5 @@
 defmodule Vivid.SLPFA do
-  alias Vivid.{Polygon, Point, Line}
+  alias Vivid.{Line, Point, Polygon}
 
   @moduledoc """
   Scanline Polygon Filling Algorithm, as per
@@ -13,6 +13,15 @@ defmodule Vivid.SLPFA do
   defmodule EdgeBucket do
     defstruct ~w(y_min y_max x sign distance_x distance_y sum)a
     @moduledoc false
+
+    @type t :: %EdgeBucket{
+            y_min: non_neg_integer(),
+            y_max: non_neg_integer(),
+            sign: -1 | 1,
+            distance_x: non_neg_integer(),
+            distance_y: non_neg_integer(),
+            sum: non_neg_integer()
+          }
   end
 
   @doc ~S"""
@@ -142,7 +151,7 @@ defmodule Vivid.SLPFA do
 
   defp pixels_for_active_list(points, active, y) do
     active
-    |> Stream.chunk(2)
+    |> Stream.chunk_every(2)
     |> Enum.reduce(points, fn [a0, a1], points ->
       Enum.reduce((a0.x + 1)..(a1.x - 1), points, fn x, points ->
         MapSet.put(points, Point.init(x, y))

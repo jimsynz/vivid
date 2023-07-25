@@ -1,5 +1,5 @@
 defimpl Vivid.Rasterize, for: Vivid.Path do
-  alias Vivid.{Path, Rasterize, Bounds}
+  alias Vivid.{Rasterize, Path}
 
   @moduledoc """
   Rasterizes the path into a sequence of points.
@@ -22,7 +22,7 @@ defimpl Vivid.Rasterize, for: Vivid.Path do
         %Vivid.Point{x: 3, y: 3}
       ])
   """
-  @spec rasterize(Path.t(), Bounds.t()) :: MapSet.t()
+  @impl true
   def rasterize(%Path{} = path, bounds) do
     lines = path |> Path.to_lines()
 
