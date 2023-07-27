@@ -1,6 +1,6 @@
 # Vivid
 
-[![Build Status](https://drone.harton.nz/api/badges/james/vivid/status.svg?ref=refs/heads/main)](https://drone.harton.nz/james/vivid)
+[![Build Status](https://drone.harton.nz/api/badges/james/vivid/status.svg?ref=refs/heads/master)](https://drone.harton.nz/james/vivid)
 
 Vivid is a simple 2D rendering library.
 
