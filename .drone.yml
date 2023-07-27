@@ -463,7 +463,6 @@ steps:
     - mix git_ops.project_info --format=shell > app.env
     - . ./app.env
     - mkdir artifacts
-    - mix esbuild prod
     - mix hex.build -o "artifacts/$${APP_NAME}-$${APP_VERSION}-pkg.tar"
     - gzip "artifacts/$${APP_NAME}-$${APP_VERSION}-pkg.tar"
     - mix docs
