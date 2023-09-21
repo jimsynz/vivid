@@ -69,6 +69,7 @@ steps:
   - mix local.rebar --if-missing --force
   - mix deps.get
   - mix deps.compile
+  - mix dialyzer --plt
 
 - name: store ASDF cache
   image: meltwater/drone-cache
