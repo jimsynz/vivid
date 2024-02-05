@@ -11,7 +11,7 @@ Vivid is a simple 2D rendering library.
 - Supports arbitrary transformations shape transformations.
 - Renders shapes onto a buffer.
 - 100% pure Elixir with no dependencies.
-- Render to PNG using [vivid_png](https://code.harton.nz/james/vivid_png).
+- Render to PNG using [vivid_png](https://harton.dev/james/vivid_png).
 
 ## Demo
 

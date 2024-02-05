@@ -18,7 +18,7 @@ defmodule Vivid.Mixfile do
         source_ref: "v#{@version}",
         main: "Vivid",
         canonical: "http://hexdocs.pm/vivid",
-        source_url: "https://code.harton.nz/james/vivid",
+        source_url: "https://harton.dev/james/vivid",
         extras: ["guides/getting-started.md"]
       ]
     ]
@@ -42,7 +42,7 @@ defmodule Vivid.Mixfile do
       maintainers: ["James Harton <james@harton.nz>"],
       licenses: ["MIT"],
       links: %{
-        "Source" => "https://code.harton.nz/james/vivid"
+        "Source" => "https://harton.dev/james/vivid"
       }
     ]
   end

@@ -5,7 +5,7 @@ See [Conventional Commits](Https://conventionalcommits.org) for commit guideline
 
 <!-- changelog -->
 
-## [v0.4.4](https://code.harton.nz/james/vivid/compare/v0.4.4...v0.4.4) (2023-07-27)
+## [v0.4.4](https://harton.dev/james/vivid/compare/v0.4.4...v0.4.4) (2023-07-27)
 
 
 

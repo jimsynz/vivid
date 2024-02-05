@@ -2,7 +2,7 @@
 
 Vivid is designed to be as straightforward to use as possible whilst still providing enough features to be useful. It was originally concieved for displaying graphics and text on [Monochrome 1.3" 128x64 OLED graphic display from Adafruit](https://www.adafruit.com/products/938), which it does.
 
-![4 x OLED display clock using Hershey vector fonts](https://code.harton.nz/james/vivid/raw/branch/main/guides/images/vivid_clock.jpg)
+![4 x OLED display clock using Hershey vector fonts](https://harton.dev/james/vivid/raw/branch/main/guides/images/vivid_clock.jpg)
 
 The scope quickly expanded to include arbitrary transforms, basic colour compositing and alpha channels. I even added [`vivid_png`](https://github.com/jamesotron/vivid_png.ex) for writing out PNG files.
 
@@ -37,7 +37,7 @@ The most basic type is the [`Point`](https://hexdocs.pm/vivid/Vivid.Point.html#c
     ...> Point.init(13, 27)
     #Vivid.Point<{13, 27}>
 
-![point example](https://code.harton.nz/james/vivid/raw/branch/main/guides/images/point_example.png)
+![point example](https://harton.dev/james/vivid/raw/branch/main/guides/images/point_example.png)
 
 ### Line
 
@@ -49,7 +49,7 @@ A [Line](https://hexdocs.pm/vivid/Vivid.Line.html#content) represents a straight
     ...> Line.init(Point.init(13,27), Point.init(2,3))
     #Vivid.Line<[origin: #Vivid.Point<{13, 27}>, termination: #Vivid.Point<{2, 3}>]>
 
-![line example](https://code.harton.nz/james/vivid/raw/branch/main/guides/images/line_example.png)
+![line example](https://harton.dev/james/vivid/raw/branch/main/guides/images/line_example.png)
 
 ### Path
 
@@ -63,7 +63,7 @@ A Path must consist of at least two vertices.
     ...> Path.init([Point.init(13,27), Point.init(2,3), Point.init(27,13)])
     #Vivid.Path<[#Vivid.Point<{13, 27}>, #Vivid.Point<{2, 3}>, #Vivid.Point<{27, 13}>]>
 
-![path example](https://code.harton.nz/james/vivid/raw/branch/main/guides/images/path_example.png)
+![path example](https://harton.dev/james/vivid/raw/branch/main/guides/images/path_example.png)
 
 ### Polygon
 
@@ -75,7 +75,7 @@ A [Polygon](https://hexdocs.pm/vivid/Vivid.Polygon.html#content) also represents
     ...> Polygon.init([Point.init(13,27), Point.init(2,3), Point.init(27,13)])
     #Vivid.Polygon<[#Vivid.Point<{13, 27}>, #Vivid.Point<{2, 3}>, #Vivid.Point<{27, 13}>]>
 
-![polygon example](https://code.harton.nz/james/vivid/raw/branch/main/guides/images/polygon_example.png)
+![polygon example](https://harton.dev/james/vivid/raw/branch/main/guides/images/polygon_example.png)
 
 ### Box
 
@@ -87,7 +87,7 @@ Because of the regular nature of rectangles they can be defined with only two po
     ...> Box.init(Point.init(2,3), Point.init(13,27))
     #Vivid.Box<[bottom_left: #Vivid.Point<{2, 3}>, top_right: #Vivid.Point<{13, 27}>]>
 
-![box example](https://code.harton.nz/james/vivid/raw/branch/main/guides/images/box_example.png)
+![box example](https://harton.dev/james/vivid/raw/branch/main/guides/images/box_example.png)
 
 ### Circle
 
@@ -101,7 +101,7 @@ Often it may be necessary to convert it to a polygon manually before rendering s
     ...> Circle.init(Point.init(15,15), 10)
     #Vivid.Circle<[center: #Vivid.Point<{15, 15}>, radius: 10]>
 
-![circle example](https://code.harton.nz/james/vivid/raw/branch/main/guides/images/circle_example.png)
+![circle example](https://harton.dev/james/vivid/raw/branch/main/guides/images/circle_example.png)
 
 ### Arc
 
@@ -115,7 +115,7 @@ You can optionally also specify the number of steps used during path generation 
     ...> Arc.init(Point.init(15,15), 45, 90)
     #Vivid.Arc<[center: #Vivid.Point<{15, 15}>, radius: 10, start_angle: 45, range: 90, steps: 12]>
 
-![arc example](https://code.harton.nz/james/vivid/raw/branch/main/guides/images/arc_example.png)
+![arc example](https://harton.dev/james/vivid/raw/branch/main/guides/images/arc_example.png)
 
 ### Group
 
@@ -129,7 +129,7 @@ A [Group](https://hexdocs.pm/vivid/Vivid.Group.html#content) allows for arbitrar
     ...> Group.init([box, circle])
     #Vivid.Group<[#Vivid.Box<[bottom_left: #Vivid.Point<{2, 3}>, top_right: #Vivid.Point<{13, 27}>]>, #Vivid.Circle<[center: #Vivid.Point<{15, 15}>, radius: 10]>]>
 
-![group example](https://code.harton.nz/james/vivid/raw/branch/main/guides/images/group_example.png)
+![group example](https://harton.dev/james/vivid/raw/branch/main/guides/images/group_example.png)
 
 ## Colours
 
@@ -139,7 +139,7 @@ Vivid (currently) defines all colours in terms of the RGBA colourspace. Create a
     ...> RGBA.init(0.75, 0.25, 0.5, 0.8)
     #Vivid.RGBA<{0.75, 0.25, 0.5, 0.8}>
 
-![rgba example](https://code.harton.nz/james/vivid/raw/branch/main/guides/images/rgba_example.png)
+![rgba example](https://harton.dev/james/vivid/raw/branch/main/guides/images/rgba_example.png)
 
 ## Compositing
 
