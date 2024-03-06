@@ -1,6 +1,7 @@
 # Vivid
 
-[![Build Status](https://drone.harton.nz/api/badges/james/vivid/status.svg?ref=refs/heads/main)](https://drone.harton.nz/james/vivid)
+[![Build Status](https://drone.harton.dev/api/badges/james/vivid/status.svg?ref=refs/heads/main)](https://drone.harton.dev/james/vivid)
+[![Hex.pm](https://img.shields.io/hexpm/v/vivid.svg)](https://hex.pm/packages/vivid)
 
 Vivid is a simple 2D rendering library.
 
@@ -83,6 +84,29 @@ Frame.push(frame, shape, RGBA.black)
 @@@@@@@@@ @ @@@@@@@@
 @@@@@@@@@@ @@@@@@@@@
 ```
+
+## Installation
+
+Vivid is [available in Hex](https://hex.pm/packages/vivid), the package can be
+installed by adding `vivid` to your list of dependencies in `mix.exs`:
+
+```elixir
+def deps do
+  [
+    {:vivid, "~> 0.4.4"}
+  ]
+end
+```
+
+Documentation for the latest release can be found on
+[HexDocs](https://hexdocs.pm/vivid) and for the `main` branch on
+[docs.harton.nz](https://docs.harton.nz/james/vivid).
+
+## Github Mirror
+
+This repository is mirrored [on Github](https://github.com/jimsynz/vivid)
+from it's primary location [on my Forejo instance](https://harton.dev/james/vivid).
+Feel free to raise issues and open PRs on Github.
 
 ## License
 

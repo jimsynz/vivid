@@ -14,12 +14,14 @@ defmodule Vivid.Mixfile do
       start_permanent: Mix.env() == :prod,
       package: package(),
       deps: deps(),
+      source_url: "https://harton.dev/james/vivid",
+      homepage_url: "https://harton.dev/james/vivid",
       docs: [
         source_ref: "v#{@version}",
         main: "Vivid",
         canonical: "http://hexdocs.pm/vivid",
         source_url: "https://harton.dev/james/vivid",
-        extras: ["guides/getting-started.md"]
+        extras: ["guides/getting-started.md", "README.md", "CHANGELOG.md"]
       ]
     ]
   end
@@ -42,8 +44,12 @@ defmodule Vivid.Mixfile do
       maintainers: ["James Harton <james@harton.nz>"],
       licenses: ["MIT"],
       links: %{
-        "Source" => "https://harton.dev/james/vivid"
-      }
+        "Source" => "https://harton.dev/james/vivid",
+        "GitHub" => "https://github.com/jimsynz/vivid",
+        "Changelog" => "https://docs.harton.nz/james/vivid/changelog.html",
+        "Sponsor" => "https://github.com/sponsors/jimsynz"
+      },
+      source_url: "https://harton.dev/james/vivid"
     ]
   end
 
