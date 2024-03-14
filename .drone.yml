@@ -355,7 +355,6 @@ steps:
   commands:
   - mc alias set store $${S3_ENDPOINT} $${ACCESS_KEY} $${SECRET_KEY}
   - mc mb -p store/docs.harton.nz
-  - mc anonymous set download store/docs.harton.nz
   - mc mirror --overwrite doc/ store/docs.harton.nz/$${DRONE_REPO}/$${DRONE_TAG}
   - mc mirror --overwrite doc/ store/docs.harton.nz/$${DRONE_REPO}
 
