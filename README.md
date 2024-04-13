@@ -151,5 +151,5 @@ Future improvements include:
 
 - Improve `Vivid.SLPFA`.
 - Add transformations which can apply rotation matrices directly.
-- Add ability to composit multiple frames together.
+- Add ability to composite multiple frames together.
 - Support bitmaps as a shape.

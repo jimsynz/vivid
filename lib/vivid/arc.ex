@@ -29,7 +29,7 @@ defmodule Vivid.Arc do
   @doc ~S"""
   Creates an Arc.
 
-  * `center` is a Point definining the center point of the arc's parent circle.
+  * `center` is a Point defining the center point of the arc's parent circle.
   * `radius` is the radius of the parent circle.
   * `start_angle` is the angle at which to start drawing the arc, `0` is the parallel to the X axis, to the left.
   * `range` is the number of degrees to draw the arc.
