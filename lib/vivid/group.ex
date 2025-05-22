@@ -39,7 +39,7 @@ defmodule Vivid.Group do
     "@@@@@@@@@@@@@@@@@@@@@@@\n"
   """
 
-  @type t :: %Group{shapes: MapSet.t(Shape.t())}
+  @type t :: %Group{shapes: Enum.t()}
 
   @doc """
   Initialize an empty group.
