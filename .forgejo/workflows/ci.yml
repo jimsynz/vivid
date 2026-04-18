@@ -1,0 +1,15 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  pull_request:
+
+jobs:
+  ci:
+    uses: https://harton.dev/james/workflows/.forgejo/workflows/elixir-lib.yml@main
+    runs-on: docker
+    with:
+      hex_release_enabled: true
+    secrets: inherit

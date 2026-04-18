@@ -1,6 +1,5 @@
 # Vivid
 
-[![Build Status](https://drone.harton.dev/api/badges/james/vivid/status.svg?ref=refs/heads/main)](https://drone.harton.dev/james/vivid)
 [![Hex.pm](https://img.shields.io/hexpm/v/vivid.svg)](https://hex.pm/packages/vivid)
 
 Vivid is a simple 2D rendering library.
@@ -99,8 +98,7 @@ end
 ```
 
 Documentation for the latest release can be found on
-[HexDocs](https://hexdocs.pm/vivid) and for the `main` branch on
-[docs.harton.nz](https://docs.harton.nz/james/vivid).
+[HexDocs](https://hexdocs.pm/vivid).
 
 ## Github Mirror
 
