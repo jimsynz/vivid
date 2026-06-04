@@ -5,6 +5,15 @@ See [Conventional Commits](Https://conventionalcommits.org) for commit guideline
 
 <!-- changelog -->
 
+## [v0.4.5](https://harton.dev/james/vivid/compare/v0.4.4...v0.4.5) (2026-06-04)
+
+
+
+
+### Bug Fixes:
+
+* fix compiler warnings from Elixir 1.20 by James Harton
+
 ## [v0.4.4](https://harton.dev/james/vivid/compare/v0.4.4...v0.4.4) (2023-07-27)
 
 
