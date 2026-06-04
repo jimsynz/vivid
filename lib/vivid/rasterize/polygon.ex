@@ -1,6 +1,5 @@
 defimpl Vivid.Rasterize, for: Vivid.Polygon do
   alias Vivid.{Polygon, Rasterize, Bounds, SLPFA}
-  require Integer
 
   defmodule InvalidPolygonError do
     @moduledoc false

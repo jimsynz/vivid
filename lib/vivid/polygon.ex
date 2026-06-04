@@ -1,7 +1,6 @@
 defmodule Vivid.Polygon do
   alias Vivid.{Line, Point, Polygon}
   defstruct vertices: [], fill: false
-  require Integer
 
   @moduledoc ~S"""
   Describes a Polygon as a series of vertices.

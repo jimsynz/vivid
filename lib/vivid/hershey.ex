@@ -1,5 +1,4 @@
 defmodule Vivid.Hershey do
-  require Logger
   alias Vivid.Font.Char
   @mid_point ~c"R" |> List.first()
 
