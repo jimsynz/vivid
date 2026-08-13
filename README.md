@@ -147,7 +147,8 @@ This library is now in use in several projects and seems to work well.
 
 Future improvements include:
 
-- Improve `Vivid.SLPFA`.
+- Support polygons with holes, by treating a reversed inner ring as a subtractive
+  contour under the non-zero winding rule already used by `Vivid.Polygon.Fill`.
 - Add transformations which can apply rotation matrices directly.
 - Add ability to composit multiple frames together.
 - Support bitmaps as a shape.

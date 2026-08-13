@@ -123,7 +123,32 @@ are third-party public-domain data — treat them as read-only.
 
 ## Polygon filling
 
-`Vivid.SLPFA` implements the scanline polygon fill algorithm with an edge-bucket
-table. It fills only the *interior* of a polygon, deliberately excluding the
-border, so callers can compose the fill with the outline to render border and
-fill in different colours. Don't "fix" the missing border.
+`Vivid.Polygon.Fill` computes the filled area by scanline conversion: intersect
+the edges with each scanline, sort by `x`, fill the spans between them under the
+**non-zero winding rule** (as PostScript, PDF, SVG and Canvas do). Two details
+carry the correctness and shouldn't be "tidied":
+
+- Edges are tested over the **half-open interval** `y_min <= y < y_max`. This
+  counts a pass-through vertex once and a local extremum not at all, so vertices
+  sitting exactly on a scanline need no special case, and horizontal edges are
+  excluded by the same test. Closing that interval reintroduces double-counted
+  vertices.
+- Intersections are computed in **floats** from unrounded vertices. Rounding
+  vertices before filling makes the fill disagree with the Bresenham border and
+  produces 1px gaps.
+
+`fill/1` returns the *whole* area including the pixels the edges pass through,
+and `Vivid.Rasterize` unions it with the rasterised border. An earlier version
+returned the interior only, which required the excluded pixels to exactly equal
+the border rasterisation — impossible in general, since Bresenham paints a run
+of pixels per scanline on a shallow slope while the fill excludes one. Don't go
+back to that contract; for a border-less fill use
+`MapSet.difference(fill, border)` against the actual rasterised border.
+
+Because winding direction decides what is inside, `Polygon` vertex order is
+semantically meaningful for self-intersecting polygons. Don't normalise edge
+direction anywhere in the fill path — it destroys the winding information.
+
+Any change here needs doctests covering sloped edges of **both** slope signs, a
+concave shape and a self-intersecting one. The rectilinear example alone
+exercises none of the interpolation code.
