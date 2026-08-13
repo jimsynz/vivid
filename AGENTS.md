@@ -10,7 +10,7 @@ GitHub. PNG output lives in a separate package, `vivid_png`.
 
 ## Commands
 
-    mix test              # fast: ~0.2s, 173 tests
+    mix test              # fast: ~0.2s, 215 tests
     mix check --no-retry  # full verification: compiler, format, credo, dialyzer, doctor, mix_audit, ex_unit
     mix format
 
@@ -28,7 +28,7 @@ defmodule Vivid.CircleTest do
 end
 ```
 
-All 173 tests come from `@doc` and `@moduledoc` examples. This is deliberate:
+All 215 tests come from `@doc` and `@moduledoc` examples. This is deliberate:
 the expected output of a doctest is usually an ASCII rendering, so the docs and
 the visual regression tests are the same artefact. Consequences:
 
@@ -107,19 +107,60 @@ a `to_polygon/1` and delegating over writing a new rasteriser.
 - **Version and changelog are generated.** `git_ops` manages the version in
   `mix.exs` and writes `CHANGELOG.md` below the `<!-- changelog -->` marker.
   Don't hand-edit either. Conventional commit messages drive the release.
-- `mix.exs` declares `elixir: "~> 1.3"` for the widest possible support range,
-  while `.tool-versions` pins the development toolchain (currently Elixir 1.20.3
-  / Erlang 29). Don't use syntax or stdlib functions newer than the floor
-  without raising the requirement deliberately.
+- `mix.exs` declares `elixir: "~> 1.18"`, while `.tool-versions` pins the
+  development toolchain (currently Elixir 1.20.3 / Erlang 29). Don't use syntax
+  or stdlib functions newer than the floor without raising the requirement
+  deliberately.
 - The project is in maintenance mode — dependency bumps and warning fixes. Small
   targeted diffs, not refactors.
 
 ## Fonts
 
-`Vivid.Hershey` parses Hershey vector fonts from `priv/hershey/*.jhf` (32 files:
-Gothic, cursive, Cyrillic, Greek, Japanese, plus astrology, meteorology and
-music symbol sets). `Vivid.Font` and `Vivid.Font.Char` wrap it. The `.jhf` files
-are third-party public-domain data — treat them as read-only.
+A font is data: `%Vivid.Font{}` is a map of codepoint to glyph, plus the metrics
+to lay them out. `Vivid.Font.line/3` is the only thing that lays text out, and it
+asks a glyph three questions through the `Vivid.Font.Glyph` protocol — pen
+movement before, pen movement after, and the shape to draw. That protocol is the
+only thing keeping stroke fonts and outline fonts from having to know about each
+other; a new format needs an impl and nothing else.
+
+`line/3`'s size is in **pixels per em**, not a multiplier, which only works
+because each font carries its own `units_per_em`. A Hershey em is defined as 32
+units so that its cap height lands at a realistic 0.66 em.
+
+| Module | |
+| --- | --- |
+| `Vivid.Hershey` | Hershey stroke fonts from `priv/hershey/*.jhf` (32 files: Gothic, cursive, Cyrillic, Greek, Japanese, plus symbol sets). Third-party public-domain data — read-only |
+| `Vivid.Font.Char` | a Hershey glyph: pen up/down movements, drawn as `Path`s |
+| `Vivid.OpenType` | the sfnt container — magic sniffing, `head`/`maxp`/`loca`/`hhea`/`hmtx`, and dispatch on which outline table a font actually has |
+| `Vivid.OpenType.CMap` | `cmap` format 4 only. Reaches 696 of 697 fonts surveyed |
+| `Vivid.TrueType.Glyph` | a `glyf` glyph: quadratic contours, plus composites |
+| `Vivid.CFF` / `.Charstring` / `.Glyph` | PostScript outlines: INDEX and DICT structures, and the Type 2 charstring interpreter |
+
+**OpenType is the container; TrueType and CFF are the two outline formats it can
+carry.** That's why `Vivid.OpenType.load/1` reads `.ttf`, `.otf` and `.ttc`
+alike, and why the glyph modules keep the outline format's name. Which parser
+runs is decided by the tables present, not by the file's magic number.
+
+Both glyph kinds hold a slice of their font and parse outlines **on demand**;
+they carry the whole font because composites and subroutines refer to other
+glyphs. Both therefore need an `Inspect` impl, or one missing character prints
+an entire font.
+
+Outline glyphs rasterise as `Vivid.Region`, so counters come out as holes under
+the winding rule rather than as filled blobs.
+
+A font that can't be read is reported with a reason worth showing a user —
+never a `MatchError`. Two fixtures in `priv/fonts` are the same ten Roboto
+glyphs in both outline formats, so the two parsers can be diffed against each
+other. Format variants they can't reach (`cmap`'s `idRangeOffset` path, CFF's
+INDEX and DICT) are doctested against hand-built binaries instead, which
+documents the format better than a fixture does.
+
+Not supported, deliberately: WOFF/WOFF2 (Brotli can't be decompressed in pure
+Elixir), variable font axes (a variable font still renders at its default
+instance), CID-keyed CFF, CFF2, `cmap` format 12, GPOS/GSUB shaping, and
+kerning — 88% of fonts keep kerning in `GPOS` and only 4% in the legacy `kern`
+table, so `kern` alone would buy almost nothing.
 
 ## Polygon filling
 
@@ -148,6 +189,13 @@ back to that contract; for a border-less fill use
 Because winding direction decides what is inside, `Polygon` vertex order is
 semantically meaningful for self-intersecting polygons. Don't normalise edge
 direction anywhere in the fill path — it destroys the winding information.
+
+`fill/2` also takes a **list** of polygons, which puts every contour's edges on
+the same scanline and into the same winding count. A contour wound against the
+one enclosing it therefore cuts a hole with no special handling, which is what
+`Vivid.Region` is built on and what makes the counter in an `o` come out empty.
+A `Group` of filled polygons is *not* the same thing: it fills each ring in
+ignorance of the others.
 
 Any change here needs doctests covering sloped edges of **both** slope signs, a
 concave shape and a self-intersecting one. The rectilinear example alone

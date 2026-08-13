@@ -9,7 +9,7 @@ defmodule Vivid.Mixfile do
       app: :vivid,
       version: @version,
       description: description(),
-      elixir: "~> 1.3",
+      elixir: "~> 1.18",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       package: package(),

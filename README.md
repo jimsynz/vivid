@@ -141,10 +141,14 @@ Font use restrictions:
       the coordinate values as ASCII numbers.
 ```
 
-This distribution also includes `priv/fonts/roboto-subset.ttf`, a subset of
-[Roboto](https://github.com/googlefonts/roboto-2) cut down to ten glyphs, used
-by the TrueType parser's tests and examples. Roboto is copyright Google Inc. and
-licensed under the Apache License 2.0, the text of which is included in
+This distribution also includes two subsets of
+[Roboto](https://github.com/googlefonts/roboto-2), cut down to the same ten
+glyphs and used by the font parser's tests and examples.
+`priv/fonts/roboto-subset.ttf` keeps Roboto's original TrueType outlines;
+`priv/fonts/roboto-subset.otf` has had those outlines converted to the
+PostScript ones a CFF font uses, so that both kinds of outline can be tested
+against the same glyphs. Roboto is copyright Google Inc. and licensed under the
+Apache License 2.0, the text of which is included in
 `priv/fonts/LICENSE-Roboto.txt`.
 
 ## Status
