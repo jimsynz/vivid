@@ -10,7 +10,7 @@ GitHub. PNG output lives in a separate package, `vivid_png`.
 
 ## Commands
 
-    mix test              # fast: ~0.2s, 215 tests
+    mix test              # fast: ~0.2s, 219 tests
     mix check --no-retry  # full verification: compiler, format, credo, dialyzer, doctor, mix_audit, ex_unit
     mix format
 
@@ -28,7 +28,7 @@ defmodule Vivid.CircleTest do
 end
 ```
 
-All 215 tests come from `@doc` and `@moduledoc` examples. This is deliberate:
+All 219 tests come from `@doc` and `@moduledoc` examples. This is deliberate:
 the expected output of a doctest is usually an ASCII rendering, so the docs and
 the visual regression tests are the same artefact. Consequences:
 
@@ -113,6 +113,36 @@ a `to_polygon/1` and delegating over writing a new rasteriser.
   deliberately.
 - The project is in maintenance mode — dependency bumps and warning fixes. Small
   targeted diffs, not refactors.
+
+## Antialiasing
+
+Opt-in, per frame, and off by default: `Frame.samples/2` sets how many samples
+per pixel on each axis. **Leave the default at 1.** Every ASCII doctest in the
+suite is an aliased rendering, so turning it on globally would rewrite all of
+them.
+
+`Vivid.Buffer` implements it by scaling the shape through `Transformable`,
+rasterising into correspondingly magnified bounds, then counting how many
+subpixels landed in each real pixel and scaling the colour's alpha by that
+fraction. Coverage shows up in ASCII output because `RGBA.to_ascii/1` maps
+luminance onto a ten character ramp.
+
+That means it needs **no change to the `Vivid.Rasterize` contract**, which still
+returns a plain `MapSet` of `Point`s, and no change to any shape.
+
+It works only because shape geometry keeps unrounded float coordinates all the
+way to the rasteriser. **Don't round in a `to_shape`, `to_polygon` or
+`to_path`** — a shape that rounds its own coordinates has already thrown away
+what a sample would have measured, and can't be antialiased. Rounding belongs in
+the `Rasterize` impls, which is where geometry becomes pixels; `Point.round/1`
+is there for them. Integer counts and sizes — `Circle.to_polygon/1`'s step
+count, a frame's dimensions, a byte value — are a different thing and stay
+rounded.
+
+Cost is `samples` squared. The known limitation is that shapes tessellating a
+curve into line segments (`Circle`, `Arc`, `Bezier`, outline glyphs) pick their
+step count from their nominal size, so sampling magnifies the segments instead
+of smoothing them.
 
 ## Fonts
 

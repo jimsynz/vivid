@@ -1,6 +1,6 @@
 defmodule Vivid.Frame do
   alias Vivid.{Buffer, Frame, RGBA, Shape}
-  defstruct ~w(width height background_colour shapes)a
+  defstruct ~w(width height background_colour shapes samples)a
 
   @moduledoc ~S"""
   Frame represents a collection of colours and shapes.
@@ -43,7 +43,8 @@ defmodule Vivid.Frame do
           width: pos_integer(),
           height: pos_integer(),
           background_colour: RGBA.t(),
-          shapes: [{Shape.t(), RGBA.t()}]
+          shapes: [{Shape.t(), RGBA.t()}],
+          samples: pos_integer()
         }
 
   @doc """
@@ -61,7 +62,7 @@ defmodule Vivid.Frame do
   @spec init(pos_integer(), pos_integer(), RGBA.t()) :: Frame.t()
   def init(width \\ 128, height \\ 64, %RGBA{} = colour \\ RGBA.init(0, 0, 0, 0))
       when is_integer(width) and is_integer(height) and width > 0 and height > 0 do
-    %Frame{width: width, height: height, background_colour: colour, shapes: []}
+    %Frame{width: width, height: height, background_colour: colour, shapes: [], samples: 1}
   end
 
   @doc ~S"""
@@ -184,6 +185,71 @@ defmodule Vivid.Frame do
   """
   @spec background_colour(Frame.t()) :: RGBA.t()
   def background_colour(%Frame{background_colour: c}), do: c
+
+  @doc """
+  Return how many samples per pixel, on each axis, the `frame` is rendered with.
+
+  ## Example
+
+      iex> Vivid.Frame.init(80, 25) |> Vivid.Frame.samples
+      1
+  """
+  @spec samples(Frame.t()) :: pos_integer()
+  def samples(%Frame{samples: s}), do: s
+
+  @doc ~S"""
+  Render the `frame` with `samples` samples per pixel on each axis.
+
+  Shapes are rasterized at `samples` times the frame's size, and each pixel takes
+  its alpha from the proportion of its samples the shape covered. That's what
+  softens the stepping on any edge which isn't horizontal or vertical.
+
+  One sample per pixel - the default - is the aliased rendering this library has
+  always done, and costs nothing extra. Anything higher costs `samples` squared
+  as much rasterization, so 2 costs four times and 4 sixteen times.
+
+  Shapes which approximate a curve with straight lines - `Vivid.Circle`,
+  `Vivid.Arc`, `Vivid.Bezier`, and the glyphs of an outline font - choose how
+  finely to do that from their nominal size, before they know they're being
+  sampled. Sampling magnifies the line segments they already had rather than
+  smoothing them into a curve, so raise their step count too if the flat spots
+  show.
+
+  ## Examples
+
+  A diagonal line at the default one sample per pixel, stepping between rows.
+
+      iex> use Vivid
+      ...> line = Line.init(Point.init(0, 0), Point.init(11, 5))
+      ...> Frame.init(12, 6, RGBA.white())
+      ...> |> Frame.push(line, RGBA.black())
+      ...> |> to_string()
+      "@@@@@@@@@@  \n" <>
+      "@@@@@@@@  @@\n" <>
+      "@@@@@@  @@@@\n" <>
+      "@@@@  @@@@@@\n" <>
+      "@@  @@@@@@@@\n" <>
+      "  @@@@@@@@@@\n"
+
+  The same line with four samples per pixel. The ASCII renderer maps luminance
+  onto ten characters, so partly covered pixels come out as the ones in between.
+
+      iex> use Vivid
+      ...> line = Line.init(Point.init(0, 0), Point.init(11, 5))
+      ...> Frame.init(12, 6, RGBA.white())
+      ...> |> Frame.push(line, RGBA.black())
+      ...> |> Frame.samples(4)
+      ...> |> to_string()
+      "@@@@@@@@@@%%\n" <>
+      "@@@@@@@@%+*@\n" <>
+      "@@@@@@#+*@@@\n" <>
+      "@@@@*+#@@@@@\n" <>
+      "@@++%@@@@@@@\n" <>
+      "++@@@@@@@@@@\n"
+  """
+  @spec samples(Frame.t(), pos_integer()) :: Frame.t()
+  def samples(%Frame{} = frame, samples) when is_integer(samples) and samples > 0,
+    do: %{frame | samples: samples}
 
   @doc """
   Change the background `colour` of the `frame`.

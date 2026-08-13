@@ -7,7 +7,7 @@ defmodule Vivid.OpenType do
   Reads OpenType fonts - both the TrueType outlines in a `.ttf` and the
   PostScript ones in a `.otf` - and says clearly why it can't when it can't.
 
-  ## Example
+  ## Examples
 
       iex> Path.join(:code.priv_dir(:vivid), "fonts/roboto-subset.ttf")
       ...> |> Vivid.OpenType.load!()
@@ -27,6 +27,38 @@ defmodule Vivid.OpenType do
       "@  @@   @@   @\n" <>
       "@  @@       @@\n" <>
       "@  @@@     @@@\n" <>
+      "@@@@@@@@@@@@@@\n"
+
+  Text is where antialiasing earns its keep, and at this size it's the
+  difference between legible and not. The same two letters again, drawn into a
+  frame taking four samples per pixel, so a partly covered pixel comes out as
+  something between ink and paper rather than having to choose.
+
+      iex> font = Vivid.OpenType.load!(Path.join(:code.priv_dir(:vivid), "fonts/roboto-subset.ttf"))
+      ...> frame = Vivid.Frame.init(14, 15, Vivid.RGBA.white())
+      ...> text =
+      ...>   font
+      ...>   |> Vivid.Font.line("lo", 16)
+      ...>   |> Vivid.Transform.center(frame)
+      ...>   |> Vivid.Transform.apply()
+      ...> frame
+      ...> |> Vivid.Frame.push(text, Vivid.RGBA.black())
+      ...> |> Vivid.Frame.samples(4)
+      ...> |> to_string()
+      "@@@@@@@@@@@@@@\n" <>
+      "@+*@@@@@@@@@@@\n" <>
+      "@  @@@@@@@@@@@\n" <>
+      "@  @@@@@@@@@@@\n" <>
+      "@  @@@@@@@@@@@\n" <>
+      "@  @@@:   =@@@\n" <>
+      "@  @@. .:  -@@\n" <>
+      "@  @+ :@@%  @@\n" <>
+      "@  @. *@@@: +@\n" <>
+      "@  @  @@@@: +@\n" <>
+      "@  @. #@@@: +@\n" <>
+      "@  @- :@@@  @@\n" <>
+      "@  @@. .=. :@@\n" <>
+      "@  @@%.   :@@@\n" <>
       "@@@@@@@@@@@@@@\n"
 
   ## What's supported

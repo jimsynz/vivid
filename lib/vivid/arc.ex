@@ -12,7 +12,7 @@ defmodule Vivid.Arc do
       ...> Arc.init(Point.init(10,10), 10, 0, 45)
       ...> |> to_string()
       "@@@@@@\n" <>
-      "@@@  @\n" <>
+      "@@@@ @\n" <>
       "@@@ @@\n" <>
       "@@ @@@\n" <>
       "@@ @@@\n" <>
@@ -191,7 +191,12 @@ defmodule Vivid.Arc do
 
       iex> Vivid.Arc.init(Vivid.Point.init(10,10), 5, 0, 90, 3)
       ...> |> Vivid.Arc.to_path
-      Vivid.Path.init([Vivid.Point.init(5, 10), Vivid.Point.init(6, 13), Vivid.Point.init(8, 14), Vivid.Point.init(10, 15)])
+      Vivid.Path.init([
+        Vivid.Point.init(5.0, 10.0),
+        Vivid.Point.init(5.669872981077806, 12.5),
+        Vivid.Point.init(7.500000000000001, 14.330127018922195),
+        Vivid.Point.init(10.0, 15.0)
+      ])
   """
   @spec to_path(Arc.t()) :: Path.t()
   def to_path(
@@ -209,8 +214,8 @@ defmodule Vivid.Arc do
         theta = step_degree * step + start_angle
         theta = degrees_to_radians(theta)
 
-        x = round(h + radius * cos(theta))
-        y = round(k - radius * sin(theta))
+        x = h + radius * cos(theta)
+        y = k - radius * sin(theta)
 
         Point.init(x, y)
       end)

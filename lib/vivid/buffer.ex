@@ -1,5 +1,5 @@
 defmodule Vivid.Buffer do
-  alias Vivid.{Bounds, Buffer, Frame, Point, Rasterize, RGBA}
+  alias Vivid.{Bounds, Buffer, Frame, Point, Rasterize, RGBA, Transformable}
   defstruct ~w(buffer rows columns)a
 
   @moduledoc ~S"""
@@ -54,13 +54,13 @@ defmodule Vivid.Buffer do
       "@@@@@\n"
   """
   @spec horizontal(Frame.t()) :: Buffer.t()
-  def horizontal(%Frame{shapes: shapes, width: w, height: h} = frame) do
+  def horizontal(%Frame{shapes: shapes, width: w, height: h, samples: samples} = frame) do
     empty_buffer = allocate(frame)
     bounds = Bounds.bounds(frame)
 
     buffer =
       shapes
-      |> Enum.reduce(empty_buffer, &horizontal_reducer(&1, &2, bounds, w))
+      |> Enum.reduce(empty_buffer, &horizontal_reducer(&1, &2, bounds, w, samples))
       |> :array.to_list()
 
     %Buffer{buffer: buffer, rows: h, columns: w}
@@ -83,13 +83,13 @@ defmodule Vivid.Buffer do
       "@@ @@\n"
   """
   @spec vertical(Frame.t()) :: Buffer.t()
-  def vertical(%Frame{shapes: shapes, width: w, height: h} = frame) do
+  def vertical(%Frame{shapes: shapes, width: w, height: h, samples: samples} = frame) do
     bounds = Bounds.bounds(frame)
     empty_buffer = allocate(frame)
 
     buffer =
       shapes
-      |> Enum.reduce(empty_buffer, &vertical_reducer(&1, &2, bounds, h))
+      |> Enum.reduce(empty_buffer, &vertical_reducer(&1, &2, bounds, h, samples))
       |> :array.to_list()
 
     %Buffer{buffer: buffer, rows: w, columns: h}
@@ -132,25 +132,66 @@ defmodule Vivid.Buffer do
     |> IO.iodata_to_binary()
   end
 
-  defp horizontal_reducer({shape, colour}, buffer, bounds, width) do
+  defp horizontal_reducer({shape, colour}, buffer, bounds, width, samples) do
     shape
-    |> Rasterize.rasterize(bounds)
-    |> Enum.reduce(buffer, fn %Point{x: x, y: y}, buf ->
-      composite(buf, y * width + x, colour)
+    |> coverage(bounds, samples)
+    |> Enum.reduce(buffer, fn {{x, y}, coverage}, buf ->
+      composite(buf, y * width + x, colour, coverage)
     end)
   end
 
-  defp vertical_reducer({shape, colour}, buffer, bounds, width) do
+  defp vertical_reducer({shape, colour}, buffer, bounds, width, samples) do
     shape
-    |> Rasterize.rasterize(bounds)
-    |> Enum.reduce(buffer, fn point, buf ->
-      %Point{x: x, y: y} = Point.swap_xy(point)
-      composite(buf, y * width + x, colour)
+    |> coverage(bounds, samples)
+    |> Enum.reduce(buffer, fn {{x, y}, coverage}, buf ->
+      composite(buf, x * width + y, colour, coverage)
     end)
   end
 
-  defp composite(buffer, position, colour),
+  defp coverage(shape, bounds, 1) do
+    shape
+    |> Rasterize.rasterize(bounds)
+    |> Enum.map(fn %Point{x: x, y: y} -> {{x, y}, 1} end)
+  end
+
+  defp coverage(shape, bounds, samples) do
+    per_pixel = samples * samples
+
+    shape
+    |> Transformable.transform(&Point.init(Point.x(&1) * samples, Point.y(&1) * samples))
+    |> Rasterize.rasterize(magnify(bounds, samples))
+    |> Enum.reduce(%{}, fn %Point{x: x, y: y}, counts ->
+      Map.update(counts, {div(x, samples), div(y, samples)}, 1, &(&1 + 1))
+    end)
+    |> Enum.map(fn {pixel, covered} -> {pixel, covered / per_pixel} end)
+  end
+
+  defp magnify(bounds, samples) do
+    min = Bounds.min(bounds)
+    max = Bounds.max(bounds)
+
+    Bounds.init(
+      Point.x(min) * samples,
+      Point.y(min) * samples,
+      (Point.x(max) + 1) * samples - 1,
+      (Point.y(max) + 1) * samples - 1
+    )
+  end
+
+  defp composite(buffer, position, colour, 1),
     do: :array.set(position, RGBA.over(:array.get(position, buffer), colour), buffer)
+
+  defp composite(buffer, position, colour, coverage) do
+    faded =
+      RGBA.init(
+        RGBA.red(colour),
+        RGBA.green(colour),
+        RGBA.blue(colour),
+        RGBA.alpha(colour) * coverage
+      )
+
+    :array.set(position, RGBA.over(:array.get(position, buffer), faded), buffer)
+  end
 
   defp allocate(%Frame{width: w, height: h, background_colour: bg}),
     do: :array.new(w * h, [{:default, bg}, {:fixed, true}])

@@ -15,19 +15,19 @@ defmodule Vivid.Font.Char do
   I assume this is for kerning. I may be wrong.
   """
   @spec width(Char.t(), number) :: number
-  def width(%Char{left_pos: l, right_pos: r}, scale \\ 1.0), do: round((abs(l) + abs(r)) * scale)
+  def width(%Char{left_pos: l, right_pos: r}, scale \\ 1.0), do: (abs(l) + abs(r)) * scale
 
   @doc """
   Returns the left padding specified for this character.
   """
   @spec left_pad(Char.t(), number) :: number
-  def left_pad(%Char{left_pos: l}, scale \\ 1.0), do: round(abs(l) * scale)
+  def left_pad(%Char{left_pos: l}, scale \\ 1.0), do: abs(l) * scale
 
   @doc """
   Returns the right padding specified for this character.
   """
   @spec right_pad(Char.t(), number) :: number
-  def right_pad(%Char{right_pos: r}, scale \\ 1.0), do: round(abs(r) * scale)
+  def right_pad(%Char{right_pos: r}, scale \\ 1.0), do: abs(r) * scale
 
   @doc """
   Rendered width of a character.
@@ -59,8 +59,8 @@ defmodule Vivid.Font.Char do
         [[] | acc]
 
       {x, y}, [last | rest] ->
-        x = round(x_center + x * scale)
-        y = round(y_center + y * scale)
+        x = x_center + x * scale
+        y = y_center + y * scale
         [[Point.init(x, y) | last] | rest]
     end)
     |> Enum.map(&Path.init(&1))
@@ -78,7 +78,7 @@ defmodule Vivid.Font.Char do
     else
       max = coords |> Enum.max()
       min = coords |> Enum.min()
-      round((max - min) * scale)
+      (max - min) * scale
     end
   end
 end
