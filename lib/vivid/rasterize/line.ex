@@ -48,22 +48,21 @@ defimpl Vivid.Rasterize, for: Vivid.Line do
 
     points =
       if steps == 0 do
-        MapSet.new([origin])
+        [origin]
       else
         x_increment = dx / steps
         y_increment = dy / steps
 
-        points = MapSet.new([origin])
         current_x = origin |> Point.x()
         current_y = origin |> Point.y()
 
-        reduce_points({points, steps, current_x, current_y, x_increment, y_increment})
+        reduce_points({[origin], steps, current_x, current_y, x_increment, y_increment})
       end
 
     points
     |> Stream.map(&Point.round(&1))
     |> Stream.filter(&Bounds.contains?(bounds, &1))
-    |> Enum.into(MapSet.new())
+    |> MapSet.new()
   end
 
   defp reduce_points({points, 0, _, _, _, _}), do: points
@@ -72,7 +71,7 @@ defimpl Vivid.Rasterize, for: Vivid.Line do
     next_x = current_x + x_increment
     next_y = current_y + y_increment
     steps = steps - 1
-    points = MapSet.put(points, Point.init(next_x, next_y))
+    points = [Point.init(next_x, next_y) | points]
     reduce_points({points, steps, next_x, next_y, x_increment, y_increment})
   end
 

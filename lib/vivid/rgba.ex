@@ -211,6 +211,20 @@ defmodule Vivid.RGBA do
   end
 
   @doc """
+  Convert a colour into four bytes, in red, green, blue, alpha order.
+
+  ## Example
+
+      iex> Vivid.RGBA.init(0.7, 0.6, 0.5)
+      ...> |> Vivid.RGBA.to_binary
+      <<179, 153, 128, 255>>
+  """
+  @spec to_binary(RGBA.t()) :: binary
+  def to_binary(%RGBA{red: r, green: g, blue: b, alpha: a}) do
+    <<round(r * 255), round(g * 255), round(b * 255), round(a * 255)>>
+  end
+
+  @doc """
   Blend two colours together using their alpha information using the "over" algorithm.
 
   ## Examples

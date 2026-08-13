@@ -1,5 +1,5 @@
 defmodule Vivid.Polygon.Fill do
-  alias Vivid.{Line, Point, Polygon}
+  alias Vivid.{Bounds, Line, Point, Polygon}
 
   @moduledoc ~S"""
   Computes the filled area of a polygon by scanline conversion.
@@ -137,20 +137,54 @@ defmodule Vivid.Polygon.Fill do
       "                     \n"
   """
   @spec fill(Polygon.t()) :: MapSet.t()
-  def fill(%Polygon{vertices: vertices} = polygon) do
+  def fill(%Polygon{} = polygon), do: fill(polygon, Bounds.bounds(polygon))
+
+  @doc ~S"""
+  Returns the points making up the filled area of `polygon` which lie within
+  `bounds`, as a `MapSet`.
+
+  Spans are clipped to `bounds` before their pixels are generated, so filling a
+  polygon much larger than the area you care about costs no more than the area
+  itself.
+
+  ## Example
+
+  A polygon overhanging the frame on every side, clipped to the middle of it.
+
+      iex> use Vivid
+      ...> frame = Frame.init(8, 8, RGBA.black())
+      ...> polygon = Polygon.init([Point.init(-5, -5), Point.init(12, -5), Point.init(12, 12), Point.init(-5, 12)])
+      ...> Frame.push(frame, Group.init(Vivid.Polygon.Fill.fill(polygon, Bounds.init(2, 2, 5, 5))), RGBA.white())
+      ...> |> to_string()
+      "        \n" <>
+      "        \n" <>
+      "  @@@@  \n" <>
+      "  @@@@  \n" <>
+      "  @@@@  \n" <>
+      "  @@@@  \n" <>
+      "        \n" <>
+      "        \n"
+  """
+  @spec fill(Polygon.t(), Bounds.t()) :: MapSet.t()
+  def fill(%Polygon{vertices: vertices} = polygon, bounds) do
     edges =
       polygon
       |> Polygon.to_lines()
       |> Enum.reject(&horizontal?(&1))
 
     {y_min, y_max} = vertices |> Enum.map(& &1.y) |> Enum.min_max()
+    %Point{x: x_first, y: y_first} = Bounds.min(bounds)
+    %Point{x: x_last, y: y_last} = Bounds.max(bounds)
+    columns = ceil(x_first)..floor(x_last)//1
 
-    Enum.reduce(ceil(y_min)..floor(y_max)//1, MapSet.new(), fn y, points ->
+    max(ceil(y_min), ceil(y_first))..min(floor(y_max), floor(y_last))//1
+    |> Enum.reduce([], fn y, points ->
       edges
       |> crossings(y)
       |> spans()
-      |> Enum.reduce(points, &fill_span(&1, &2, y))
+      |> Enum.reduce(points, &fill_span(&1, &2, y, columns))
     end)
+    |> MapSet.new()
   end
 
   defp horizontal?(%Line{origin: %Point{y: y}, termination: %Point{y: y}}), do: true
@@ -189,7 +223,8 @@ defmodule Vivid.Polygon.Fill do
   defp accumulate_span({_x, direction}, {winding, start, spans}),
     do: {winding + direction, start, spans}
 
-  defp fill_span({x_start, x_end}, points, y) do
-    Enum.reduce(ceil(x_start)..floor(x_end)//1, points, &MapSet.put(&2, Point.init(&1, y)))
+  defp fill_span({x_start, x_end}, points, y, x_first..x_last//_) do
+    max(ceil(x_start), x_first)..min(floor(x_end), x_last)//1
+    |> Enum.reduce(points, &[Point.init(&1, y) | &2])
   end
 end

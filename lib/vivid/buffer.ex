@@ -57,7 +57,12 @@ defmodule Vivid.Buffer do
   def horizontal(%Frame{shapes: shapes, width: w, height: h} = frame) do
     empty_buffer = allocate(frame)
     bounds = Bounds.bounds(frame)
-    buffer = Enum.reduce(shapes, empty_buffer, &horizontal_reducer(&1, &2, bounds, w))
+
+    buffer =
+      shapes
+      |> Enum.reduce(empty_buffer, &horizontal_reducer(&1, &2, bounds, w))
+      |> :array.to_list()
+
     %Buffer{buffer: buffer, rows: h, columns: w}
   end
 
@@ -81,7 +86,11 @@ defmodule Vivid.Buffer do
   def vertical(%Frame{shapes: shapes, width: w, height: h} = frame) do
     bounds = Bounds.bounds(frame)
     empty_buffer = allocate(frame)
-    buffer = Enum.reduce(shapes, empty_buffer, &vertical_reducer(&1, &2, bounds, h))
+
+    buffer =
+      shapes
+      |> Enum.reduce(empty_buffer, &vertical_reducer(&1, &2, bounds, h))
+      |> :array.to_list()
 
     %Buffer{buffer: buffer, rows: w, columns: h}
   end
@@ -98,30 +107,51 @@ defmodule Vivid.Buffer do
   @spec columns(t) :: pos_integer
   def columns(%Buffer{columns: c}), do: c
 
-  defp horizontal_reducer({shape, colour}, buffer, bounds, width) do
-    points = Rasterize.rasterize(shape, bounds)
+  @doc ~S"""
+  Convert the `buffer` into a binary of four byte RGBA pixels.
 
-    Enum.reduce(points, buffer, fn %Point{x: x, y: y}, buf ->
-      pos = y * width + x
-      existing = Enum.at(buf, pos)
-      List.replace_at(buf, pos, RGBA.over(existing, colour))
+  Rows are emitted from the top of the buffer downwards, and each row from left
+  to right, which is the order image formats expect rather than the bottom-up
+  order the buffer is indexed in.
+
+  ## Example
+
+      iex> use Vivid
+      ...> Frame.init(2, 2, RGBA.black())
+      ...> |> Frame.push(Point.init(0, 0), RGBA.white())
+      ...> |> Frame.buffer()
+      ...> |> Buffer.to_binary()
+      <<0, 0, 0, 255, 0, 0, 0, 255, 255, 255, 255, 255, 0, 0, 0, 255>>
+  """
+  @spec to_binary(t) :: binary
+  def to_binary(%Buffer{buffer: buffer, columns: columns}) do
+    buffer
+    |> Enum.map(&RGBA.to_binary(&1))
+    |> Enum.chunk_every(columns)
+    |> Enum.reverse()
+    |> IO.iodata_to_binary()
+  end
+
+  defp horizontal_reducer({shape, colour}, buffer, bounds, width) do
+    shape
+    |> Rasterize.rasterize(bounds)
+    |> Enum.reduce(buffer, fn %Point{x: x, y: y}, buf ->
+      composite(buf, y * width + x, colour)
     end)
   end
 
   defp vertical_reducer({shape, colour}, buffer, bounds, width) do
-    points = Rasterize.rasterize(shape, bounds)
-
-    Enum.reduce(points, buffer, fn point, buf ->
-      point = Point.swap_xy(point)
-      pos = point.y * width + point.x
-      existing = Enum.at(buf, pos)
-      List.replace_at(buf, pos, RGBA.over(existing, colour))
+    shape
+    |> Rasterize.rasterize(bounds)
+    |> Enum.reduce(buffer, fn point, buf ->
+      %Point{x: x, y: y} = Point.swap_xy(point)
+      composite(buf, y * width + x, colour)
     end)
   end
 
-  defp allocate(%Frame{width: w, height: h, background_colour: bg}),
-    do: generate_buffer([], w * h, bg)
+  defp composite(buffer, position, colour),
+    do: :array.set(position, RGBA.over(:array.get(position, buffer), colour), buffer)
 
-  defp generate_buffer(buffer, 0, _colour), do: buffer
-  defp generate_buffer(buffer, i, colour), do: generate_buffer([colour | buffer], i - 1, colour)
+  defp allocate(%Frame{width: w, height: h, background_colour: bg}),
+    do: :array.new(w * h, [{:default, bg}, {:fixed, true}])
 end
