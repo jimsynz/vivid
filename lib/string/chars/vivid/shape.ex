@@ -26,7 +26,7 @@ defmodule Vivid.ShapeToString do
   end
 end
 
-Enum.each(~w(Arc Box Circle Group Line Path Polygon), fn type ->
+Enum.each(~w(Arc Bezier Box Circle Group Line Path Polygon), fn type ->
   mod = Module.concat(Vivid, type)
 
   defimpl String.Chars, for: mod do

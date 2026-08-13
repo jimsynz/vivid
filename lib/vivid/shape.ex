@@ -1,5 +1,5 @@
 defmodule Vivid.Shape do
-  alias Vivid.{Arc, Bounds, Box, Circle, Group, Line, Path, Point, Polygon}
+  alias Vivid.{Arc, Bezier, Bounds, Box, Circle, Group, Line, Path, Point, Polygon}
 
   @moduledoc """
   Doesn't do anything - is merely a type to represent an arbitrary shape in typespecs.
@@ -7,6 +7,7 @@ defmodule Vivid.Shape do
 
   @type t ::
           Arc.t()
+          | Bezier.t()
           | Bounds.t()
           | Box.t()
           | Circle.t()

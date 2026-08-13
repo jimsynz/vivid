@@ -3,6 +3,7 @@ defmodule Vivid do
     quote do
       alias Vivid.{
         Arc,
+        Bezier,
         Bounds,
         Box,
         Buffer,
