@@ -19,6 +19,7 @@ defmodule Vivid do
         Point,
         Polygon,
         Rasterize,
+        Region,
         RGBA,
         Transform
       }

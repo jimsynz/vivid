@@ -141,14 +141,18 @@ Font use restrictions:
       the coordinate values as ASCII numbers.
 ```
 
+This distribution also includes `priv/fonts/roboto-subset.ttf`, a subset of
+[Roboto](https://github.com/googlefonts/roboto-2) cut down to ten glyphs, used
+by the TrueType parser's tests and examples. Roboto is copyright Google Inc. and
+licensed under the Apache License 2.0, the text of which is included in
+`priv/fonts/LICENSE-Roboto.txt`.
+
 ## Status
 
 This library is now in use in several projects and seems to work well.
 
 Future improvements include:
 
-- Support polygons with holes, by treating a reversed inner ring as a subtractive
-  contour under the non-zero winding rule already used by `Vivid.Polygon.Fill`.
 - Add transformations which can apply rotation matrices directly.
 - Add ability to composit multiple frames together.
 - Support bitmaps as a shape.

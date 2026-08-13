@@ -20,6 +20,11 @@ defmodule Vivid.Polygon.Fill do
   The returned area includes the pixels the edges themselves pass through, so
   it is the whole filled shape rather than just its interior.
 
+  A list of polygons may be filled as a single area, in which case every
+  contour's edges cross the same scanline and contribute to the same winding
+  count. A contour wound against the one enclosing it therefore cuts a hole,
+  which is what `Vivid.Region` is built on.
+
   ## Example
 
   Filling a notched polygon.
@@ -136,8 +141,10 @@ defmodule Vivid.Polygon.Fill do
       "                     \n" <>
       "                     \n"
   """
-  @spec fill(Polygon.t()) :: MapSet.t()
-  def fill(%Polygon{} = polygon), do: fill(polygon, Bounds.bounds(polygon))
+  @spec fill(Polygon.t() | [Polygon.t()]) :: MapSet.t()
+  def fill([]), do: MapSet.new()
+  def fill(contours) when is_list(contours), do: fill(contours, Bounds.bounds(contours))
+  def fill(%Polygon{} = polygon), do: fill([polygon], Bounds.bounds(polygon))
 
   @doc ~S"""
   Returns the points making up the filled area of `polygon` which lie within
@@ -165,14 +172,22 @@ defmodule Vivid.Polygon.Fill do
       "        \n" <>
       "        \n"
   """
-  @spec fill(Polygon.t(), Bounds.t()) :: MapSet.t()
-  def fill(%Polygon{vertices: vertices} = polygon, bounds) do
+  @spec fill(Polygon.t() | [Polygon.t()], Bounds.t()) :: MapSet.t()
+  def fill([], _bounds), do: MapSet.new()
+  def fill(%Polygon{} = polygon, bounds), do: fill([polygon], bounds)
+
+  def fill(contours, bounds) when is_list(contours) do
     edges =
-      polygon
-      |> Polygon.to_lines()
+      contours
+      |> Enum.flat_map(&Polygon.to_lines(&1))
       |> Enum.reject(&horizontal?(&1))
 
-    {y_min, y_max} = vertices |> Enum.map(& &1.y) |> Enum.min_max()
+    {y_min, y_max} =
+      contours
+      |> Enum.flat_map(fn %Polygon{vertices: vertices} -> vertices end)
+      |> Enum.map(& &1.y)
+      |> Enum.min_max()
+
     %Point{x: x_first, y: y_first} = Bounds.min(bounds)
     %Point{x: x_last, y: y_last} = Bounds.max(bounds)
     columns = ceil(x_first)..floor(x_last)//1
