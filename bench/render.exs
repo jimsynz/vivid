@@ -53,11 +53,42 @@ strokes = fn w, h ->
   )
 end
 
+stroke_text = fn w, h ->
+  Vivid.Font.rowmans()
+  |> Vivid.Font.line("AB Elogo", h / 4)
+  |> Vivid.Transform.translate(w / 20, h / 3)
+  |> Vivid.Transform.apply()
+end
+
+outline_text = fn w, h ->
+  # `use Vivid` aliases `Path`, so Elixir's needs its full name here.
+  Elixir.Path.join(:code.priv_dir(:vivid), "fonts/roboto-subset.ttf")
+  |> Vivid.OpenType.load!()
+  |> Vivid.Font.line("AB Elogo", h / 4)
+  |> Vivid.Transform.translate(w / 20, h / 3)
+  |> Vivid.Transform.apply()
+end
+
+# Every operation in a pipeline is its own pass over every point, so this
+# measures the pipeline's depth as much as the shape's size.
+transformed = fn w, h ->
+  Circle.init(Point.init(w / 2, h / 2), min(w, h) / 3)
+  |> Circle.to_polygon(256)
+  |> Vivid.Transform.rotate(30)
+  |> Vivid.Transform.scale(0.75)
+  |> Vivid.Transform.translate(w / 10, h / 10)
+  |> Vivid.Transform.rotate(15)
+  |> Vivid.Transform.apply()
+end
+
 scenes =
   [
     {"circle outline", outline},
     {"filled polygon", filled},
-    {"32 lines", strokes}
+    {"32 lines", strokes},
+    {"stroke text", stroke_text},
+    {"outline text", outline_text},
+    {"transform pipeline", transformed}
   ]
   |> Enum.filter(fn {scene, _} ->
     case System.get_env("VIVID_SCENES") do
