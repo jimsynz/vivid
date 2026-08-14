@@ -64,7 +64,9 @@ defmodule Vivid.OpenType do
   ## What's supported
 
   Glyph outlines from either the `glyf` table or a `CFF ` table, a character map
-  from a format 4 `cmap` subtable, and advance widths from `hmtx`. TrueType
+  from a format 4 or format 12 `cmap` subtable, and advance widths from `hmtx`.
+  Format 12 is what reaches codepoints above `U+FFFF`, so a font's emoji and its
+  rarer CJK characters are drawable where the font has them. TrueType
   composite glyphs - which is what every accented character is - are assembled
   from their components, and CFF charstrings are interpreted including their
   subroutines.
@@ -73,11 +75,16 @@ defmodule Vivid.OpenType do
   weight, because a variable font is an ordinary font whose `glyf` table holds
   that instance. It can't be varied, but it isn't refused and doesn't look wrong.
 
+  WOFF files are read too. A WOFF is an ordinary font with each table
+  individually zlib compressed, which `:zlib` - preloaded in erts, so no
+  dependency - inflates back into exactly the tables the rest of this module
+  already reads.
+
   ## What isn't, and what happens instead
 
-  CID-keyed CFF fonts, CFF2, bitmap-only fonts, and WOFF or WOFF2 containers are
-  all detected and reported by name rather than failing on a bad match. WOFF2 in
-  particular is compressed with Brotli, which can't be decompressed in pure
+  CID-keyed CFF fonts, CFF2, bitmap-only fonts and WOFF2 containers are all
+  detected and reported by name rather than failing on a bad match. WOFF2 is the
+  awkward one: it's compressed with Brotli, which can't be decompressed in pure
   Elixir, so it needs converting ahead of time.
 
   Kerning is not applied. Nearly all modern fonts keep their kerning in `GPOS`
@@ -103,6 +110,16 @@ defmodule Vivid.OpenType do
 
       iex> Vivid.OpenType.load(Path.join(:code.priv_dir(:vivid), "hershey/rowmans.jhf"))
       {:error, "not a font this library recognises"}
+
+  The same font as a WOFF draws the same thing. A WOFF *is* the same font, with
+  each of its tables individually zlib compressed, so once they're inflated
+  there's nothing left to tell apart.
+
+      iex> dir = :code.priv_dir(:vivid)
+      ...> sfnt = Vivid.OpenType.load!(Path.join(dir, "fonts/roboto-subset.ttf"))
+      ...> woff = Vivid.OpenType.load!(Path.join(dir, "fonts/roboto-subset.woff"))
+      ...> to_string(Vivid.Font.line(woff, "lo", 16)) == to_string(Vivid.Font.line(sfnt, "lo", 16))
+      true
   """
   @spec load(Path.t()) :: {:ok, Font.t()} | {:error, String.t()}
   def load(path) do
@@ -144,10 +161,12 @@ defmodule Vivid.OpenType do
   defp tables(<<"ttcf", _version::32, _count::32, first::32, _::binary>> = data),
     do: {:ok, directory(data, first)}
 
-  defp tables(<<"wOFF", _::binary>>),
-    do:
-      {:error,
-       "WOFF fonts aren't supported yet; convert it to a TTF, or use the TTF it was made from"}
+  defp tables(
+         <<"wOFF", _flavor::32, _length::32, count::16, _reserved::16, _sfnt_size::32, _major::16,
+           _minor::16, _metadata_offset::32, _metadata_length::32, _metadata_size::32,
+           _private_offset::32, _private_length::32, records::binary>> = data
+       ),
+       do: {:ok, woff_directory(data, records, count)}
 
   defp tables(<<"wOF2", _::binary>>),
     do:
@@ -243,6 +262,22 @@ defmodule Vivid.OpenType do
     do: elem(advances, min(index, tuple_size(advances) - 1))
 
   defp advance(_advances, _index), do: 0
+
+  defp woff_directory(data, records, count) do
+    for <<tag::binary-size(4), offset::32, stored::32, original::32,
+          _checksum::32 <-
+            binary_slice(records, 0, count * 20)>>,
+        into: %{},
+        do: {tag, inflate(binary_slice(data, offset, stored), original)}
+  end
+
+  defp inflate(table, original) when byte_size(table) >= original, do: table
+
+  defp inflate(table, _original) do
+    :zlib.uncompress(table)
+  rescue
+    ErlangError -> <<>>
+  end
 
   defp outlines(loca, format, glyf, glyph_count) do
     loca

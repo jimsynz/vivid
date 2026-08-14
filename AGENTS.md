@@ -10,7 +10,7 @@ GitHub. PNG output lives in a separate package, `vivid_png`.
 
 ## Commands
 
-    mix test              # fast: ~0.2s, 219 tests
+    mix test              # fast: ~0.5s, 222 tests
     mix check --no-retry  # full verification: compiler, format, credo, dialyzer, doctor, mix_audit, ex_unit
     mix format
 
@@ -28,7 +28,7 @@ defmodule Vivid.CircleTest do
 end
 ```
 
-All 219 tests come from `@doc` and `@moduledoc` examples. This is deliberate:
+All 222 tests come from `@doc` and `@moduledoc` examples. This is deliberate:
 the expected output of a doctest is usually an ASCII rendering, so the docs and
 the visual regression tests are the same artefact. Consequences:
 
@@ -161,8 +161,8 @@ units so that its cap height lands at a realistic 0.66 em.
 | --- | --- |
 | `Vivid.Hershey` | Hershey stroke fonts from `priv/hershey/*.jhf` (32 files: Gothic, cursive, Cyrillic, Greek, Japanese, plus symbol sets). Third-party public-domain data — read-only |
 | `Vivid.Font.Char` | a Hershey glyph: pen up/down movements, drawn as `Path`s |
-| `Vivid.OpenType` | the sfnt container — magic sniffing, `head`/`maxp`/`loca`/`hhea`/`hmtx`, and dispatch on which outline table a font actually has |
-| `Vivid.OpenType.CMap` | `cmap` format 4 only. Reaches 696 of 697 fonts surveyed |
+| `Vivid.OpenType` | the sfnt container and the WOFF one — magic sniffing, `head`/`maxp`/`loca`/`hhea`/`hmtx`, and dispatch on which outline table a font actually has |
+| `Vivid.OpenType.CMap` | `cmap` formats 4 and 12. Format 12 is preferred where a font has both, since format 4 can't address anything above `U+FFFF` |
 | `Vivid.TrueType.Glyph` | a `glyf` glyph: quadratic contours, plus composites |
 | `Vivid.CFF` / `.Charstring` / `.Glyph` | PostScript outlines: INDEX and DICT structures, and the Type 2 charstring interpreter |
 
@@ -186,9 +186,12 @@ other. Format variants they can't reach (`cmap`'s `idRangeOffset` path, CFF's
 INDEX and DICT) are doctested against hand-built binaries instead, which
 documents the format better than a fixture does.
 
-Not supported, deliberately: WOFF/WOFF2 (Brotli can't be decompressed in pure
+WOFF is read by inflating each table with `:zlib` (preloaded in erts, so still
+no dependency) and handing the result to the same table parsers.
+
+Not supported, deliberately: WOFF2 (Brotli can't be decompressed in pure
 Elixir), variable font axes (a variable font still renders at its default
-instance), CID-keyed CFF, CFF2, `cmap` format 12, GPOS/GSUB shaping, and
+instance), CID-keyed CFF, CFF2, GPOS/GSUB shaping, and
 kerning — 88% of fonts keep kerning in `GPOS` and only 4% in the legacy `kern`
 table, so `kern` alone would buy almost nothing.
 
