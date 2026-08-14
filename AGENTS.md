@@ -54,7 +54,7 @@ shape set extensible without touching the renderer.
 
 | Protocol | Purpose |
 | --- | --- |
-| `Vivid.Rasterize` | shape → `Vivid.Coverage`, a tensor of per-pixel coverage within given bounds |
+| `Vivid.Rasterize` | shape → `Vivid.Coverage`, per-pixel coverage within given bounds |
 | `Vivid.Transformable` | apply a point-mapping function to a shape |
 | `Vivid.Bounds.Of` | shape → `{bottom_left, top_right}` |
 | `Vivid.Shape` | not a protocol — a typespec union, marks what counts as a shape |
@@ -94,10 +94,25 @@ a `to_polygon/1` and delegating over writing a new rasteriser.
 - **This branch has a runtime dependency on Nx**, which the rest of the project
   does not. It is a spike: the scalar per-pixel loops have been replaced with
   tensor operations, deliberately setting aside the "100% pure Elixir with no
-  dependencies" line in the README. Only the `Nx.BinaryBackend` is used, so
-  there is still no native toolchain involved - and no speedup either, since
-  that backend is a reference implementation. Don't merge this to `main`
-  without deciding that trade deliberately.
+  dependencies" line in the README. Don't merge this to `main` without deciding
+  that trade deliberately.
+- **It is EXLA or nothing.** `Nx.BinaryBackend` is 40-70x *slower* than the
+  scalar code it replaced and is only good for checking correctness. The wins in
+  `bench/RESULTS.md` all need `Nx.global_default_backend(EXLA.Backend)` and
+  `Nx.Defn.global_default_options(compiler: EXLA)`, which means a native
+  toolchain. Below about a quarter of a megapixel the scalar version is still
+  competitive or better.
+- **`Vivid.Buffer.over/3` is a `defn` on purpose.** Compositing, not
+  rasterising, was the dominant cost; as plain `Nx` it was a dozen operations
+  each materialising a whole frame, and fusing it into one kernel was worth 4-6x
+  across every scene. Anything added to it should stay inside the `defn` rather
+  than becoming another `Nx` call around it.
+- **A `Vivid.Coverage` accumulates work rather than doing it.** `union/2`
+  concatenates unmaterialised pixel placements; only `tensor/1` writes the grid.
+  This is what stops a deep shape - text is a group of glyphs, each a group of
+  contours - from costing the area of the frame per primitive. Don't materialise
+  a coverage inside a `Rasterize` impl; hand back placements and let the buffer
+  ask for the grid once.
 - **Y is up.** Coordinates are mathematical, not screen-space. `String.Chars`
   for `Buffer` reverses the buffer before chunking to flip it for display
   (`lib/string/chars/vivid/buffer.ex`). Off-by-one and inverted output almost

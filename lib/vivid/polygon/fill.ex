@@ -187,8 +187,50 @@ defmodule Vivid.Polygon.Fill do
   def fill(contours, bounds) when is_list(contours) do
     case contours |> Enum.flat_map(&Polygon.to_lines(&1)) |> Enum.reject(&horizontal?(&1)) do
       [] -> Coverage.empty(bounds)
-      edges -> Coverage.from_tensor(bounds, inside(edges, bounds))
+      edges -> Coverage.from_tensor(bounds, clipped(edges, bounds))
     end
+  end
+
+  # Only the part of the bounds the contours actually reach can be filled, so
+  # that is the only part worth computing a winding number for; the rest is
+  # padded back on. Without this a glyph on a large frame costs the whole frame,
+  # which is what the scanline range of the scalar version was avoiding.
+  defp clipped(edges, bounds) do
+    %Point{x: x_first, y: y_first} = Bounds.min(bounds)
+    %Point{x: x_last, y: y_last} = Bounds.max(bounds)
+    {x_low, x_high, y_low, y_high} = extent(edges)
+
+    x_from = max(ceil(x_first), floor(x_low))
+    x_to = min(floor(x_last), ceil(x_high))
+    y_from = max(ceil(y_first), floor(y_low))
+    y_to = min(floor(y_last), ceil(y_high))
+
+    if x_to < x_from or y_to < y_from do
+      Nx.broadcast(
+        0,
+        {max(floor(y_last) - ceil(y_first) + 1, 0), max(floor(x_last) - ceil(x_first) + 1, 0)}
+      )
+    else
+      edges
+      |> inside(Bounds.init(x_from, y_from, x_to, y_to))
+      |> Nx.pad(0, [
+        {y_from - ceil(y_first), floor(y_last) - y_to, 0},
+        {x_from - ceil(x_first), floor(x_last) - x_to, 0}
+      ])
+    end
+  end
+
+  defp extent(edges) do
+    xs =
+      Enum.flat_map(edges, fn %Line{origin: %Point{x: a}, termination: %Point{x: b}} -> [a, b] end)
+
+    ys =
+      Enum.flat_map(edges, fn %Line{origin: %Point{y: a}, termination: %Point{y: b}} -> [a, b] end)
+
+    {x_low, x_high} = Enum.min_max(xs)
+    {y_low, y_high} = Enum.min_max(ys)
+
+    {x_low, x_high, y_low, y_high}
   end
 
   defp horizontal?(%Line{origin: %Point{y: y}, termination: %Point{y: y}}), do: true

@@ -1,5 +1,6 @@
 defmodule Vivid.Buffer do
   alias Vivid.{Bounds, Buffer, Coverage, Frame, Point, RGBA, Rasterize, Transformable}
+  import Nx.Defn
   defstruct ~w(buffer rows columns)a
 
   @moduledoc ~S"""
@@ -165,7 +166,14 @@ defmodule Vivid.Buffer do
     bounds = Bounds.bounds(frame)
 
     Enum.reduce(shapes, background(frame), fn {shape, colour}, pixels ->
-      over(pixels, colour, coverage(shape, bounds, samples))
+      over(
+        pixels,
+        Nx.tensor([RGBA.red(colour), RGBA.green(colour), RGBA.blue(colour)], type: {:f, 64}),
+        shape
+        |> coverage(bounds, samples)
+        |> Nx.multiply(RGBA.alpha(colour))
+        |> Nx.new_axis(-1)
+      )
     end)
   end
 
@@ -173,29 +181,22 @@ defmodule Vivid.Buffer do
   # blends, which is what this does too, one whole frame at a time. A source
   # alpha of zero has to be selected around rather than blended, because
   # blending it would premultiply the destination's colour into itself.
-  defp over(pixels, colour, coverage) do
-    source_alpha = Nx.multiply(coverage, RGBA.alpha(colour)) |> Nx.new_axis(-1)
+  #
+  # This is a `defn` so that it compiles to one fused kernel wherever a compiler
+  # is configured, rather than a dozen separate operations each materialising a
+  # frame's worth of intermediate. With no compiler configured it runs under
+  # `Nx.Defn.Evaluator` and behaves exactly as the plain `Nx` version did.
+  defnp over(pixels, source, source_alpha) do
     destination_alpha = pixels[[.., .., 3..3]]
 
-    source =
-      Nx.tensor([RGBA.red(colour), RGBA.green(colour), RGBA.blue(colour)], type: {:f, 64})
-
     colours =
-      source
-      |> Nx.multiply(source_alpha)
-      |> Nx.add(
-        pixels[[.., .., 0..2]]
-        |> Nx.multiply(destination_alpha)
-        |> Nx.multiply(Nx.subtract(1, source_alpha))
-      )
+      source * source_alpha +
+        pixels[[.., .., 0..2]] * destination_alpha * (1 - source_alpha)
 
-    alpha =
-      source_alpha
-      |> Nx.multiply(Nx.subtract(1, destination_alpha))
-      |> Nx.add(destination_alpha)
+    alpha = source_alpha * (1 - destination_alpha) + destination_alpha
 
     Nx.select(
-      source_alpha |> Nx.greater(0) |> Nx.broadcast(Nx.shape(pixels)),
+      Nx.broadcast(source_alpha > 0, Nx.shape(pixels)),
       Nx.concatenate([colours, alpha], axis: -1),
       pixels
     )

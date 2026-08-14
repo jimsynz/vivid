@@ -13,6 +13,7 @@ backend = System.get_env("VIVID_BACKEND", "default")
 if backend == "exla" do
   unless Code.ensure_loaded?(EXLA.Backend), do: raise("EXLA is not available")
   Nx.global_default_backend(EXLA.Backend)
+  Nx.Defn.global_default_options(compiler: EXLA)
 end
 
 sizes =

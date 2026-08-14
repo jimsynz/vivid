@@ -1,26 +1,38 @@
 defmodule Vivid.Coverage do
   alias Vivid.{Bounds, Coverage, Line, Point}
-  defstruct ~w(x_min y_min tensor)a
+  defstruct ~w(x_min y_min rows columns placements tensors)a
 
   @moduledoc ~S"""
   How much of each pixel within some bounds a shape covers.
 
-  This is what `Vivid.Rasterize` returns: a rank 2 tensor of numbers between
-  zero and one, one per pixel of the bounds it was rasterised against, indexed
-  from the bottom left. `x_min` and `y_min` say which pixel index `{0, 0}` is,
-  so a coverage knows where in the plane it sits without carrying the bounds
-  struct around.
+  This is what `Vivid.Rasterize` returns: a number between zero and one per
+  pixel of the bounds it was rasterised against, indexed from the bottom left.
+  `x_min` and `y_min` say which pixel index `{0, 0}` is, so a coverage knows
+  where in the plane it sits without carrying the bounds struct around.
 
-  Coverages compose with `union/2`, which takes the larger of each pixel, in
-  the same way the `MapSet` of points this replaced composed with
-  `MapSet.union/2`. A shape which rasterises by delegating to several others -
-  a `Path` to its lines, a `Group` to its members - unions their coverages.
+  Coverages compose with `union/2`, which takes the larger of each pixel, in the
+  same way the `MapSet` of points this replaced composed with `MapSet.union/2`.
+  A shape which rasterises by delegating to several others - a `Path` to its
+  lines, a `Group` to its members - unions their coverages.
 
-  Because a pixel's coverage is a fraction rather than a yes or no, partial
-  coverage is representable here rather than only in the frame buffer. The
-  supersampling in `Vivid.Buffer` uses that: it rasterises into a magnified
-  coverage and `downsample/2`s it back, which is the same arithmetic the
-  subpixel histogram used to do a pixel at a time.
+  ## Coverage is accumulated, not computed
+
+  A coverage is the size of its bounds, so materialising one per shape and
+  taking the maximum of them pairwise would cost the area of the frame for every
+  shape in it - where the point set it replaced cost only the pixels the shape
+  actually touched. Deep shapes are common (a line of text is a group of glyphs,
+  each a group of contours), and that cost multiplies down the tree.
+
+  So a coverage holds its pixels as **unmaterialised placements** - lists of
+  coordinates yet to be written into a grid - and `union/2` concatenates those
+  lists rather than combining grids. Only `tensor/1` builds the grid, writing
+  every placement into it in a single pass. A shape which fills an area rather
+  than marking pixels contributes a grid directly; those are still combined with
+  `Nx.max/2`, but there are as many of them as there are filled shapes rather
+  than as many as there are primitives.
+
+  Nothing outside this module needs to know which of the two a coverage is
+  holding.
 
   ## Example
 
@@ -32,7 +44,14 @@ defmodule Vivid.Coverage do
       [Point.init(0, 0), Point.init(1, 1), Point.init(2, 2), Point.init(3, 3)]
   """
 
-  @type t :: %Coverage{x_min: integer, y_min: integer, tensor: Nx.Tensor.t()}
+  @type t :: %Coverage{
+          x_min: integer,
+          y_min: integer,
+          rows: non_neg_integer,
+          columns: non_neg_integer,
+          placements: [{Nx.Tensor.t(), Nx.Tensor.t()}],
+          tensors: [Nx.Tensor.t()]
+        }
 
   @doc """
   An empty coverage of `bounds` - every pixel uncovered.
@@ -46,8 +65,17 @@ defmodule Vivid.Coverage do
   """
   @spec empty(Bounds.t()) :: t
   def empty(bounds) do
+    %Point{x: x_min, y: y_min} = Bounds.min(bounds)
     {rows, columns} = dimensions(bounds)
-    from_tensor(bounds, Nx.broadcast(Nx.tensor(0.0, type: {:f, 64}), {rows, columns}))
+
+    %Coverage{
+      x_min: ceil(x_min),
+      y_min: ceil(y_min),
+      rows: rows,
+      columns: columns,
+      placements: [],
+      tensors: []
+    }
   end
 
   @doc """
@@ -55,7 +83,8 @@ defmodule Vivid.Coverage do
 
   Distinct from `empty/1`, which has the pixels of some bounds and covers none
   of them. This is what nothing at all rasterises to when there are no bounds to
-  say how big nothing is.
+  say how big nothing is - it is a single uncovered pixel, because `Nx` has no
+  zero sized tensor to be the empty grid.
 
   ## Example
 
@@ -63,18 +92,14 @@ defmodule Vivid.Coverage do
       []
   """
   @spec none() :: t
-  def none,
-    do: %Coverage{
-      x_min: 0,
-      y_min: 0,
-      tensor: Nx.broadcast(Nx.tensor(0.0, type: {:f, 64}), {1, 1})
-    }
+  def none, do: empty(Bounds.init(0, 0, 0, 0))
 
   @doc """
   A coverage of `bounds` whose pixels are `tensor`.
 
-  The tensor must be shaped `{rows, columns}` to match the bounds, as
-  `empty/1` would allocate it.
+  The tensor must be shaped `{rows, columns}` to match the bounds, as `empty/1`
+  would allocate it. This is how a shape which computes an area of coverage
+  rather than a set of pixels - a fill - hands it over.
 
   ## Example
 
@@ -84,19 +109,12 @@ defmodule Vivid.Coverage do
       [Vivid.Point.init(0, 1), Vivid.Point.init(1, 0)]
   """
   @spec from_tensor(Bounds.t(), Nx.Tensor.t()) :: t
-  def from_tensor(bounds, tensor) do
-    %Point{x: x_min, y: y_min} = Bounds.min(bounds)
-
-    %Coverage{
-      x_min: ceil(x_min),
-      y_min: ceil(y_min),
-      tensor: Nx.as_type(tensor, {:f, 64})
-    }
-  end
+  def from_tensor(bounds, tensor),
+    do: %{empty(bounds) | tensors: [Nx.as_type(tensor, {:f, 64})]}
 
   @doc ~S"""
-  A coverage of `bounds` in which `points` are fully covered and everything
-  else is not.
+  A coverage of `bounds` in which `points` are fully covered and everything else
+  is not.
 
   Points outside the bounds are discarded, and coordinates are rounded, so this
   is how a shape which knows its pixels as coordinates rather than as a grid
@@ -126,9 +144,9 @@ defmodule Vivid.Coverage do
   `ys` tensors are fully covered.
 
   The tensors are of pixel coordinates, already rounded, and are paired
-  elementwise. Coordinates outside the bounds are discarded without leaving the
-  tensor, which is what this exists for - a shape which has computed its pixels
-  as tensors shouldn't have to come back to the list world to place them.
+  elementwise. Coordinates outside the bounds are discarded when the grid is
+  built, so a shape which has computed its pixels as tensors need never come
+  back to the list world to place them.
 
   ## Example
 
@@ -138,20 +156,14 @@ defmodule Vivid.Coverage do
       [Point.init(0, 0), Point.init(2, 2)]
   """
   @spec from_pixels(Bounds.t(), Nx.Tensor.t(), Nx.Tensor.t()) :: t
-  def from_pixels(bounds, xs, ys) do
-    {rows, columns} = dimensions(bounds)
-    %Point{x: x_min, y: y_min} = Bounds.min(bounds)
-
-    from_tensor(bounds, place(xs, ys, ceil(x_min), ceil(y_min), rows, columns))
-  end
+  def from_pixels(bounds, xs, ys),
+    do: %{empty(bounds) | placements: [{xs, ys}]}
 
   @doc ~S"""
   A coverage of `bounds` by every pixel every line in `lines` passes through.
 
-  This is how a shape built out of line segments rasterises its outline. Going
-  through the segments together rather than one at a time is the point: a
-  coverage is the size of its bounds, so unioning one per segment would cost the
-  area of the frame for every segment of the shape.
+  This is how a shape built out of line segments rasterises its outline, and it
+  goes through the segments together rather than one at a time.
 
   ## Example
 
@@ -174,7 +186,7 @@ defmodule Vivid.Coverage do
   end
 
   @doc """
-  The `{rows, columns}` shape of the coverage's tensor.
+  The `{rows, columns}` shape of the coverage.
 
   ## Example
 
@@ -184,11 +196,14 @@ defmodule Vivid.Coverage do
       {5, 10}
   """
   @spec shape(t) :: {non_neg_integer, non_neg_integer}
-  def shape(%Coverage{tensor: tensor}), do: Nx.shape(tensor)
+  def shape(%Coverage{rows: rows, columns: columns}), do: {rows, columns}
 
   @doc """
   The coverage's pixels as a tensor, indexed `{row, column}` from the bottom
   left.
+
+  This is where the grid is built, and where everything accumulated into the
+  coverage is paid for at once.
 
   ## Example
 
@@ -199,11 +214,27 @@ defmodule Vivid.Coverage do
       [0.0, 1.0]
   """
   @spec tensor(t) :: Nx.Tensor.t()
-  def tensor(%Coverage{tensor: tensor}), do: tensor
+  def tensor(%Coverage{rows: rows, columns: columns, placements: [], tensors: []}),
+    do: zeros(rows, columns)
+
+  def tensor(%Coverage{placements: [], tensors: [tensor]}), do: tensor
+
+  def tensor(%Coverage{} = coverage) do
+    %Coverage{rows: rows, columns: columns, placements: placements, tensors: tensors} = coverage
+
+    placements
+    |> placed(coverage.x_min, coverage.y_min, rows, columns)
+    |> Enum.concat(tensors)
+    |> Enum.reduce(&Nx.max/2)
+  end
 
   @doc ~S"""
   Combine two coverages of the same bounds, taking the greater coverage of each
   pixel.
+
+  Neither side is materialised: what accumulates is the work still to be done,
+  which is what keeps a union of many shapes from costing the area of the frame
+  for each of them.
 
   ## Example
 
@@ -217,8 +248,13 @@ defmodule Vivid.Coverage do
       [Point.init(0, 0), Point.init(2, 0)]
   """
   @spec union(t, t) :: t
-  def union(%Coverage{tensor: a} = coverage, %Coverage{tensor: b}),
-    do: %{coverage | tensor: Nx.max(a, b)}
+  def union(%Coverage{} = coverage, %Coverage{} = other) do
+    %{
+      coverage
+      | placements: coverage.placements ++ other.placements,
+        tensors: coverage.tensors ++ other.tensors
+    }
+  end
 
   @doc ~S"""
   Reduce a coverage rasterised at `samples` pixels per pixel on each axis back
@@ -238,15 +274,21 @@ defmodule Vivid.Coverage do
       [0.5]
   """
   @spec downsample(t, pos_integer) :: t
-  def downsample(%Coverage{x_min: x_min, y_min: y_min, tensor: tensor}, samples) do
-    {rows, columns} = Nx.shape(tensor)
-
+  def downsample(%Coverage{rows: rows, columns: columns} = coverage, samples) do
     tensor =
-      tensor
+      coverage
+      |> tensor()
       |> Nx.reshape({div(rows, samples), samples, div(columns, samples), samples})
       |> Nx.mean(axes: [1, 3])
 
-    %Coverage{x_min: div(x_min, samples), y_min: div(y_min, samples), tensor: tensor}
+    %Coverage{
+      x_min: div(coverage.x_min, samples),
+      y_min: div(coverage.y_min, samples),
+      rows: div(rows, samples),
+      columns: div(columns, samples),
+      placements: [],
+      tensors: [tensor]
+    }
   end
 
   @doc ~S"""
@@ -260,13 +302,12 @@ defmodule Vivid.Coverage do
       {true, false}
   """
   @spec covers?(t, Point.t()) :: boolean
-  def covers?(%Coverage{x_min: x_min, y_min: y_min, tensor: tensor}, %Point{x: x, y: y}) do
-    {rows, columns} = Nx.shape(tensor)
-    row = round(y) - y_min
-    column = round(x) - x_min
+  def covers?(%Coverage{rows: rows, columns: columns} = coverage, %Point{x: x, y: y}) do
+    row = round(y) - coverage.y_min
+    column = round(x) - coverage.x_min
 
     row >= 0 and row < rows and column >= 0 and column < columns and
-      Nx.to_number(tensor[row][column]) > 0
+      Nx.to_number(tensor(coverage)[row][column]) > 0
   end
 
   @doc ~S"""
@@ -285,15 +326,14 @@ defmodule Vivid.Coverage do
       [Point.init(0, 0), Point.init(1, 0), Point.init(0, 1), Point.init(1, 1)]
   """
   @spec to_points(t) :: [Point.t()]
-  def to_points(%Coverage{x_min: x_min, y_min: y_min, tensor: tensor}) do
-    {_rows, columns} = Nx.shape(tensor)
-
-    tensor
+  def to_points(%Coverage{columns: columns} = coverage) do
+    coverage
+    |> tensor()
     |> Nx.to_flat_list()
     |> Enum.with_index()
-    |> Enum.filter(fn {coverage, _index} -> coverage > 0 end)
-    |> Enum.map(fn {_coverage, index} ->
-      Point.init(rem(index, columns) + x_min, div(index, columns) + y_min)
+    |> Enum.filter(fn {covered, _index} -> covered > 0 end)
+    |> Enum.map(fn {_covered, index} ->
+      Point.init(rem(index, columns) + coverage.x_min, div(index, columns) + coverage.y_min)
     end)
   end
 
@@ -304,11 +344,22 @@ defmodule Vivid.Coverage do
     {max(floor(y_max) - ceil(y_min) + 1, 0), max(floor(x_max) - ceil(x_min) + 1, 0)}
   end
 
+  defp placed([], _x_min, _y_min, _rows, _columns), do: []
+
+  defp placed(placements, x_min, y_min, rows, columns) do
+    {xs, ys} = Enum.unzip(placements)
+
+    [place(Nx.concatenate(xs), Nx.concatenate(ys), x_min, y_min, rows, columns)]
+  end
+
+  defp zeros(rows, columns),
+    do: Nx.broadcast(Nx.tensor(0.0, type: {:f, 64}), {rows, columns})
+
   # Out of bounds coordinates are written to a scratch cell past the end of the
   # buffer, which is then sliced off, so that discarding them costs a select
   # rather than a trip back through a list.
   defp place(_xs, _ys, _x_min, _y_min, rows, columns) when rows == 0 or columns == 0,
-    do: Nx.broadcast(Nx.tensor(0.0, type: {:f, 64}), {rows, columns})
+    do: zeros(rows, columns)
 
   defp place(xs, ys, x_min, y_min, rows, columns) do
     pixels = rows * columns
