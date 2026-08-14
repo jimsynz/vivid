@@ -33,13 +33,50 @@ defmodule Vivid.BDF do
   the baseline to leave room for descenders. Vivid's Y axis points up, so rows
   are read in reverse.
 
-  ## Example
+  ## Examples
 
       iex> Path.join(:code.priv_dir(:vivid), "fonts/misc-fixed-4x6.bdf")
       ...> |> Vivid.BDF.load!()
       ...> |> Vivid.Font.glyph(?A)
       ...> |> Vivid.BDF.Glyph.pixels()
       [{1, 4}, {0, 3}, {2, 3}, {0, 2}, {1, 2}, {2, 2}, {0, 1}, {2, 1}, {0, 0}, {2, 0}]
+
+  A bitmap font's em is its pixel size, so asking for that size draws it at one
+  pixel per pixel - which for this font, drawn to be six pixels tall, is a size
+  of six.
+
+      iex> Path.join(:code.priv_dir(:vivid), "fonts/misc-fixed-4x6.bdf")
+      ...> |> Vivid.BDF.load!()
+      ...> |> Vivid.Font.line("Hi!", 6)
+      ...> |> to_string()
+      "@@@@@@@@@@@@\n" <>
+      "@ @ @@ @@@ @\n" <>
+      "@ @ @@@@@@ @\n" <>
+      "@   @  @@@ @\n" <>
+      "@ @ @@ @@@@@\n" <>
+      "@ @ @   @@ @\n" <>
+      "@@@@@@@@@@@@\n"
+
+  Twice that size is blocks of four pixels rather than the same pixels twice as
+  far apart, because a glyph is drawn as a `Vivid.Bitmap`, whose cells cover an
+  area.
+
+      iex> Path.join(:code.priv_dir(:vivid), "fonts/misc-fixed-4x6.bdf")
+      ...> |> Vivid.BDF.load!()
+      ...> |> Vivid.Font.line("Hi!", 12)
+      ...> |> to_string()
+      "@@@@@@@@@@@@@@@@@@@@@@\n" <>
+      "@  @@  @@@@  @@@@@@  @\n" <>
+      "@  @@  @@@@  @@@@@@  @\n" <>
+      "@  @@  @@@@@@@@@@@@  @\n" <>
+      "@  @@  @@@@@@@@@@@@  @\n" <>
+      "@      @@    @@@@@@  @\n" <>
+      "@      @@    @@@@@@  @\n" <>
+      "@  @@  @@@@  @@@@@@@@@\n" <>
+      "@  @@  @@@@  @@@@@@@@@\n" <>
+      "@  @@  @@      @@@@  @\n" <>
+      "@  @@  @@      @@@@  @\n" <>
+      "@@@@@@@@@@@@@@@@@@@@@@\n"
   """
 
   @doc """

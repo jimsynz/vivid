@@ -10,7 +10,7 @@ GitHub. PNG output lives in a separate package, `vivid_png`.
 
 ## Commands
 
-    mix test              # fast: ~0.5s, 239 tests
+    mix test              # fast: ~0.5s, 242 tests
     mix check --no-retry  # full verification: compiler, format, credo, dialyzer, doctor, mix_audit, ex_unit
     mix format
 
@@ -28,7 +28,7 @@ defmodule Vivid.CircleTest do
 end
 ```
 
-All 239 tests come from `@doc` and `@moduledoc` examples. This is deliberate:
+All 242 tests come from `@doc` and `@moduledoc` examples. This is deliberate:
 the expected output of a doctest is usually an ASCII rendering, so the docs and
 the visual regression tests are the same artefact. Consequences:
 
