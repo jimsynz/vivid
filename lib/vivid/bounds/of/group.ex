@@ -10,7 +10,8 @@ defimpl Vivid.Bounds.Of, for: Vivid.Group do
   def bounds(%Group{shapes: shapes} = _group) do
     shapes
     |> Enum.map(&Bounds.Of.bounds(&1))
-    |> Enum.reduce(fn
+    |> Enum.reject(&is_nil(&1))
+    |> Enum.reduce(nil, fn
       {min, max}, nil ->
         {min, max}
 

@@ -4,6 +4,7 @@ defmodule Vivid do
       alias Vivid.{
         Arc,
         Bezier,
+        Bitmap,
         Bounds,
         Box,
         Buffer,
