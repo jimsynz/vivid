@@ -1,6 +1,7 @@
 defmodule Vivid.Buffer do
   alias Vivid.{Bounds, Buffer, Coverage, Frame, Point, RGBA, Rasterize, Transformable}
   import Nx.Defn
+  import Vivid.Math, only: [round_half_away: 1]
   defstruct ~w(buffer rows columns)a
 
   @moduledoc ~S"""
@@ -145,7 +146,7 @@ defmodule Vivid.Buffer do
     buffer
     |> Nx.reverse(axes: [0])
     |> Nx.multiply(255)
-    |> Nx.round()
+    |> round_half_away()
     |> Nx.as_type({:u, 8})
     |> Nx.to_binary()
   end

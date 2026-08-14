@@ -1,5 +1,6 @@
 defimpl String.Chars, for: Vivid.Buffer do
   alias Vivid.Buffer
+  import Vivid.Math, only: [round_half_away: 1]
   @ascii_luminance_map {" ", ".", ":", "-", "=", "+", "*", "#", "%", "@"}
   @ascii_luminance_map_length 10
 
@@ -21,7 +22,7 @@ defimpl String.Chars, for: Vivid.Buffer do
       |> Buffer.luminance()
       |> Nx.reverse(axes: [0])
       |> Nx.multiply(@ascii_luminance_map_length - 1)
-      |> Nx.round()
+      |> round_half_away()
       |> Nx.as_type({:s, 64})
       |> Nx.to_flat_list()
       |> Enum.map(&elem(@ascii_luminance_map, &1))

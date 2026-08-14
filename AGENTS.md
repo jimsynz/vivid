@@ -102,6 +102,18 @@ a `to_polygon/1` and delegating over writing a new rasteriser.
   `Nx.Defn.global_default_options(compiler: EXLA)`, which means a native
   toolchain. Below about a quarter of a megapixel the scalar version is still
   competitive or better.
+- **Never depend on `Nx.round/1`'s tie breaking.** It is unspecified and the
+  backends disagree: `Nx.BinaryBackend` and EXLA round away from zero like
+  `Kernel.round/1`, Torchx rounds to even, so `2.5` comes back as `2`. Pixel
+  coordinates and colour channels are rounded all over this library and ties are
+  not rare - relying on it made eleven doctests render differently under Torchx.
+  Use `Vivid.Math.round_half_away/1`.
+- **The suite runs against a backend.** `VIVID_BACKEND=binary|exla|torchx` and
+  `VIVID_COMPILER=exla` are read by `test/test_helper.exs`, so
+  `VIVID_BACKEND=torchx mix test` checks that a backend renders identically to
+  the others. The doctests are the visual regression suite, which makes them
+  exactly the right instrument for it. Run all four configurations after
+  touching anything numeric.
 - **`Vivid.Buffer.over/3` is a `defn` on purpose.** Compositing, not
   rasterising, was the dominant cost; as plain `Nx` it was a dozen operations
   each materialising a whole frame, and fusing it into one kernel was worth 4-6x

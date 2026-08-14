@@ -321,7 +321,7 @@ defmodule Vivid.Line do
     along
     |> Nx.multiply(increments)
     |> Nx.add(starts)
-    |> Nx.round()
+    |> round_half_away()
     |> Nx.as_type({:s, 64})
     |> then(&Nx.select(within, &1, @beyond_any_bounds))
     |> Nx.reshape({:auto})

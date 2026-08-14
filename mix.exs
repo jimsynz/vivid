@@ -69,9 +69,10 @@ defmodule Vivid.Mixfile do
       {:nx, "~> 0.13"},
       {:benchee, "~> 1.3", opts},
       {:credo, "~> 1.7", opts},
-      # Not `runtime: false` like the rest: its OTP application has to be
-      # running for the XLA client to exist.
+      # Not `runtime: false` like the rest: their OTP applications have to be
+      # running for the backends to be usable.
       {:exla, "~> 0.13", only: ~w[dev test]a},
+      {:torchx, "~> 0.13", only: ~w[dev test]a},
       {:dialyxir, "~> 1.3", opts},
       {:doctor, "~> 0.23", opts},
       {:ex_check, "~> 0.16", opts},

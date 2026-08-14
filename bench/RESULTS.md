@@ -41,6 +41,48 @@ Reproduce with:
 the tensor version absorbs for free and the scalar version pays for in `Point`
 structs it never keeps.
 
+## Backends
+
+The doctests are the visual regression suite, so running them against a backend
+is how a backend is checked. `test/test_helper.exs` reads `VIVID_BACKEND` and
+`VIVID_COMPILER`:
+
+| configuration                                   | result       |
+| ----------------------------------------------- | ------------ |
+| `Nx.BinaryBackend`, `Nx.Defn.Evaluator`         | 258 passed   |
+| `EXLA.Backend`, `Nx.Defn.Evaluator`             | 258 passed   |
+| `EXLA.Backend`, `compiler: EXLA`                | 258 passed   |
+| `Torchx.Backend`, `Nx.Defn.Evaluator`           | 258 passed   |
+
+Torchx has no `defn` compiler, so it runs under the evaluator; the `defn` in
+`Vivid.Buffer` is written so that it works either way. EMLX was not tested - it
+is macOS only. Neither was EXLA on a GPU client, for want of one.
+
+### Torchx rounds ties differently, and it mattered
+
+`Nx.round/1` does not specify which way it breaks a tie, and the backends
+disagree:
+
+| input   | `Kernel.round/1` | BinaryBackend | EXLA | Torchx |
+| ------- | ---------------: | ------------: | ---: | -----: |
+| `0.5`   |                1 |             1 |    1 |  **0** |
+| `2.5`   |                3 |             3 |    3 |  **2** |
+| `-2.5`  |               -3 |            -3 |   -3 | **-2** |
+
+Torchx rounds half to even. Pixel coordinates and colour channels are rounded
+throughout, and a tie is not a rare accident - the DDA lands on one whenever a
+segment's length divides evenly into an odd multiple of a half pixel. Eleven
+doctests rendered differently under Torchx before this was fixed.
+
+`Vivid.Math.round_half_away/1` implements the `Kernel.round/1` behaviour out of
+`abs`, `floor` and `sign`, none of which have any tie to break, so it agrees
+everywhere. Every place that rounds a tensor goes through it.
+
+Everything else the rasteriser leans on agreed across all three: f64 is honoured
+rather than silently downcast, `indexed_put` with duplicate indices writes
+rather than accumulating, `indexed_add` with duplicate indices accumulates, and
+`cumulative_sum` runs left to right.
+
 ## What moved the numbers
 
 Three changes, in the order they were made and worth:
