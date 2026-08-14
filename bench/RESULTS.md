@@ -78,6 +78,12 @@ doctests rendered differently under Torchx before this was fixed.
 `abs`, `floor` and `sign`, none of which have any tie to break, so it agrees
 everywhere. Every place that rounds a tensor goes through it.
 
+It is a `defn`, which is worth 1.59x on a whole render over the same function
+left as plain `Nx` calls - five operations each materialising an intermediate,
+where `Nx.round/1` had been one. Measured interleaved in a single run, because a
+sequential A/B of the two got the answer backwards: an unrelated job started on
+the machine between the two runs and swamped the difference.
+
 Everything else the rasteriser leans on agreed across all three: f64 is honoured
 rather than silently downcast, `indexed_put` with duplicate indices writes
 rather than accumulating, `indexed_add` with duplicate indices accumulates, and

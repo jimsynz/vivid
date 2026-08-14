@@ -107,7 +107,8 @@ a `to_polygon/1` and delegating over writing a new rasteriser.
   `Kernel.round/1`, Torchx rounds to even, so `2.5` comes back as `2`. Pixel
   coordinates and colour channels are rounded all over this library and ties are
   not rare - relying on it made eleven doctests render differently under Torchx.
-  Use `Vivid.Math.round_half_away/1`.
+  Use `Vivid.Math.round_half_away/1`, which is a `defn` - five `Nx` calls left
+  unfused cost more than the rounding they replaced.
 - **The suite runs against a backend.** `VIVID_BACKEND=binary|exla|torchx` and
   `VIVID_COMPILER=exla` are read by `test/test_helper.exs`, so
   `VIVID_BACKEND=torchx mix test` checks that a backend renders identically to
