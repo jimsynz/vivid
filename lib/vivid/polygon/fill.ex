@@ -1,15 +1,25 @@
 defmodule Vivid.Polygon.Fill do
-  alias Vivid.{Bounds, Line, Point, Polygon}
+  alias Vivid.{Bounds, Coverage, Line, Point, Polygon}
 
   @moduledoc ~S"""
   Computes the filled area of a polygon by scanline conversion.
 
-  For each scanline the polygon's edges are intersected with it, the
-  intersections sorted by `x`, and the spans between them filled according to
-  the non-zero winding rule - the same rule used by PostScript, PDF, SVG and
-  Canvas. A span is inside the polygon whenever the number of upward edge
-  crossings to its left differs from the number of downward ones, which means
-  vertex order determines what counts as inside for self-intersecting polygons.
+  A pixel is inside the polygon when the number of upward edge crossings to its
+  left on its own scanline differs from the number of downward ones - the
+  non-zero winding rule, the same rule used by PostScript, PDF, SVG and Canvas.
+  Vertex order therefore determines what counts as inside for self-intersecting
+  polygons.
+
+  Every edge is intersected with every scanline at once, and each crossing is
+  added into the column where it starts to count. Summing those along each row
+  gives every pixel's winding number in one pass, which is why the crossings
+  never need sorting: a prefix sum accumulates them in the order they occur
+  along the row for free.
+
+  Because a span includes the pixels at both of its ends, and a running total
+  can only change on one side of a crossing, the sum is taken twice - once for
+  the columns strictly right of each crossing and once including the crossing's
+  own column - and a pixel is inside if either says so.
 
   Edges are tested against a scanline over the half-open interval
   `y_min <= y < y_max`. This counts a vertex the edges merely pass through once
@@ -32,7 +42,7 @@ defmodule Vivid.Polygon.Fill do
       iex> use Vivid
       ...> frame = Frame.init(16, 16, RGBA.black())
       ...> polygon = Polygon.init([Point.init(1, 1), Point.init(4, 1), Point.init(4, 7), Point.init(11, 7), Point.init(11, 1), Point.init(14, 1), Point.init(14, 14), Point.init(1, 14)])
-      ...> Frame.push(frame, Group.init(Vivid.Polygon.Fill.fill(polygon)), RGBA.white())
+      ...> Frame.push(frame, Group.init(Coverage.to_points(Vivid.Polygon.Fill.fill(polygon))), RGBA.white())
       ...> |> to_string()
       "                \n" <>
       "                \n" <>
@@ -53,7 +63,7 @@ defmodule Vivid.Polygon.Fill do
   """
 
   @doc ~S"""
-  Returns the points making up the filled area of `polygon` as a `MapSet`.
+  Returns the coverage of the filled area of `polygon` by its own bounds.
 
   ## Examples
 
@@ -62,7 +72,7 @@ defmodule Vivid.Polygon.Fill do
       iex> use Vivid
       ...> frame = Frame.init(16, 16, RGBA.black())
       ...> triangle = Polygon.init([Point.init(2, 2), Point.init(13, 2), Point.init(7, 13)])
-      ...> Frame.push(frame, Group.init(Vivid.Polygon.Fill.fill(triangle)), RGBA.white())
+      ...> Frame.push(frame, Group.init(Coverage.to_points(Vivid.Polygon.Fill.fill(triangle))), RGBA.white())
       ...> |> to_string()
       "                \n" <>
       "                \n" <>
@@ -89,7 +99,7 @@ defmodule Vivid.Polygon.Fill do
       ...> diamond = Polygon.init([Point.init(8, 2), Point.init(14, 8), Point.init(8, 14), Point.init(2, 8)])
       ...> frame
       ...> |> Frame.push(diamond, RGBA.white())
-      ...> |> Frame.push(Group.init(Vivid.Polygon.Fill.fill(diamond)), RGBA.white())
+      ...> |> Frame.push(Group.init(Coverage.to_points(Vivid.Polygon.Fill.fill(diamond))), RGBA.white())
       ...> |> to_string()
       "                \n" <>
       "        @       \n" <>
@@ -117,7 +127,7 @@ defmodule Vivid.Polygon.Fill do
       ...> pentagram = Polygon.init([Point.init(10, 18.5), Point.init(5.004, 3.123), Point.init(18.084, 12.627), Point.init(1.916, 12.627), Point.init(14.996, 3.123)])
       ...> frame
       ...> |> Frame.push(pentagram, RGBA.white())
-      ...> |> Frame.push(Group.init(Vivid.Polygon.Fill.fill(pentagram)), RGBA.white())
+      ...> |> Frame.push(Group.init(Coverage.to_points(Vivid.Polygon.Fill.fill(pentagram))), RGBA.white())
       ...> |> to_string()
       "                     \n" <>
       "          @          \n" <>
@@ -141,18 +151,16 @@ defmodule Vivid.Polygon.Fill do
       "                     \n" <>
       "                     \n"
   """
-  @spec fill(Polygon.t() | [Polygon.t()]) :: MapSet.t()
-  def fill([]), do: MapSet.new()
+  @spec fill(Polygon.t() | [Polygon.t()]) :: Coverage.t()
+  def fill([]), do: Coverage.none()
   def fill(contours) when is_list(contours), do: fill(contours, Bounds.bounds(contours))
   def fill(%Polygon{} = polygon), do: fill([polygon], Bounds.bounds(polygon))
 
   @doc ~S"""
-  Returns the points making up the filled area of `polygon` which lie within
-  `bounds`, as a `MapSet`.
+  Returns the coverage of `bounds` by the filled area of `polygon`.
 
-  Spans are clipped to `bounds` before their pixels are generated, so filling a
-  polygon much larger than the area you care about costs no more than the area
-  itself.
+  The grid is the size of `bounds` and nothing else, so filling a polygon much
+  larger than the area you care about costs no more than the area itself.
 
   ## Example
 
@@ -161,7 +169,7 @@ defmodule Vivid.Polygon.Fill do
       iex> use Vivid
       ...> frame = Frame.init(8, 8, RGBA.black())
       ...> polygon = Polygon.init([Point.init(-5, -5), Point.init(12, -5), Point.init(12, 12), Point.init(-5, 12)])
-      ...> Frame.push(frame, Group.init(Vivid.Polygon.Fill.fill(polygon, Bounds.init(2, 2, 5, 5))), RGBA.white())
+      ...> Frame.push(frame, Group.init(Coverage.to_points(Vivid.Polygon.Fill.fill(polygon, Bounds.init(2, 2, 5, 5)))), RGBA.white())
       ...> |> to_string()
       "        \n" <>
       "        \n" <>
@@ -172,74 +180,89 @@ defmodule Vivid.Polygon.Fill do
       "        \n" <>
       "        \n"
   """
-  @spec fill(Polygon.t() | [Polygon.t()], Bounds.t()) :: MapSet.t()
-  def fill([], _bounds), do: MapSet.new()
+  @spec fill(Polygon.t() | [Polygon.t()], Bounds.t()) :: Coverage.t()
+  def fill([], bounds), do: Coverage.empty(bounds)
   def fill(%Polygon{} = polygon, bounds), do: fill([polygon], bounds)
 
   def fill(contours, bounds) when is_list(contours) do
-    edges =
-      contours
-      |> Enum.flat_map(&Polygon.to_lines(&1))
-      |> Enum.reject(&horizontal?(&1))
-
-    {y_min, y_max} =
-      contours
-      |> Enum.flat_map(fn %Polygon{vertices: vertices} -> vertices end)
-      |> Enum.map(& &1.y)
-      |> Enum.min_max()
-
-    %Point{x: x_first, y: y_first} = Bounds.min(bounds)
-    %Point{x: x_last, y: y_last} = Bounds.max(bounds)
-    columns = ceil(x_first)..floor(x_last)//1
-
-    max(ceil(y_min), ceil(y_first))..min(floor(y_max), floor(y_last))//1
-    |> Enum.reduce([], fn y, points ->
-      edges
-      |> crossings(y)
-      |> spans()
-      |> Enum.reduce(points, &fill_span(&1, &2, y, columns))
-    end)
-    |> MapSet.new()
+    case contours |> Enum.flat_map(&Polygon.to_lines(&1)) |> Enum.reject(&horizontal?(&1)) do
+      [] -> Coverage.empty(bounds)
+      edges -> Coverage.from_tensor(bounds, inside(edges, bounds))
+    end
   end
 
   defp horizontal?(%Line{origin: %Point{y: y}, termination: %Point{y: y}}), do: true
   defp horizontal?(_line), do: false
 
-  defp crossings(edges, y) do
+  # A pixel is filled when its winding number is non-zero, and its winding
+  # number is the sum of the directions of the edges crossing its scanline to
+  # its left. Summing that from the left is a cumulative sum along the row, so
+  # the crossings never need sorting: each one is added into the column where it
+  # starts having an effect, and every column downstream of it inherits the
+  # total.
+  #
+  # Which columns a crossing affects depends on whether the comparison against
+  # it is strict, and a span is closed at both ends, so it's counted twice - the
+  # first pass gives the columns of `x <= c` and the second those of `x < c`,
+  # and a pixel is inside if either says so.
+  defp inside(edges, bounds) do
+    %Point{x: x_first, y: y_first} = Bounds.min(bounds)
+    %Point{x: x_last, y: y_last} = Bounds.max(bounds)
+    columns = max(floor(x_last) - ceil(x_first) + 1, 0)
+    rows = max(floor(y_last) - ceil(y_first) + 1, 0)
+
+    scanlines = Nx.iota({1, rows}) |> Nx.add(ceil(y_first)) |> Nx.as_type({:f, 64})
+    {x0, y0, x1, y1} = coordinates(edges)
+
+    crossing =
+      Nx.less_equal(Nx.min(y0, y1), scanlines)
+      |> Nx.logical_and(Nx.less(scanlines, Nx.max(y0, y1)))
+
+    crossing_x =
+      scanlines
+      |> Nx.subtract(y0)
+      |> Nx.multiply(Nx.divide(Nx.subtract(x1, x0), Nx.subtract(y1, y0)))
+      |> Nx.add(x0)
+
+    direction = Nx.select(Nx.greater(y1, y0), 1, -1) |> Nx.multiply(crossing)
+
+    [Nx.ceil(crossing_x), Nx.add(Nx.floor(crossing_x), 1)]
+    |> Enum.map(&winding(&1, direction, crossing, ceil(x_first), rows, columns))
+    |> Enum.reduce(&Nx.logical_or/2)
+  end
+
+  defp coordinates(edges) do
     edges
-    |> Enum.filter(&crosses?(&1, y))
-    |> Enum.map(&{crossing_x(&1, y), winding_direction(&1)})
-    |> Enum.sort()
+    |> Enum.map(fn %Line{origin: %Point{x: x0, y: y0}, termination: %Point{x: x1, y: y1}} ->
+      [x0, y0, x1, y1]
+    end)
+    |> Nx.tensor(type: {:f, 64})
+    |> Nx.transpose()
+    |> Nx.new_axis(-1)
+    |> then(fn tensor -> {tensor[0], tensor[1], tensor[2], tensor[3]} end)
   end
 
-  defp crosses?(%Line{origin: %Point{y: y0}, termination: %Point{y: y1}}, y),
-    do: min(y0, y1) <= y and y < max(y0, y1)
+  defp winding(_from, _direction, _crossing, _x_first, rows, columns)
+       when rows == 0 or columns == 0,
+       do: Nx.broadcast(0, {rows, columns})
 
-  defp crossing_x(%Line{origin: p0, termination: p1}, y),
-    do: p0.x + (y - p0.y) * (p1.x - p0.x) / (p1.y - p0.y)
+  defp winding(from, direction, crossing, x_first, rows, columns) do
+    pixels = rows * columns
+    column = from |> Nx.subtract(x_first) |> Nx.as_type({:s, 64}) |> Nx.max(0)
 
-  defp winding_direction(%Line{origin: %Point{y: y0}, termination: %Point{y: y1}})
-       when y1 > y0,
-       do: 1
+    row = Nx.iota({1, rows}) |> Nx.broadcast(Nx.shape(column))
 
-  defp winding_direction(_line), do: -1
+    indices =
+      crossing
+      |> Nx.logical_and(Nx.less(column, columns))
+      |> Nx.select(Nx.add(Nx.multiply(row, columns), column), pixels)
+      |> Nx.reshape({:auto, 1})
 
-  defp spans(crossings) do
-    {_winding, _start, spans} = Enum.reduce(crossings, {0, nil, []}, &accumulate_span(&1, &2))
-    Enum.reverse(spans)
-  end
-
-  defp accumulate_span({x, direction}, {0, _start, spans}), do: {direction, x, spans}
-
-  defp accumulate_span({x, direction}, {winding, start, spans})
-       when winding + direction == 0,
-       do: {0, nil, [{start, x} | spans]}
-
-  defp accumulate_span({_x, direction}, {winding, start, spans}),
-    do: {winding + direction, start, spans}
-
-  defp fill_span({x_start, x_end}, points, y, x_first..x_last//_) do
-    max(ceil(x_start), x_first)..min(floor(x_end), x_last)//1
-    |> Enum.reduce(points, &[Point.init(&1, y) | &2])
+    Nx.broadcast(0, {pixels + 1})
+    |> Nx.indexed_add(indices, Nx.reshape(direction, {:auto}))
+    |> Nx.slice([0], [pixels])
+    |> Nx.reshape({rows, columns})
+    |> Nx.cumulative_sum(axis: 1)
+    |> Nx.not_equal(0)
   end
 end

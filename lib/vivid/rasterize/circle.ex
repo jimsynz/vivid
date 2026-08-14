@@ -6,12 +6,14 @@ defimpl Vivid.Rasterize, for: Vivid.Circle do
   """
 
   @doc ~S"""
-  Rasterize all points of `circle` within `bounds` into a `MapSet`.
+  Rasterize all points of `circle` within `bounds`.
 
   ## Example
 
       iex> Vivid.Circle.init(Vivid.Point.init(5,5), 4)
       ...> |> Vivid.Rasterize.rasterize(Vivid.Bounds.init(0, 0, 10, 10))
+      ...> |> Vivid.Coverage.to_points()
+      ...> |> MapSet.new()
       MapSet.new([
         %Vivid.Point{x: 1, y: 4}, %Vivid.Point{x: 1, y: 5},
         %Vivid.Point{x: 1, y: 6}, %Vivid.Point{x: 2, y: 2},

@@ -1,5 +1,5 @@
 defimpl Vivid.Rasterize, for: Vivid.Region do
-  alias Vivid.{Polygon, Rasterize, Region}
+  alias Vivid.{Coverage, Polygon, Rasterize, Region}
   alias Vivid.Polygon.Fill
 
   @moduledoc """
@@ -7,7 +7,7 @@ defimpl Vivid.Rasterize, for: Vivid.Region do
   """
 
   @doc ~S"""
-  Rasterize all points of `region` within `bounds` into a `MapSet`.
+  Rasterize all points of `region` within `bounds`.
 
   Like a filled `Vivid.Polygon`, the filled area is unioned with the rasterized
   contours themselves, so the edges are included whatever their slope.
@@ -21,7 +21,7 @@ defimpl Vivid.Rasterize, for: Vivid.Region do
       ...> inside = Vivid.Polygon.init([Vivid.Point.init(1, 1), Vivid.Point.init(1, 3), Vivid.Point.init(3, 3), Vivid.Point.init(3, 1)])
       ...> Vivid.Region.init([outside, inside])
       ...> |> Vivid.Rasterize.rasterize(Vivid.Bounds.init(0, 0, 4, 4))
-      ...> |> MapSet.member?(Vivid.Point.init(2, 2))
+      ...> |> Vivid.Coverage.covers?(Vivid.Point.init(2, 2))
       false
 
   The hole's own edges are, though, in the same way a filled polygon includes
@@ -31,20 +31,21 @@ defimpl Vivid.Rasterize, for: Vivid.Region do
       ...> inside = Vivid.Polygon.init([Vivid.Point.init(1, 1), Vivid.Point.init(1, 3), Vivid.Point.init(3, 3), Vivid.Point.init(3, 1)])
       ...> Vivid.Region.init([outside, inside])
       ...> |> Vivid.Rasterize.rasterize(Vivid.Bounds.init(0, 0, 4, 4))
-      ...> |> MapSet.member?(Vivid.Point.init(2, 1))
+      ...> |> Vivid.Coverage.covers?(Vivid.Point.init(2, 1))
       true
   """
   @impl true
   def rasterize(%Region{contours: contours}, bounds) do
     contours
     |> Fill.fill(bounds)
-    |> MapSet.union(contour_borders(contours, bounds))
+    |> Coverage.union(contour_borders(contours, bounds))
   end
 
   defp contour_borders(contours, bounds) do
     contours
     |> Enum.flat_map(&Polygon.to_lines(&1))
-    |> Enum.map(&Rasterize.rasterize(&1, bounds))
-    |> Enum.reduce(MapSet.new(), &MapSet.union(&1, &2))
+    |> Enum.reduce(Coverage.empty(bounds), fn line, coverage ->
+      Coverage.union(coverage, Rasterize.rasterize(line, bounds))
+    end)
   end
 end

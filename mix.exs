@@ -66,6 +66,7 @@ defmodule Vivid.Mixfile do
     opts = [only: ~w[dev test]a, runtime: false]
 
     [
+      {:nx, "~> 0.13"},
       {:credo, "~> 1.7", opts},
       {:dialyxir, "~> 1.3", opts},
       {:doctor, "~> 0.23", opts},

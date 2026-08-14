@@ -1,5 +1,5 @@
 defimpl Vivid.Rasterize, for: Vivid.Polygon do
-  alias Vivid.{Polygon, Rasterize}
+  alias Vivid.{Coverage, Polygon, Rasterize}
   alias Vivid.Polygon.Fill
 
   defmodule InvalidPolygonError do
@@ -12,22 +12,23 @@ defimpl Vivid.Rasterize, for: Vivid.Polygon do
   """
 
   @doc """
-  Rasterize all points of `polygon` within `bounds` into a `MapSet`.
+  Rasterize all points of `polygon` within `bounds`.
 
   ## Example
 
       iex> Vivid.Box.init(Vivid.Point.init(1,1),Vivid.Point.init(3,3))
-      ...> |> Vivid.Rasterize.rasterize
-      MapSet.new([
+      ...> |> Vivid.Rasterize.rasterize(Vivid.Bounds.init(0, 0, 4, 4))
+      ...> |> Vivid.Coverage.to_points()
+      [
         %Vivid.Point{x: 1, y: 1},
+        %Vivid.Point{x: 2, y: 1},
+        %Vivid.Point{x: 3, y: 1},
         %Vivid.Point{x: 1, y: 2},
-        %Vivid.Point{x: 1, y: 3},
+        %Vivid.Point{x: 3, y: 2},
         %Vivid.Point{x: 1, y: 3},
         %Vivid.Point{x: 2, y: 3},
-        %Vivid.Point{x: 3, y: 1},
-        %Vivid.Point{x: 3, y: 2},
         %Vivid.Point{x: 3, y: 3}
-      ])
+      ]
   """
   @impl true
   def rasterize(%Polygon{vertices: v}, _bounds) when length(v) < 3 do
@@ -41,13 +42,14 @@ defimpl Vivid.Rasterize, for: Vivid.Polygon do
   def rasterize(%Polygon{fill: true} = polygon, bounds) do
     polygon
     |> Fill.fill(bounds)
-    |> MapSet.union(polygon_border(polygon, bounds))
+    |> Coverage.union(polygon_border(polygon, bounds))
   end
 
   defp polygon_border(polygon, bounds) do
     polygon
     |> Polygon.to_lines()
-    |> Enum.map(&Rasterize.rasterize(&1, bounds))
-    |> Enum.reduce(MapSet.new(), &MapSet.union(&1, &2))
+    |> Enum.reduce(Coverage.empty(bounds), fn line, coverage ->
+      Coverage.union(coverage, Rasterize.rasterize(line, bounds))
+    end)
   end
 end

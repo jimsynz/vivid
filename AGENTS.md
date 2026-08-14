@@ -54,7 +54,7 @@ shape set extensible without touching the renderer.
 
 | Protocol | Purpose |
 | --- | --- |
-| `Vivid.Rasterize` | shape → `MapSet` of `Point`s within given bounds |
+| `Vivid.Rasterize` | shape → `Vivid.Coverage`, a tensor of per-pixel coverage within given bounds |
 | `Vivid.Transformable` | apply a point-mapping function to a shape |
 | `Vivid.Bounds.Of` | shape → `{bottom_left, top_right}` |
 | `Vivid.Shape` | not a protocol — a typespec union, marks what counts as a shape |
@@ -91,9 +91,13 @@ a `to_polygon/1` and delegating over writing a new rasteriser.
 
 ## Conventions and gotchas
 
-- **No runtime dependencies, and it stays that way.** Everything in `deps` is
-  `only: [:dev, :test], runtime: false`. "100% pure Elixir with no dependencies"
-  is a feature in the README. Don't add one without asking.
+- **This branch has a runtime dependency on Nx**, which the rest of the project
+  does not. It is a spike: the scalar per-pixel loops have been replaced with
+  tensor operations, deliberately setting aside the "100% pure Elixir with no
+  dependencies" line in the README. Only the `Nx.BinaryBackend` is used, so
+  there is still no native toolchain involved - and no speedup either, since
+  that backend is a reference implementation. Don't merge this to `main`
+  without deciding that trade deliberately.
 - **Y is up.** Coordinates are mathematical, not screen-space. `String.Chars`
   for `Buffer` reverses the buffer before chunking to flip it for display
   (`lib/string/chars/vivid/buffer.ex`). Off-by-one and inverted output almost
@@ -122,13 +126,15 @@ suite is an aliased rendering, so turning it on globally would rewrite all of
 them.
 
 `Vivid.Buffer` implements it by scaling the shape through `Transformable`,
-rasterising into correspondingly magnified bounds, then counting how many
-subpixels landed in each real pixel and scaling the colour's alpha by that
-fraction. Coverage shows up in ASCII output because `RGBA.to_ascii/1` maps
-luminance onto a ten character ramp.
+rasterising into correspondingly magnified bounds, then reshaping the magnified
+coverage so each real pixel's subpixels are their own axes and taking the mean
+over them (`Coverage.downsample/2`). Coverage shows up in ASCII output because
+the buffer maps luminance onto the same ten character ramp `RGBA.to_ascii/1`
+does.
 
-That means it needs **no change to the `Vivid.Rasterize` contract**, which still
-returns a plain `MapSet` of `Point`s, and no change to any shape.
+Since `Vivid.Rasterize` already returns fractional coverage, a downsampled
+rasterisation is just another coverage, and **no shape needs to know about
+sampling at all**.
 
 It works only because shape geometry keeps unrounded float coordinates all the
 way to the rasteriser. **Don't round in a `to_shape`, `to_polygon` or
@@ -208,9 +214,13 @@ table, so `kern` alone would buy almost nothing.
 
 ## Polygon filling
 
-`Vivid.Polygon.Fill` computes the filled area by scanline conversion: intersect
-the edges with each scanline, sort by `x`, fill the spans between them under the
-**non-zero winding rule** (as PostScript, PDF, SVG and Canvas do). Two details
+`Vivid.Polygon.Fill` computes the filled area by scanline conversion under the
+**non-zero winding rule** (as PostScript, PDF, SVG and Canvas do). Every edge is
+intersected with every scanline at once; each crossing is added into the column
+where it starts to count, and a prefix sum along each row turns those into every
+pixel's winding number. Crossings therefore never need sorting. A span includes
+the pixels at both ends, so the sum is taken twice — once counting a crossing's
+own column and once not — and a pixel is filled if either says so. Two details
 carry the correctness and shouldn't be "tidied":
 
 - Edges are tested over the **half-open interval** `y_min <= y < y_max`. This
@@ -227,8 +237,8 @@ and `Vivid.Rasterize` unions it with the rasterised border. An earlier version
 returned the interior only, which required the excluded pixels to exactly equal
 the border rasterisation — impossible in general, since Bresenham paints a run
 of pixels per scanline on a shallow slope while the fill excludes one. Don't go
-back to that contract; for a border-less fill use
-`MapSet.difference(fill, border)` against the actual rasterised border.
+back to that contract; for a border-less fill subtract the actual rasterised
+border's tensor from the fill's.
 
 Because winding direction decides what is inside, `Polygon` vertex order is
 semantically meaningful for self-intersecting polygons. Don't normalise edge
