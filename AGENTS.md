@@ -10,7 +10,7 @@ GitHub. PNG output lives in a separate package, `vivid_png`.
 
 ## Commands
 
-    mix test              # fast: ~0.5s, 222 tests
+    mix test              # fast: ~0.5s, 239 tests
     mix check --no-retry  # full verification: compiler, format, credo, dialyzer, doctor, mix_audit, ex_unit
     mix format
 
@@ -28,7 +28,7 @@ defmodule Vivid.CircleTest do
 end
 ```
 
-All 222 tests come from `@doc` and `@moduledoc` examples. This is deliberate:
+All 239 tests come from `@doc` and `@moduledoc` examples. This is deliberate:
 the expected output of a doctest is usually an ASCII rendering, so the docs and
 the visual regression tests are the same artefact. Consequences:
 
@@ -139,6 +139,12 @@ is there for them. Integer counts and sizes — `Circle.to_polygon/1`'s step
 count, a frame's dimensions, a byte value — are a different thing and stay
 rounded.
 
+A shape which needs to cover whole pixels can't be built out of filled polygons,
+because `Rasterize` unions a fill with its own rasterised border and the border
+rounds outward - which is why `Vivid.Bitmap` maps cells straight to pixels
+instead. Its cells are half-open, matching the fact that frame pixel `p` is the
+sample taken at `p`.
+
 Cost is `samples` squared. The known limitation is that shapes tessellating a
 curve into line segments (`Circle`, `Arc`, `Bezier`, outline glyphs) pick their
 step count from their nominal size, so sampling magnifies the segments instead
@@ -161,6 +167,7 @@ units so that its cap height lands at a realistic 0.66 em.
 | --- | --- |
 | `Vivid.Hershey` | Hershey stroke fonts from `priv/hershey/*.jhf` (32 files: Gothic, cursive, Cyrillic, Greek, Japanese, plus symbol sets). Third-party public-domain data — read-only |
 | `Vivid.Font.Char` | a Hershey glyph: pen up/down movements, drawn as `Path`s |
+| `Vivid.BDF` / `.Glyph` | bitmap fonts: plain text, a block per glyph, rows of hex read bottom-up because Y points up here and BDF lists them top-down. A font's em is its pixel size, so asking for that size draws it one pixel per pixel |
 | `Vivid.OpenType` | the sfnt container and the WOFF one — magic sniffing, `head`/`maxp`/`loca`/`hhea`/`hmtx`, and dispatch on which outline table a font actually has |
 | `Vivid.OpenType.CMap` | `cmap` formats 4 and 12. Format 12 is preferred where a font has both, since format 4 can't address anything above `U+FFFF` |
 | `Vivid.TrueType.Glyph` | a `glyf` glyph: quadratic contours, plus composites |
@@ -177,7 +184,11 @@ glyphs. Both therefore need an `Inspect` impl, or one missing character prints
 an entire font.
 
 Outline glyphs rasterise as `Vivid.Region`, so counters come out as holes under
-the winding rule rather than as filled blobs.
+the winding rule rather than as filled blobs. Bitmap glyphs rasterise as
+`Vivid.Bitmap`, whose cells cover an **area**: a `Point` per lit pixel is exact
+at one pixel per pixel and wrong at every other size, because scaling moves
+points apart instead of enlarging them, and a sampled frame finds one subpixel
+of however many it took.
 
 A font that can't be read is reported with a reason worth showing a user —
 never a `MatchError`. Two fixtures in `priv/fonts` are the same ten Roboto

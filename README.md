@@ -165,4 +165,3 @@ Future improvements include:
 
 - Add transformations which can apply rotation matrices directly.
 - Add ability to composit multiple frames together.
-- Support bitmaps as a shape.
