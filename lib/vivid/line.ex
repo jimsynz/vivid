@@ -240,6 +240,50 @@ defmodule Vivid.Line do
 
   def horizontal?(_line), do: false
 
+  @doc ~S"""
+  The pixel coordinates every line in `lines` passes through, as a pair of
+  tensors of `x` and `y`.
+
+  Rasterising a shape made of line segments is a matter of placing these in a
+  `Vivid.Coverage`, and doing it for every segment at once is the point: a
+  coverage is the size of its bounds, so unioning one per segment would cost the
+  whole frame per segment rather than the length of the segment.
+
+  Every segment is stepped over the same parameter, as far as the longest of
+  them needs, and the steps past the end of a shorter one are pushed out of any
+  possible bounds so that placing them discards them.
+
+  ## Example
+
+      iex> use Vivid
+      ...> {xs, ys} = Line.pixels([Line.init(Point.init(0, 0), Point.init(2, 2))])
+      ...> {Nx.to_flat_list(xs), Nx.to_flat_list(ys)}
+      {[0, 1, 2], [0, 1, 2]}
+  """
+  @spec pixels([Line.t(), ...]) :: {Nx.Tensor.t(), Nx.Tensor.t()}
+  def pixels([_ | _] = lines) do
+    steps =
+      Enum.map(lines, fn line ->
+        %Point{x: x0, y: y0} = line |> origin() |> Point.round()
+        %Point{x: x1, y: y1} = line |> termination() |> Point.round()
+        {x0, y0, x1, y1, max(abs(x1 - x0), abs(y1 - y0))}
+      end)
+
+    longest = steps |> Enum.map(&elem(&1, 4)) |> Enum.max()
+    along = Nx.iota({1, longest + 1}, type: {:f, 64})
+
+    within =
+      steps
+      |> Enum.map(&[elem(&1, 4)])
+      |> Nx.tensor(type: {:f, 64})
+      |> then(&Nx.less_equal(along, &1))
+
+    {
+      interpolate(along, within, steps, &elem(&1, 0), &elem(&1, 2)),
+      interpolate(along, within, steps, &elem(&1, 1), &elem(&1, 3))
+    }
+  end
+
   @doc """
   Returns true if a line is vertical.
 
@@ -258,4 +302,28 @@ defmodule Vivid.Line do
   @spec vertical?(Line.t()) :: boolean
   def vertical?(%Line{origin: %Point{x: x0}, termination: %Point{x: x1}}) when x0 == x1, do: true
   def vertical?(_line), do: false
+
+  # Far enough outside any bounds a caller could ask about that the steps a
+  # short segment doesn't take are discarded when they're placed.
+  @beyond_any_bounds -1_000_000_000
+
+  defp interpolate(along, within, steps, from, to) do
+    starts = steps |> Enum.map(&[from.(&1) * 1.0]) |> Nx.tensor(type: {:f, 64})
+
+    increments =
+      steps
+      |> Enum.map(fn
+        {_, _, _, _, 0} -> [0.0]
+        step -> [(to.(step) - from.(step)) / elem(step, 4)]
+      end)
+      |> Nx.tensor(type: {:f, 64})
+
+    along
+    |> Nx.multiply(increments)
+    |> Nx.add(starts)
+    |> Nx.round()
+    |> Nx.as_type({:s, 64})
+    |> then(&Nx.select(within, &1, @beyond_any_bounds))
+    |> Nx.reshape({:auto})
+  end
 end

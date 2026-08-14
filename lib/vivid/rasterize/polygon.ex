@@ -1,5 +1,5 @@
 defimpl Vivid.Rasterize, for: Vivid.Polygon do
-  alias Vivid.{Coverage, Polygon, Rasterize}
+  alias Vivid.{Coverage, Polygon}
   alias Vivid.Polygon.Fill
 
   defmodule InvalidPolygonError do
@@ -46,10 +46,6 @@ defimpl Vivid.Rasterize, for: Vivid.Polygon do
   end
 
   defp polygon_border(polygon, bounds) do
-    polygon
-    |> Polygon.to_lines()
-    |> Enum.reduce(Coverage.empty(bounds), fn line, coverage ->
-      Coverage.union(coverage, Rasterize.rasterize(line, bounds))
-    end)
+    Coverage.from_lines(bounds, Polygon.to_lines(polygon))
   end
 end

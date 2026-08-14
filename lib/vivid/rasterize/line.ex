@@ -1,13 +1,13 @@
 defimpl Vivid.Rasterize, for: Vivid.Line do
-  alias Vivid.{Coverage, Line, Point}
+  alias Vivid.{Coverage, Line}
 
   @moduledoc """
   Generates points between the origin and termination point of the line
   for rendering using the Digital Differential Analyzer (DDA) algorithm.
 
-  Every step of the line is taken at once: the parameter runs from zero to one
-  as a tensor, and both axes are interpolated across it in a single operation
-  rather than an increment being accumulated a step at a time.
+  `Vivid.Line.pixels/1` does the stepping, all of it at once. Rasterizing a
+  single line is the degenerate case of that - a shape built out of lines should
+  hand them over together rather than one at a time.
   """
 
   @doc ~S"""
@@ -43,35 +43,6 @@ defimpl Vivid.Rasterize, for: Vivid.Line do
   """
   @impl true
   def rasterize(%Line{} = line, bounds) do
-    %Point{x: x0, y: y0} = line |> Line.origin() |> Point.round()
-    %Point{x: x1, y: y1} = line |> Line.termination() |> Point.round()
-
-    case max(abs(x1 - x0), abs(y1 - y0)) do
-      0 ->
-        Coverage.from_points(bounds, [Point.init(x0, y0)])
-
-      steps ->
-        Coverage.from_pixels(
-          bounds,
-          interpolate(x0, (x1 - x0) / steps, steps),
-          interpolate(y0, (y1 - y0) / steps, steps)
-        )
-    end
-  end
-
-  # Every step's position is the increment multiplied by how many steps in it
-  # is, so they can all be computed at once. Note that this is not quite what
-  # accumulating the increment a step at a time arrives at: the accumulated
-  # version drifts by an ulp or two along a long line, and can land on the wrong
-  # side of a half pixel because of it. Evaluating the parameter has no such
-  # drift, so a line here is occasionally a pixel away from where the scalar
-  # version put it, on the side the exact arithmetic says it belongs.
-  defp interpolate(from, increment, steps) do
-    {steps + 1}
-    |> Nx.iota(type: {:f, 64})
-    |> Nx.multiply(increment)
-    |> Nx.add(from)
-    |> Nx.round()
-    |> Nx.as_type({:s, 64})
+    Coverage.from_lines(bounds, [line])
   end
 end

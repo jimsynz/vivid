@@ -1,5 +1,5 @@
 defmodule Vivid.Coverage do
-  alias Vivid.{Bounds, Coverage, Point}
+  alias Vivid.{Bounds, Coverage, Line, Point}
   defstruct ~w(x_min y_min tensor)a
 
   @moduledoc ~S"""
@@ -143,6 +143,34 @@ defmodule Vivid.Coverage do
     %Point{x: x_min, y: y_min} = Bounds.min(bounds)
 
     from_tensor(bounds, place(xs, ys, ceil(x_min), ceil(y_min), rows, columns))
+  end
+
+  @doc ~S"""
+  A coverage of `bounds` by every pixel every line in `lines` passes through.
+
+  This is how a shape built out of line segments rasterises its outline. Going
+  through the segments together rather than one at a time is the point: a
+  coverage is the size of its bounds, so unioning one per segment would cost the
+  area of the frame for every segment of the shape.
+
+  ## Example
+
+      iex> use Vivid
+      ...> Coverage.from_lines(Bounds.init(0, 0, 2, 2), [
+      ...>   Line.init(Point.init(0, 0), Point.init(2, 0)),
+      ...>   Line.init(Point.init(0, 2), Point.init(2, 2))
+      ...> ])
+      ...> |> Coverage.to_points()
+      [Point.init(0, 0), Point.init(1, 0), Point.init(2, 0),
+       Point.init(0, 2), Point.init(1, 2), Point.init(2, 2)]
+  """
+  @spec from_lines(Bounds.t(), [Line.t()]) :: t
+  def from_lines(bounds, []), do: empty(bounds)
+
+  def from_lines(bounds, lines) do
+    {xs, ys} = Line.pixels(lines)
+
+    from_pixels(bounds, xs, ys)
   end
 
   @doc """

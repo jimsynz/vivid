@@ -1,5 +1,5 @@
 defimpl Vivid.Rasterize, for: Vivid.Path do
-  alias Vivid.{Coverage, Path, Rasterize}
+  alias Vivid.{Coverage, Path}
 
   @moduledoc """
   Rasterizes the path into a sequence of points.
@@ -26,10 +26,6 @@ defimpl Vivid.Rasterize, for: Vivid.Path do
   """
   @impl true
   def rasterize(%Path{} = path, bounds) do
-    path
-    |> Path.to_lines()
-    |> Enum.reduce(Coverage.empty(bounds), fn line, coverage ->
-      Coverage.union(coverage, Rasterize.rasterize(line, bounds))
-    end)
+    Coverage.from_lines(bounds, Path.to_lines(path))
   end
 end

@@ -1,5 +1,5 @@
 defimpl Vivid.Rasterize, for: Vivid.Region do
-  alias Vivid.{Coverage, Polygon, Rasterize, Region}
+  alias Vivid.{Coverage, Polygon, Region}
   alias Vivid.Polygon.Fill
 
   @moduledoc """
@@ -42,10 +42,6 @@ defimpl Vivid.Rasterize, for: Vivid.Region do
   end
 
   defp contour_borders(contours, bounds) do
-    contours
-    |> Enum.flat_map(&Polygon.to_lines(&1))
-    |> Enum.reduce(Coverage.empty(bounds), fn line, coverage ->
-      Coverage.union(coverage, Rasterize.rasterize(line, bounds))
-    end)
+    Coverage.from_lines(bounds, Enum.flat_map(contours, &Polygon.to_lines(&1)))
   end
 end
