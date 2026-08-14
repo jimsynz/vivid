@@ -2,7 +2,7 @@ defmodule Vivid.Mixfile do
   @moduledoc false
   use Mix.Project
 
-  @version "0.4.5"
+  @version "1.0.0"
 
   def project do
     [
