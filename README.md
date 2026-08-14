@@ -152,6 +152,11 @@ them both kinds of outline and both containers can be tested against the same
 glyphs. Roboto is copyright Google Inc. and licensed under the Apache License
 2.0, the text of which is included in `priv/fonts/LICENSE-Roboto.txt`.
 
+This distribution also includes `priv/fonts/misc-fixed-4x6.bdf`, the ASCII
+portion of the X11 `4x6` bitmap font, used by the BDF parser's tests and
+examples. Its licence, reproduced in full in `priv/fonts/LICENSE-misc-fixed.txt`,
+reads "Public domain font.  Share and enjoy."
+
 ## Status
 
 This library is now in use in several projects and seems to work well.
