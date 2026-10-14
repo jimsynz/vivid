@@ -69,7 +69,7 @@ defmodule Vivid.Mixfile do
       {:credo, "~> 1.7", opts},
       {:dialyxir, "~> 1.3", opts},
       {:doctor, "~> 0.23", opts},
-      {:ex_check, "~> 0.16", opts},
+      {:ex_check, "~> 0.17", opts},
       {:ex_doc, ">= 0.0.0", opts},
       {:git_ops, "~> 2.6", opts},
       {:mix_audit, "~> 2.1", opts}
